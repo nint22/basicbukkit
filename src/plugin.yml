@@ -1,0 +1,90 @@
+name: BasicBukkit
+main: nint22.basicbukkit.BasicBukkit
+version: 1.0
+
+commands:
+    help:
+        description: Prints all commands
+        usage: /help [page]
+    motd:
+        description: Prints prints the Mesage of the Day
+        usage: /motd
+    kick:
+        description: Kicks a given player off the server
+        usage: /kick <player> [duration in seconds]
+    ban:
+        description: Bans the given player from the server
+        usage: /ban <player>
+    who:
+        description: List all current players
+        usage: /who
+    
+    time:
+        description: Sets the current time to either day or night
+        usage: /time <day|night>
+    weather:
+        description: Sets the current weather
+        usage: /weather <dry|wet>
+    
+    kit:
+        description: Gives the player the decalred kit
+        usage: /kit
+    item:
+        description: Gives the player the target item
+        usage: /item <item ID|keyword> [number, defaults to 64 unless item]
+    give:
+        description: Gives the target player the target item
+        usage: /give <player> <item ID|keyword> [number, defaults to 64 unless item]
+    
+    op:
+        description: Assigns the target player to the given op rank
+        usage: /op <player> [op level, defaults to 0 (default player rank)]
+    
+    kill:
+        description: Kills self or the target player
+        usage: /kill [player]
+    
+    tp:
+        description: Teleports self to player 1or target player 1 to player 2
+        usage: /tp <player1> [player2]
+    warp:
+        description: Warps self to given warp or lists warp locations
+        usage: /warp [location]
+    setwarp:
+        description: Sets the current location as a warp location
+        usage: /setwarp <warp name>
+    delwarp:
+        description: Deletes the given warp name from the warp locations
+        usage: /delwarp <warp name>
+    home:
+        description: Warps user to self home location
+        usage: /home
+    sethome:
+        description: Saves the current location for self's home location
+        usage: /sethome
+    spawn:
+        description: Warps user to spawn
+        usage: /spawn
+    setspawn:
+        description: Saves the current location as default spawn location
+        usage: /setspawn
+    top:
+        description: Warps player to the highest block in the player's column
+        usage: /top
+        
+    protect:
+        description: Protects the given area agains any modifications by non-owners
+        usage: /protect <area name>
+    p1:
+        description: Sets the first corner location of a protection volume
+        usage: /p1
+    p2:
+        description: Sets the second corner location of a protection volume
+        usage: /p2
+    protectadd:
+        description: Adds player to protected area owners list
+        usage: /protectadd <area name> <player>
+    protectdel:
+        description: Removes player from protected area owners list. Deletes location if no owners are left
+        usage: /protectdel <area name> <player>
+    
