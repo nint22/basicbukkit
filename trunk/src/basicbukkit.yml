@@ -1,0 +1,57 @@
+# ############################################################ #
+# 
+# BasicBukkit - Basic commands for any new MineCraft server
+# Copyright 2011 Core S2 - See License.txt for info
+# 
+# This source file is developed and maintained by:
+# + Jeremy Bridon jbridon@cores2.com
+# 
+# File: basicbukkit.yml
+# Desc: Basic Bukkit's default configuration file.
+# 
+# ############################################################ #
+
+# Message of the Day
+motd:
+    Welcome to a BasicBukkit server!
+    Please type /help for a list of commands
+
+# Op groups
+groups:
+    
+    # Default group
+    - id: 0
+      pre: [Guest]
+      commands:
+          - help
+          - who
+          - motd
+      banned_access: false
+    
+    # Op group
+    - id: 1
+      pre: [Op]
+      commands:
+          - help
+          - who
+          - item
+      banned_access: true
+    
+    # Admin
+    - id: 2
+      pre: [Owner]
+      commands:
+          - help
+          - item
+          - ban
+          - kick
+      banned_access: true
+
+# Banned items (cannot create, place, or use)
+banned: 0,7,8,9,10,11,46,51,52,90,325,326,327,342,343,328,333
+
+# Kit items
+kit:
+    - 277 1
+    - 278 1
+    - 279 1 
