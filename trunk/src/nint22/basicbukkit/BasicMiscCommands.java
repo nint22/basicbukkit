@@ -73,7 +73,7 @@ public class BasicMiscCommands implements CommandExecutor
             
             // How page count and command count
             // Note the +1 offset so we are human friendly (i.e. we are 1..n rather than 0..n-1)
-            player.sendMessage("Page " + ChatColor.RED + "[" + (PageIndex + 1) + "]" + ChatColor.WHITE + " of [" + (Pages+1) + "]; " + Count + " total commands");
+            player.sendMessage(ChatColor.WHITE + "Page " + ChatColor.RED + "[" + (PageIndex + 1) + "]" + ChatColor.WHITE + " of " + ChatColor.RED + "[" + (Pages+1) + "]" + ChatColor.WHITE +"; " + Count + " total commands");
             
             // Print off 5 commands for this page
             for(int i = PageIndex * 5; i < Math.min(Count, PageIndex * 5 + 5); i++)
@@ -84,7 +84,7 @@ public class BasicMiscCommands implements CommandExecutor
                 // Print out info
                 String name = CommandDetails.values().toArray()[1].toString();
                 String description = CommandDetails.values().toArray()[0].toString();
-                player.sendMessage("#" + (i+1) + ": " + name + " - " + description);
+                player.sendMessage(ChatColor.GRAY + "#" + (i+1) + ": " + ChatColor.RED + name + ChatColor.GRAY + " - " + description);
             }
         }
         else if(command.getName().compareToIgnoreCase("motd") == 0)
@@ -97,6 +97,13 @@ public class BasicMiscCommands implements CommandExecutor
                 motd[i] = motd[i].replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
                 player.sendMessage(motd[i]);
             }
+        }
+        else if(command.getName().compareToIgnoreCase("clear") == 0)
+        {
+            // Send enough empty lines to the client to
+            // make sure we clear out the user's screen buffer
+            for(int i = 0; i < 20; i++)
+                player.sendMessage("");
         }
         // Unknown command
         else

@@ -13,10 +13,14 @@
 
 package nint22.basicbukkit;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemStack;
+import java.util.*;
 
 public class BasicItemCommands implements CommandExecutor
 {
@@ -38,10 +42,235 @@ public class BasicItemCommands implements CommandExecutor
             return false;
         Player player = (Player) sender;
         
-        // Parse each specific command supported
-        if(command.getName().compareToIgnoreCase("item") == 0)
+        // Get the kit items
+        if(command.getName().compareToIgnoreCase("kit") == 0)
         {
-            // Set op...
+            // Find all the items in the config file
+            List<Object> kit = plugin.configuration.getList("kit");
+            for(Object item : kit)
+            {
+                // Get the item ID and count
+                int ItemID = 0;
+                int ItemCount = 0;
+                
+                // Parse string
+                String itemString = (String)item;
+                String[] items = itemString.split(" ");
+                
+                // Error check
+                if(items == null || items.length != 2 || items[0].length() <= 0 || items[1].length() <= 0)
+                {
+                    player.sendMessage("Unable to generate kit: Invalid data structure");
+                    return true;
+                }
+                
+                // convert to int
+                try
+                {
+                    ItemID = Integer.parseInt(items[0]);
+                    ItemCount = Integer.parseInt(items[1]);
+                }
+                catch(Exception e)
+                {
+                    player.sendMessage("Unable to generate kit: Invalid kit strings");
+                    return true;
+                }
+                
+                // Make sure the item exists
+                if(Material.getMaterial(ItemID) == null)
+                {
+                    player.sendMessage("Unable to generate kit: Invalid Item ID");
+                    return true;
+                }
+                
+                // Check item count
+                ItemCount = Math.min(ItemCount, 64);
+                ItemCount = Math.max(ItemCount, 0);
+                
+                // Give this item to the player
+                player.getInventory().addItem(new ItemStack(ItemID, ItemCount));
+            }
+            player.sendMessage("You have been given a kit of useful items");
+        }
+        // Parse each specific command supported
+        else if(command.getName().compareToIgnoreCase("item") == 0)
+        {
+            // Check for permissions
+            
+            // Do we have arguments?
+            if(args.length < 1)
+                return false;
+            
+            // Default item is -1
+            int ItemID = -1;
+            
+            // Check if number
+            boolean isNumber = true;
+            try
+            {
+                ItemID = Integer.parseInt(args[0]);
+            }
+            catch(Exception e)
+            {
+                isNumber = false;
+            }
+            
+            // Is the argument only digits (ie. an item number?)
+            if(isNumber)
+            {
+                // It is an item
+                // ItemID already set
+            }
+            else if(plugin.itemNames.hashmap.containsKey(args[0].toLowerCase()))
+            {
+                // Known item name
+                player.sendMessage("Item: " + args[0]);
+                ItemID = Integer.parseInt((String)plugin.itemNames.hashmap.get(args[0]));
+            }
+            else
+            {
+                player.sendMessage("Unknown item");
+                return true;
+            }
+            
+            // Did we have an item count?
+            int count = 64;
+            if(args.length > 1)
+            {
+                try
+                {
+                    count = Integer.parseInt(args[1]);
+                }
+                catch(Exception e)
+                {
+                    // Just ignore
+                    count = 64;
+                    player.sendMessage("Invalid item count");
+                    return true;
+                }
+            }
+            
+            // Test if item is valid
+            if(Material.getMaterial(ItemID) == null)
+            {
+                // Fail out
+                player.sendMessage("Unknown item");
+            }
+            else
+            {
+                // Get item easy name
+                String ItemName = "(Unknown name)";
+                if(plugin.itemNames.hashmap.containsKey(args[0].toLowerCase()))
+                    ItemName = "(" + args[0] + ")";
+
+                // Give the user item as needed
+                player.getInventory().addItem(new ItemStack(ItemID, count));
+                player.sendMessage("Given " + ChatColor.RED + count + ChatColor.WHITE + " of item " + ChatColor.RED + ItemID + " " + ItemName);
+            }
+        }
+        // Parse giving an item from player A to player B
+        else if(command.getName().compareToIgnoreCase("give") == 0)
+        {
+            // Check for permissions
+            
+            
+            // Do we have arguments?
+            if(args.length < 2)
+                return false;
+            
+            // Get player name
+            String targetPlayer = args[0];
+            
+            // Does this player exist on the server?
+            Player recieving = plugin.getServer().getPlayer(targetPlayer); 
+            if(recieving == null)
+            {
+                player.sendMessage("Unable to find player \"" + targetPlayer + "\"");
+                return true;
+            }
+            
+            // Default item is -1
+            int ItemID = -1;
+            
+            // Check if number
+            boolean isNumber = true;
+            try
+            {
+                ItemID = Integer.parseInt(args[2]);
+            }
+            catch(Exception e)
+            {
+                isNumber = false;
+            }
+            
+            // Is the argument only digits (ie. an item number?)
+            if(isNumber)
+            {
+                // It is an item
+                // ItemID already set
+            }
+            else if(plugin.itemNames.hashmap.containsKey(args[1].toLowerCase()))
+            {
+                // Known item name
+                player.sendMessage("Item: " + args[1]);
+                ItemID = Integer.parseInt((String)plugin.itemNames.hashmap.get(args[1]));
+            }
+            else
+            {
+                player.sendMessage("Unknown item");
+                return true;
+            }
+            
+            // Did we have an item count?
+            int count = 64;
+            if(args.length > 1)
+            {
+                try
+                {
+                    count = Integer.parseInt(args[2]);
+                }
+                catch(Exception e)
+                {
+                    // Just ignore
+                    count = 64;
+                    player.sendMessage("Invalid item count");
+                    return true;
+                }
+            }
+            
+            // Test if item is valid
+            if(Material.getMaterial(ItemID) == null)
+            {
+                // Fail out
+                player.sendMessage("Unknown item");
+            }
+            else
+            {
+                // Get item easy name
+                String ItemName = "(Unknown name)";
+                if(plugin.itemNames.hashmap.containsKey(args[1].toLowerCase()))
+                    ItemName = "(" + args[1] + ")";
+
+                // Give the user item as needed
+                recieving.getInventory().addItem(new ItemStack(ItemID, count));
+                recieving.sendMessage("Recieved " + ChatColor.RED + count + ChatColor.WHITE + " of item " + ChatColor.RED + ItemID + " " + ItemName + ChatColor.WHITE + " from " + player.getName());
+                player.sendMessage("Giving " + ChatColor.RED + targetPlayer + " " + ChatColor.RED + count + ChatColor.WHITE + " of item " + ChatColor.RED + ItemID + " " + ItemName);
+            }
+        }
+        // Clean all inventory for the play
+        else if(command.getName().compareToIgnoreCase("clean") == 0)
+        {
+            ItemStack[] items = player.getInventory().getContents();
+            for(int i = 0; i < items.length; i++)
+            {
+                // Is item and NOT in lower inventory
+                if(items[i] != null && i >= 9)
+                        items[i].setAmount(0);
+            }
+            
+            // Set the inventory back
+            player.getInventory().setContents(items);
+            player.sendMessage("Inventory cleaned");
         }
         // Else, unknown
         else
