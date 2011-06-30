@@ -9,6 +9,10 @@ commands:
     motd:
         description: Prints prints the Mesage of the Day
         usage: /motd
+    clear:
+        description: Clears the output buffer
+        usage: /clear
+    
     kick:
         description: Kicks a given player off the server
         usage: /kick <player> [duration in seconds]
@@ -21,7 +25,7 @@ commands:
     
     time:
         description: Sets the current time to either day or night
-        usage: /time <day|night>
+        usage: /time <dawn|day|dusk|night>
     weather:
         description: Sets the current weather
         usage: /weather <dry|wet>
@@ -31,10 +35,13 @@ commands:
         usage: /kit
     item:
         description: Gives the player the target item
-        usage: /item <item ID|keyword> [number, defaults to 64 unless item]
+        usage: /item <item ID|keyword> [number, defaults to 64]
     give:
         description: Gives the target player the target item
-        usage: /give <player> <item ID|keyword> [number, defaults to 64 unless item]
+        usage: /give <player> <item ID|keyword> [number, defaults to 64]
+    clean:
+        description: Removes all of the user's inventory except the active inventory
+        usage: /clean
     
     op:
         description: Assigns the target player to the given op rank

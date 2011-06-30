@@ -118,7 +118,9 @@ public class BasicAdminCommands implements CommandExecutor
         else if(command.getName().compareToIgnoreCase("time") == 0)
         {
             // What are we setting to?
-            String time = args[0] != null ? args[0] : "";
+            String time = "";
+            if(args.length > 0 && args[0] != null)
+                time = args[0];
             
             // Get worlds list
             List<World> worlds = plugin.getServer().getWorlds();
@@ -126,8 +128,12 @@ public class BasicAdminCommands implements CommandExecutor
             // Get arg if exists
             for(World world : worlds)
             {
-                if(time.compareToIgnoreCase("day") == 0)
-                    world.setTime(24000);
+                if(time.compareToIgnoreCase("dawn") == 0)
+                    world.setTime(0);
+                else if(time.compareToIgnoreCase("day") == 0)
+                    world.setTime(6000);
+                else if(time.compareToIgnoreCase("dusk") == 0)
+                    world.setTime(12000);
                 else if(time.compareToIgnoreCase("night") == 0)
                     world.setTime(37700);
                 else
@@ -140,7 +146,9 @@ public class BasicAdminCommands implements CommandExecutor
         else if(command.getName().compareToIgnoreCase("weather") == 0)
         {
             // What are we setting to?
-            String weatherType = args[0] != null ? args[0] : "";
+            String weatherType = "";
+            if(args.length > 0 && args[0] != null)
+                weatherType = args[0];
             
             // Get worlds list
             List<World> worlds = plugin.getServer().getWorlds();
