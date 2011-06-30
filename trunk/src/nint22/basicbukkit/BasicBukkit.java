@@ -88,6 +88,10 @@ public class BasicBukkit extends JavaPlugin
     @Override
     public void onDisable()
     {
+        // Save all users and protection data
+        users.save();
+        protections.save();
+        
         // Release plugin
         System.out.println("### BasicBukkit plugin disabled.");
     }
