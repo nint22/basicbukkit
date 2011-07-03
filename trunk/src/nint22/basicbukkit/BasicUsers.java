@@ -14,6 +14,7 @@
 package nint22.basicbukkit;
 
 import java.util.*;
+import java.util.Map.Entry;
 import org.bukkit.util.config.Configuration;
 
 public class BasicUsers
@@ -26,9 +27,10 @@ public class BasicUsers
     private LinkedList<Integer> OpGroup;        // User's group ID
     
     // All groups (in parallel
-    private LinkedList<Integer> GroupID;        // Group's unique ID
-    private LinkedList<String[]> GroupCommands; // Valid commands in group (index based on groups)
-    private LinkedList<String> GroupPreTitle;   // Pre-title for the given group
+    private LinkedList<Integer> GroupID;            // Group's unique ID
+    private LinkedList<String> GroupName;           // Group's unique ID
+    private LinkedList<String[]> GroupCommands;     // Valid commands in group (index based on groups)
+    private LinkedList<String> GroupPreTitle;       // Pre-title for the given group
     private LinkedList<Boolean> GroupBannedItems;   // True if this group can access banned items
     
     // Initialize users
@@ -44,6 +46,7 @@ public class BasicUsers
         
         // Allocate all lists as needed
         GroupID = new LinkedList();
+        GroupName = new LinkedList();
         GroupCommands = new LinkedList();
         GroupPreTitle = new LinkedList();
         GroupBannedItems = new LinkedList();
@@ -59,6 +62,7 @@ public class BasicUsers
             LinkedHashMap GroupData = (LinkedHashMap)group;
             
             Integer ID = (Integer)GroupData.get("id");
+            String Name = (String)GroupData.get("name");
             ArrayList<String> Commands = (ArrayList<String>)GroupData.get("commands");
             String PreTitle = (String)GroupData.get("pre");
             Boolean BannedItems = (Boolean)GroupData.get("banned_access");
@@ -70,18 +74,32 @@ public class BasicUsers
             
             // Set info
             GroupID.add(ID);
+            GroupName.add(Name);
             GroupCommands.add(TempCommands);
             GroupPreTitle.add(PreTitle);
             GroupBannedItems.add(BannedItems);
         }
         
+        // Load all users
+        Map<String, Object> UserData = users.getAll();
+        Set<Entry<String, Object>> pairs = UserData.entrySet();
+        for(Entry<String, Object> pair : pairs)
+        {
+            // Save the user name (note the ".group" appended to the end of the key)
+            OpNames.add(pair.getKey().substring(0, pair.getKey().length() - 6));
+            OpGroup.add((Integer)pair.getValue());
+        }
+        
         // How many did we load?
-        System.out.println("### BasicBukkit loaded " + GroupID.size() + " groups");
+        System.out.println("### BasicBukkit loaded " + GroupID.size() + " groups, and " + OpNames.size() + " users");
     }
     
     // Write out if needed
     public void save()
     {
+        // Get the freshest users file
+        users.load();
+        
         // For all users
         for(int i = 0; i < OpNames.size(); i++)
         {
@@ -128,25 +146,15 @@ public class BasicUsers
     // Returns the player's title
     public String GetUserTitle(String UserName)
     {
-        // Does this player exist yet?
-        if(OpNames.contains(UserName))
-        {
-            // Does exist, just return the title
-            return GroupPreTitle.get( OpNames.indexOf(UserName) );
-        }
-        // Else, just create the user and try again
-        else
-        {
-            // Add user
-            OpNames.add(UserName);
-            OpGroup.add(new Integer(0));
-            
-            // Now return the default title
-            return GroupPreTitle.get(0);
-        }
+        // Get the user's group ID
+        int GroupIndex = GetGroupID(UserName);
+        if(GroupIndex < 0)
+            return "[Undefined Group]";
+        
+        return GroupPreTitle.get(GroupIndex);
     }
     
-    // Return the user's 
+    // Return the user's group's ID index
     public int GetGroupID(String name)
     {
         // Does this user exist?
@@ -156,5 +164,51 @@ public class BasicUsers
         
         // Get the group ID from the parallel index
         return OpGroup.get(UserIndex);
+    }
+    
+    // Return the user's group's name
+    public String GetGroupName(String name)
+    {
+        // Does this user exist?
+        int GroupIndex = GetGroupID(name);
+        if(GroupIndex < 0)
+            return "Undefined Group";
+        
+        // Get the group ID from the parallel index
+        return GroupName.get(GroupIndex);
+    }
+    
+    // Does the given user have the ability (permission) to execute this command?
+    // True if they can, else returns false
+    public boolean CanExecute(String name, String command)
+    {
+        // Find the user's group (and fail out if does not exist)
+        int GroupIndex = GetGroupID(name);
+        if(GroupIndex < 0)
+            return false;
+        
+        // Get the group's permissions
+        String[] Available = GroupCommands.get(GroupIndex);
+        for(int i = 0; i < Available.length; i++)
+        {
+            // Match found
+            if(Available[i].compareToIgnoreCase(command) == 0)
+                return true;
+        }
+        
+        // Else, never found, just say no
+        return false;
+    }
+    
+    // Can the given user place / use banned blocks / items?
+    public boolean CanUseBannedItems(String name)
+    {
+        // Find the user's group (and fail out if does not exist)
+        int GroupIndex = GetGroupID(name);
+        if(GroupIndex < 0)
+            return false;
+        
+        // Get the group's permissions
+        return GroupBannedItems.get(GroupIndex).booleanValue();
     }
 }

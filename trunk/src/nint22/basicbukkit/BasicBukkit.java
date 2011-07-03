@@ -23,8 +23,14 @@ import java.io.*;
 
 public class BasicBukkit extends JavaPlugin
 {
-    // Create a player listener object
+    // Create the main player listener object
     private BasicPlayerListener playerListener = null;
+    
+    // Create the main block listener
+    private BasicBlockListener blockListener = null;
+    
+    // Create the special case event listener
+    private BasicEntityListener entityListener = null;
     
     // Global configuration
     public Configuration configuration = null;
@@ -37,6 +43,9 @@ public class BasicBukkit extends JavaPlugin
     
     // Global warps, homes, and spawn location
     public BasicWarps warps = null;
+    
+    // Global messaging system, prints messages after certain time...
+    public BasicMessages messages = null;
     
     // Global item list
     public ItemNames itemNames = null;
@@ -95,6 +104,9 @@ public class BasicBukkit extends JavaPlugin
         protections.save();
         warps.save();
         
+        // Stop messages (may take a second)
+        messages.stop(true);
+        
         // Release plugin
         System.out.println("### BasicBukkit plugin disabled.");
     }
@@ -123,8 +135,15 @@ public class BasicBukkit extends JavaPlugin
         // Load the warps
         warps = new BasicWarps(this, new Configuration(loadFile("warps.yml")));
         
-        // Create a new basic listener
+        // Load the messaging system
+        messages = new BasicMessages(this, configuration);
+        
+        // Create a new block and player listener
         playerListener = new BasicPlayerListener(this);
+        blockListener = new BasicBlockListener(this);
+        entityListener = new BasicEntityListener(this);
+        
+        /*** Player Events ***/
         
         // Join and leave game
         pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
@@ -134,7 +153,21 @@ public class BasicBukkit extends JavaPlugin
         pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Normal, this);
         
         // Intercept all chat messages so we can replace the color...
-        pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Normal, this);
+        
+        /*** Block Place / Usage Events ***/
+        
+        // Check all block placement
+        pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Normal, this);
+        
+        // Spreading fire, lava, water, etc..
+        pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
+        
+        // Register TNT ignition and explosion
+        pm.registerEvent(Event.Type.EXPLOSION_PRIME, entityListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Normal, this);
+        
+        /*** Player Commands ***/
         
         // Register all plugin commands
         getCommand("help").setExecutor(new BasicMiscCommands(this));            // Done
