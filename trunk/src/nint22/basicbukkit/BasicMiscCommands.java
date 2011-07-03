@@ -105,6 +105,11 @@ public class BasicMiscCommands implements CommandExecutor
             for(int i = 0; i < 20; i++)
                 player.sendMessage("");
         }
+        else if(command.getName().compareToIgnoreCase("where") == 0)
+        {
+            // Print to the player where her or she is at
+            player.sendMessage(ChatColor.GRAY + "Your location: <" + player.getLocation().getX() + ", " + player.getLocation().getY() + ", " + player.getLocation().getZ() + ">");
+        }
         // Unknown command
         else
             return false;

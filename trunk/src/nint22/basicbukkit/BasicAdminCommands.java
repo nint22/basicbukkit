@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import java.util.*;
 
@@ -43,7 +44,40 @@ public class BasicAdminCommands implements CommandExecutor
         // Parse each specific command supported
         if(command.getName().compareToIgnoreCase("op") == 0)
         {
-            // Set op...
+            // Command format: /op <player> [op level, defaults to 0]
+            // There can only be either 1 or 2 args
+            if(args.length < 1 || args.length > 2)
+                return false;
+            
+            // Target group
+            int GroupID = 0;
+            
+            // Change group ID
+            if(args.length == 2)
+            {
+                try
+                {
+                    GroupID = Integer.parseInt(args[1]);
+                }
+                catch(Exception e)
+                {
+                    // Just bug out
+                    player.sendMessage(ChatColor.GRAY + "Unable to op: Invalid integer");
+                    return true;
+                }
+            }
+            
+            // What is this players ID? Can ONLY op groups lower or equal to self
+            int SelfGroupID = plugin.users.GetGroupID(player.getName());
+            if(GroupID > SelfGroupID)
+            {
+                player.sendMessage(ChatColor.GRAY + "Unable to op: You cannot op players to a higher ranking group than your own (" + SelfGroupID + ")");
+                return true;
+            }
+            
+            // Attempt to change group now
+            plugin.users.SetUser(player.getName(), GroupID);
+            player.sendMessage(ChatColor.GRAY + "You have set \"" + player.getName() + "\" to group #" + GroupID);
         }
         else if(command.getName().compareToIgnoreCase("kick") == 0)
         {
@@ -107,7 +141,7 @@ public class BasicAdminCommands implements CommandExecutor
                     {
                         // Print IP
                         if(targetPlayer[j].getName().compareTo(args[i]) == 0)
-                            player.sendMessage(targetPlayer[j].getName() + ": " + targetPlayer[j].getAddress().getAddress().getHostAddress());
+                            player.sendMessage(ChatColor.GRAY + targetPlayer[j].getName() + ": " + targetPlayer[j].getAddress().getAddress().getHostAddress());
                     }
                 }
             }
@@ -141,7 +175,7 @@ public class BasicAdminCommands implements CommandExecutor
             }
             
             // Say we changed the weather
-            plugin.getServer().broadcastMessage("time set to " + time.toLowerCase());
+            plugin.getServer().broadcastMessage(ChatColor.GRAY + "time set to " + time.toLowerCase());
         }
         else if(command.getName().compareToIgnoreCase("weather") == 0)
         {
@@ -165,7 +199,7 @@ public class BasicAdminCommands implements CommandExecutor
             }
             
             // Say we changed the weather
-            plugin.getServer().broadcastMessage("Weather set to " + weatherType.toLowerCase());
+            plugin.getServer().broadcastMessage(ChatColor.GRAY + "Weather set to " + weatherType.toLowerCase());
         }
         else if(command.getName().compareToIgnoreCase("kill") == 0)
         {
@@ -182,7 +216,7 @@ public class BasicAdminCommands implements CommandExecutor
                         if(targetPlayer[j].getName().compareTo(args[i]) == 0)
                         {
                             targetPlayer[j].setHealth(0);
-                            targetPlayer[j].sendMessage("You have been killed by " + player.getName());
+                            targetPlayer[j].sendMessage(ChatColor.GRAY + "You have been killed by " + player.getName());
                         }
                     }
                 }
@@ -190,6 +224,27 @@ public class BasicAdminCommands implements CommandExecutor
             // Else, kill self
             else
                 player.setHealth(0);
+        }
+        else if(command.getName().compareToIgnoreCase("say") == 0)
+        {
+            // Send this message to all players
+            if(args.length < 1)
+            {
+                player.sendMessage(ChatColor.GRAY + "You must say something!");
+            }
+            // Send to all
+            else
+            {
+                // Form total string
+                String message = " ";
+                
+                for(int i = 0; i < args.length; i++)
+                    message += " " + args[i];
+                
+                // Send to all
+                message = message.toString().replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
+                plugin.getServer().broadcastMessage(ChatColor.RED + "Server:" + message);
+            }
         }
         // Else, unknown
         else

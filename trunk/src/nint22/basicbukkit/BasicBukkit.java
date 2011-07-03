@@ -24,16 +24,19 @@ import java.io.*;
 public class BasicBukkit extends JavaPlugin
 {
     // Create a player listener object
-    private final BasicPlayerListener playerListener = new BasicPlayerListener(this);
+    private BasicPlayerListener playerListener = null;
     
     // Global configuration
     public Configuration configuration = null;
     
     // Global groups (ops)
-    public Configuration users = null;
+    public BasicUsers users = null;
     
     // Global permissions (land blocks)
     public Configuration protections = null;
+    
+    // Global warps, homes, and spawn location
+    public BasicWarps warps = null;
     
     // Global item list
     public ItemNames itemNames = null;
@@ -72,8 +75,7 @@ public class BasicBukkit extends JavaPlugin
             catch(Exception e)
             {
                 // Just fail out writing the error message
-                System.out.println("### BasicBukkit failed to initialize: " + e.toString());
-                System.exit(0);
+                System.out.println("### BasicBukkit warning: " + e.toString());
             }
             
             // Now re-open the file
@@ -91,6 +93,7 @@ public class BasicBukkit extends JavaPlugin
         // Save all users and protection data
         users.save();
         protections.save();
+        warps.save();
         
         // Release plugin
         System.out.println("### BasicBukkit plugin disabled.");
@@ -110,17 +113,25 @@ public class BasicBukkit extends JavaPlugin
         configuration = new Configuration(loadFile("config.yml"));
         configuration.load();
         
-        // Load config file
-        users = new Configuration(loadFile("users.yml"));
-        users.load();
+        // Load users file
+        users = new BasicUsers(new Configuration(loadFile("users.yml")), configuration);
         
-        // Load config file
+        // Load protected areas file
         protections = new Configuration(loadFile("protections.yml"));
         protections.load();
+        
+        // Load the warps
+        warps = new BasicWarps(this, new Configuration(loadFile("warps.yml")));
+        
+        // Create a new basic listener
+        playerListener = new BasicPlayerListener(this);
         
         // Join and leave game
         pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Normal, this);
+        
+        // Player movement limitation
+        pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Normal, this);
         
         // Intercept all chat messages so we can replace the color...
         pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Monitor, this);
@@ -129,29 +140,31 @@ public class BasicBukkit extends JavaPlugin
         getCommand("help").setExecutor(new BasicMiscCommands(this));            // Done
         getCommand("motd").setExecutor(new BasicMiscCommands(this));            // Done
         getCommand("clear").setExecutor(new BasicMiscCommands(this));           // Done
+        getCommand("where").setExecutor(new BasicMiscCommands(this));           // Done
         
-        getCommand("op").setExecutor(new BasicAdminCommands(this));             
+        getCommand("op").setExecutor(new BasicAdminCommands(this));             // Done
         getCommand("kick").setExecutor(new BasicAdminCommands(this));           // Done
-        getCommand("ban").setExecutor(new BasicAdminCommands(this));            // Testing
+        getCommand("ban").setExecutor(new BasicAdminCommands(this));            // Done
         getCommand("who").setExecutor(new BasicAdminCommands(this));            // Done
         getCommand("time").setExecutor(new BasicAdminCommands(this));           // Done
         getCommand("weather").setExecutor(new BasicAdminCommands(this));        // Done
         getCommand("kill").setExecutor(new BasicAdminCommands(this));           // Done
+        getCommand("say").setExecutor(new BasicAdminCommands(this));            // Done
         
         getCommand("kit").setExecutor(new BasicItemCommands(this));             // Done
         getCommand("item").setExecutor(new BasicItemCommands(this));            // Done
-        getCommand("give").setExecutor(new BasicItemCommands(this));            // Testing
+        getCommand("give").setExecutor(new BasicItemCommands(this));            // Done
         getCommand("clean").setExecutor(new BasicItemCommands(this));           // Done
         
-        getCommand("tp").setExecutor(new BasicWorldCommands(this));             // Teleport [self to x] or [x to y]
-        getCommand("warp").setExecutor(new BasicWorldCommands(this));           
-        getCommand("setwarp").setExecutor(new BasicWorldCommands(this));        
-        getCommand("delwarp").setExecutor(new BasicWorldCommands(this));        
-        getCommand("home").setExecutor(new BasicWorldCommands(this));           
-        getCommand("sethome").setExecutor(new BasicWorldCommands(this));        
-        getCommand("spawn").setExecutor(new BasicWorldCommands(this));          
-        getCommand("setspawn").setExecutor(new BasicWorldCommands(this));       
-        getCommand("top").setExecutor(new BasicWorldCommands(this));            // Teleport player to highest block in this column
+        getCommand("tp").setExecutor(new BasicWorldCommands(this));             // Done
+        getCommand("warp").setExecutor(new BasicWorldCommands(this));           // Done
+        getCommand("setwarp").setExecutor(new BasicWorldCommands(this));        // Done
+        getCommand("delwarp").setExecutor(new BasicWorldCommands(this));        // Done
+        getCommand("home").setExecutor(new BasicWorldCommands(this));           // Done
+        getCommand("sethome").setExecutor(new BasicWorldCommands(this));        // Done
+        getCommand("spawn").setExecutor(new BasicWorldCommands(this));          // Done
+        getCommand("setspawn").setExecutor(new BasicWorldCommands(this));       // Done
+        getCommand("top").setExecutor(new BasicWorldCommands(this));            // Done
         
         getCommand("protect").setExecutor(new BasicAdminCommands(this));        
         getCommand("p1").setExecutor(new BasicAdminCommands(this));             

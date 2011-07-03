@@ -12,6 +12,9 @@ commands:
     clear:
         description: Clears the output buffer
         usage: /clear
+    where:
+        description: Prints your location
+        usage: /where
     
     kick:
         description: Kicks a given player off the server
@@ -45,11 +48,14 @@ commands:
     
     op:
         description: Assigns the target player to the given op rank
-        usage: /op <player> [op level, defaults to 0 (default player rank)]
+        usage: /op <player> [op level, defaults to 0]
     
     kill:
         description: Kills self or the target player
         usage: /kill [player]
+    say:
+        description: Make a server-wide announcement
+        usage: /say <message>
     
     tp:
         description: Teleports self to player 1or target player 1 to player 2
