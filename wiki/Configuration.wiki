@@ -128,3 +128,16 @@ size:
     - 256
     - 256
 }}}
+
+= Other Files =
+
+Other files are generated when BasicBukkit is installed: items.csv, protections.yml, users.yml, warps.yml
+
+All of these are purely data files used for record keeping and saving. "users.yml" is a special file that defines which users are in which group - change this file to update a user's permissions out of game.
+
+As a new administrator, you will want to make yourself a higher-level op. To do this, simply open users.yml and add your user name and preferred group ID in the following style to the bottom of the file:
+
+{{{
+user_name:
+    group: 0
+}}}
