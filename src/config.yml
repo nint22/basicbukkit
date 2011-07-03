@@ -17,10 +17,12 @@ motd:
     Please type /help for a list of commands
 
 # Op groups
+# Note that groups should ALWAYS be numbered 0, 1, 2, ....
 groups:
     
     # Default group
     - id: 0
+      name: Guest
       pre: "[&bGuest&f]"
       commands:
           - help
@@ -30,6 +32,7 @@ groups:
     
     # Op group
     - id: 1
+      name: OP
       pre: "[&4SemiAdmin&f]"
       commands:
           - help
@@ -39,6 +42,7 @@ groups:
     
     # Admin
     - id: 2
+      name: Owner
       pre: "[&1Owner&f]"
       commands:
           - help
@@ -48,7 +52,30 @@ groups:
       banned_access: true
 
 # Banned items (cannot create, place, or use)
-banned: 0,7,8,9,10,11,46,51,52,90,325,326,327,342,343,328,333
+banned: 0, 7, 8, 9, 10, 11, 46, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79
+
+# Allow flow of lava
+lavaflows: false
+
+# Allow flow of water
+waterflows: false
+
+# Allow spread of fire
+fireflows: false
+
+# Allow TNT explosions
+allowTNT: false
+
+# A list of messages that are displayed after a certain number of seconds
+# Note that "delay" is time between messages and "start" is the initial wait period
+messages:
+    - message: Please support BasicBukkit, visit code.google.com/p/basicbukki
+      delay: 60
+      start: 10
+      
+    - message: This admin is awesome for using BasicBukkit
+      delay: 100
+      start: 0
 
 # Kit items
 kit:
@@ -58,6 +85,6 @@ kit:
 
 # Max size of the world (width, length)
 size:
-    - 128
-    - 128
+    - 256
+    - 256
     

@@ -45,6 +45,13 @@ public class BasicItemCommands implements CommandExecutor
         // Get the kit items
         if(command.getName().compareToIgnoreCase("kit") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "kit"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Find all the items in the config file
             List<Object> kit = plugin.configuration.getList("kit");
             for(Object item : kit)
@@ -95,7 +102,12 @@ public class BasicItemCommands implements CommandExecutor
         // Parse each specific command supported
         else if(command.getName().compareToIgnoreCase("item") == 0)
         {
-            // Check for permissions
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "item"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
             
             // Do we have arguments?
             if(args.length < 1)
@@ -171,8 +183,12 @@ public class BasicItemCommands implements CommandExecutor
         // Parse giving an item from player A to player B
         else if(command.getName().compareToIgnoreCase("give") == 0)
         {
-            // Check for permissions
-            
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "give"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
             
             // Do we have arguments?
             if(args.length < 2)
@@ -260,6 +276,13 @@ public class BasicItemCommands implements CommandExecutor
         // Clean all inventory for the play
         else if(command.getName().compareToIgnoreCase("clean") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "clean"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             ItemStack[] items = player.getInventory().getContents();
             for(int i = 0; i < items.length; i++)
             {

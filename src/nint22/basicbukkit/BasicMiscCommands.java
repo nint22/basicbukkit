@@ -45,6 +45,13 @@ public class BasicMiscCommands implements CommandExecutor
         // Parse each specific command supported
         if(command.getName().compareToIgnoreCase("help") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "help"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Get LinkedHashMap of the commands
             PluginDescriptionFile pdfFile = plugin.getDescription();
             LinkedHashMap Map = (LinkedHashMap)pdfFile.getCommands();
@@ -89,6 +96,13 @@ public class BasicMiscCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("motd") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "motd"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Get the motd string
             String[] motd = plugin.configuration.getString("motd").split("\n");
             for(int i = 0; i < motd.length; i++)
@@ -100,6 +114,13 @@ public class BasicMiscCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("clear") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "clear"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Send enough empty lines to the client to
             // make sure we clear out the user's screen buffer
             for(int i = 0; i < 20; i++)
@@ -107,6 +128,13 @@ public class BasicMiscCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("where") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "where"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Print to the player where her or she is at
             player.sendMessage(ChatColor.GRAY + "Your location: <" + player.getLocation().getX() + ", " + player.getLocation().getY() + ", " + player.getLocation().getZ() + ">");
         }

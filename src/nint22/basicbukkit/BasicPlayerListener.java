@@ -48,6 +48,7 @@ public class BasicPlayerListener extends PlayerListener
         
         // Say where the player game from...
         System.out.println(player.getName() + " joined the server.");
+        plugin.getServer().broadcastMessage(ChatColor.GRAY + player.getName() + " joined the server.");
         
         // Get the motd string
         String[] motd = plugin.configuration.getString("motd").split("\n");
@@ -58,9 +59,22 @@ public class BasicPlayerListener extends PlayerListener
             player.sendMessage(motd[i]);
         }
         
+        // Has this player ever joined us before?
+        if(plugin.users.GetGroupID(player.getName()) < 0)
+        {
+            System.out.println(player.getName() + " is new to our server!");
+            
+            // Warp to spawn and create default permissions
+            plugin.users.SetUser(player.getName(), 0);
+            if(plugin.warps.GetSpawn() != null)
+                player.teleport(plugin.warps.GetSpawn());
+        }
+        else
+            System.out.println(player.getName() + " has already visited us...");
+        
         // Set the player's title
-        System.out.println("Title: " + plugin.users.GetUserTitle(player.getName()));
         player.setDisplayName(plugin.users.GetUserTitle(player.getName()) + player.getName());
+        
     }
     
     // Player quit, announce globally
@@ -68,9 +82,11 @@ public class BasicPlayerListener extends PlayerListener
     public void onPlayerQuit(PlayerQuitEvent event)
     {
         System.out.println(event.getPlayer().getName() + " left the server.");
+        plugin.getServer().broadcastMessage(ChatColor.GRAY + event.getPlayer().getName() + " left the server.");
     }
     
     // Player moves...
+    @Override
     public void onPlayerMove(PlayerMoveEvent event)
     {
         // Get target position

@@ -43,6 +43,13 @@ public class BasicWorldCommands implements CommandExecutor
         // Parse each specific command supported
         if(command.getName().compareToIgnoreCase("tp") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "tp"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Is there only one arg?
             if(args.length == 1)
             {
@@ -88,6 +95,13 @@ public class BasicWorldCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("warp") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "warp"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Must have at least one argument
             if(args.length != 1)
             {
@@ -120,6 +134,13 @@ public class BasicWorldCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("setwarp") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "setwarp"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Must have at least one argument
             if(args.length != 1)
                 return false;
@@ -130,6 +151,13 @@ public class BasicWorldCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("delwarp") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "delwarp"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Must have at least one argument
             if(args.length != 1)
                 return false;
@@ -140,6 +168,13 @@ public class BasicWorldCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("home") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "home"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Is home defined?
             Location home = plugin.warps.GetHome(player.getName());
             if(home == null)
@@ -155,12 +190,26 @@ public class BasicWorldCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("sethome") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "sethome"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Save this as the player's home
             plugin.warps.SetHome(player.getName(), player.getLocation());
             player.sendMessage(ChatColor.GRAY + "You have set your home location");
         }
         else if(command.getName().compareToIgnoreCase("spawn") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "spawn"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Is spawn defined?
             Location spawn = plugin.warps.GetSpawn();
             if(spawn == null)
@@ -176,12 +225,26 @@ public class BasicWorldCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("setspawn") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "setspawn"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Save this as the spawn
             plugin.warps.SetSpawn(player.getLocation());
             player.sendMessage(ChatColor.GRAY + "You have set the spawn location");
         }
         else if(command.getName().compareToIgnoreCase("top") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "top"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Find the highest block...
             int blockY = player.getWorld().getHighestBlockYAt(player.getLocation());
             

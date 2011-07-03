@@ -44,6 +44,13 @@ public class BasicAdminCommands implements CommandExecutor
         // Parse each specific command supported
         if(command.getName().compareToIgnoreCase("op") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "op"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Command format: /op <player> [op level, defaults to 0]
             // There can only be either 1 or 2 args
             if(args.length < 1 || args.length > 2)
@@ -76,11 +83,20 @@ public class BasicAdminCommands implements CommandExecutor
             }
             
             // Attempt to change group now
-            plugin.users.SetUser(player.getName(), GroupID);
-            player.sendMessage(ChatColor.GRAY + "You have set \"" + player.getName() + "\" to group #" + GroupID);
+            if(plugin.users.SetUser(player.getName(), GroupID) == false)
+                player.sendMessage(ChatColor.GRAY + "Unable to assign \"" + player.getName() + "\" to group ID " + GroupID);
+            else
+                player.sendMessage(ChatColor.GRAY + "You have set \"" + player.getName() + "\" to group ID " + GroupID + ", " + plugin.users.GetGroupName(player.getName()) + "");
         }
         else if(command.getName().compareToIgnoreCase("kick") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "kick"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Do we have an arg?
             if(args.length > 0)
             {
@@ -105,6 +121,13 @@ public class BasicAdminCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("ban") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "ban"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Do we have an arg?
             if(args.length > 0)
             {
@@ -129,6 +152,13 @@ public class BasicAdminCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("who") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "who"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Do we have an arg?
             if(args.length > 0)
             {
@@ -151,6 +181,13 @@ public class BasicAdminCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("time") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "time"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // What are we setting to?
             String time = "";
             if(args.length > 0 && args[0] != null)
@@ -179,6 +216,13 @@ public class BasicAdminCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("weather") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "weather"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // What are we setting to?
             String weatherType = "";
             if(args.length > 0 && args[0] != null)
@@ -203,6 +247,13 @@ public class BasicAdminCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("kill") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "kill"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Do we have an arg?
             if(args.length > 0)
             {
@@ -227,6 +278,13 @@ public class BasicAdminCommands implements CommandExecutor
         }
         else if(command.getName().compareToIgnoreCase("say") == 0)
         {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "say"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
             // Send this message to all players
             if(args.length < 1)
             {
@@ -243,7 +301,7 @@ public class BasicAdminCommands implements CommandExecutor
                 
                 // Send to all
                 message = message.toString().replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
-                plugin.getServer().broadcastMessage(ChatColor.RED + "Server:" + message);
+                plugin.getServer().broadcastMessage(ChatColor.RED + player.getName() + " says:" + message);
             }
         }
         // Else, unknown
