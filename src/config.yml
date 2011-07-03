@@ -21,7 +21,7 @@ groups:
     
     # Default group
     - id: 0
-      pre: [Guest]
+      pre: "[&bGuest&f]"
       commands:
           - help
           - who
@@ -30,7 +30,7 @@ groups:
     
     # Op group
     - id: 1
-      pre: [Op]
+      pre: "[&4SemiAdmin&f]"
       commands:
           - help
           - who
@@ -39,7 +39,7 @@ groups:
     
     # Admin
     - id: 2
-      pre: [Owner]
+      pre: "[&1Owner&f]"
       commands:
           - help
           - item
@@ -54,4 +54,10 @@ banned: 0,7,8,9,10,11,46,51,52,90,325,326,327,342,343,328,333
 kit:
     - 277 1
     - 278 1
-    - 279 1 
+    - 279 1
+
+# Max size of the world (width, length)
+size:
+    - 128
+    - 128
+    

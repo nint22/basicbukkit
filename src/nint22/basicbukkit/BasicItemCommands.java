@@ -60,7 +60,7 @@ public class BasicItemCommands implements CommandExecutor
                 // Error check
                 if(items == null || items.length != 2 || items[0].length() <= 0 || items[1].length() <= 0)
                 {
-                    player.sendMessage("Unable to generate kit: Invalid data structure");
+                    player.sendMessage(ChatColor.GRAY + "Unable to generate kit: Invalid data structure");
                     return true;
                 }
                 
@@ -72,14 +72,14 @@ public class BasicItemCommands implements CommandExecutor
                 }
                 catch(Exception e)
                 {
-                    player.sendMessage("Unable to generate kit: Invalid kit strings");
+                    player.sendMessage(ChatColor.GRAY + "Unable to generate kit: Invalid kit strings");
                     return true;
                 }
                 
                 // Make sure the item exists
                 if(Material.getMaterial(ItemID) == null)
                 {
-                    player.sendMessage("Unable to generate kit: Invalid Item ID");
+                    player.sendMessage(ChatColor.GRAY + "Unable to generate kit: Invalid Item ID");
                     return true;
                 }
                 
@@ -90,7 +90,7 @@ public class BasicItemCommands implements CommandExecutor
                 // Give this item to the player
                 player.getInventory().addItem(new ItemStack(ItemID, ItemCount));
             }
-            player.sendMessage("You have been given a kit of useful items");
+            player.sendMessage(ChatColor.GRAY + "You have been given a kit of useful items");
         }
         // Parse each specific command supported
         else if(command.getName().compareToIgnoreCase("item") == 0)
@@ -124,12 +124,12 @@ public class BasicItemCommands implements CommandExecutor
             else if(plugin.itemNames.hashmap.containsKey(args[0].toLowerCase()))
             {
                 // Known item name
-                player.sendMessage("Item: " + args[0]);
+                player.sendMessage(ChatColor.GRAY + "Item: " + args[0]);
                 ItemID = Integer.parseInt((String)plugin.itemNames.hashmap.get(args[0]));
             }
             else
             {
-                player.sendMessage("Unknown item");
+                player.sendMessage(ChatColor.GRAY + "Unknown item");
                 return true;
             }
             
@@ -145,7 +145,7 @@ public class BasicItemCommands implements CommandExecutor
                 {
                     // Just ignore
                     count = 64;
-                    player.sendMessage("Invalid item count");
+                    player.sendMessage(ChatColor.GRAY + "Invalid item count");
                     return true;
                 }
             }
@@ -154,7 +154,7 @@ public class BasicItemCommands implements CommandExecutor
             if(Material.getMaterial(ItemID) == null)
             {
                 // Fail out
-                player.sendMessage("Unknown item");
+                player.sendMessage(ChatColor.GRAY + "Unknown item");
             }
             else
             {
@@ -165,7 +165,7 @@ public class BasicItemCommands implements CommandExecutor
 
                 // Give the user item as needed
                 player.getInventory().addItem(new ItemStack(ItemID, count));
-                player.sendMessage("Given " + ChatColor.RED + count + ChatColor.WHITE + " of item " + ChatColor.RED + ItemID + " " + ItemName);
+                player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " " + ItemName);
             }
         }
         // Parse giving an item from player A to player B
@@ -185,7 +185,7 @@ public class BasicItemCommands implements CommandExecutor
             Player recieving = plugin.getServer().getPlayer(targetPlayer); 
             if(recieving == null)
             {
-                player.sendMessage("Unable to find player \"" + targetPlayer + "\"");
+                player.sendMessage(ChatColor.GRAY + "Unable to find player \"" + targetPlayer + "\"");
                 return true;
             }
             
@@ -212,12 +212,12 @@ public class BasicItemCommands implements CommandExecutor
             else if(plugin.itemNames.hashmap.containsKey(args[1].toLowerCase()))
             {
                 // Known item name
-                player.sendMessage("Item: " + args[1]);
+                player.sendMessage(ChatColor.GRAY + "Item: " + args[1]);
                 ItemID = Integer.parseInt((String)plugin.itemNames.hashmap.get(args[1]));
             }
             else
             {
-                player.sendMessage("Unknown item");
+                player.sendMessage(ChatColor.GRAY + "Unknown item");
                 return true;
             }
             
@@ -233,7 +233,7 @@ public class BasicItemCommands implements CommandExecutor
                 {
                     // Just ignore
                     count = 64;
-                    player.sendMessage("Invalid item count");
+                    player.sendMessage(ChatColor.GRAY + "Invalid item count");
                     return true;
                 }
             }
@@ -242,7 +242,7 @@ public class BasicItemCommands implements CommandExecutor
             if(Material.getMaterial(ItemID) == null)
             {
                 // Fail out
-                player.sendMessage("Unknown item");
+                player.sendMessage(ChatColor.GRAY + "Unknown item");
             }
             else
             {
@@ -253,8 +253,8 @@ public class BasicItemCommands implements CommandExecutor
 
                 // Give the user item as needed
                 recieving.getInventory().addItem(new ItemStack(ItemID, count));
-                recieving.sendMessage("Recieved " + ChatColor.RED + count + ChatColor.WHITE + " of item " + ChatColor.RED + ItemID + " " + ItemName + ChatColor.WHITE + " from " + player.getName());
-                player.sendMessage("Giving " + ChatColor.RED + targetPlayer + " " + ChatColor.RED + count + ChatColor.WHITE + " of item " + ChatColor.RED + ItemID + " " + ItemName);
+                recieving.sendMessage(ChatColor.GRAY + "Recieved " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " " + ItemName + ChatColor.GRAY + " from " + player.getName());
+                player.sendMessage(ChatColor.GRAY + "Giving " + ChatColor.RED + targetPlayer + " " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " " + ItemName);
             }
         }
         // Clean all inventory for the play
@@ -270,7 +270,7 @@ public class BasicItemCommands implements CommandExecutor
             
             // Set the inventory back
             player.getInventory().setContents(items);
-            player.sendMessage("Inventory cleaned");
+            player.sendMessage(ChatColor.GRAY + "Inventory cleaned");
         }
         // Else, unknown
         else
