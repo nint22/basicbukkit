@@ -39,7 +39,7 @@ public class BasicBukkit extends JavaPlugin
     public BasicUsers users = null;
     
     // Global permissions (land blocks)
-    public Configuration protections = null;
+    public BasicProtection protections = null;
     
     // Global warps, homes, and spawn location
     public BasicWarps warps = null;
@@ -129,8 +129,7 @@ public class BasicBukkit extends JavaPlugin
         users = new BasicUsers(new Configuration(loadFile("users.yml")), configuration);
         
         // Load protected areas file
-        protections = new Configuration(loadFile("protections.yml"));
-        protections.load();
+        protections = new BasicProtection(new Configuration(loadFile("protections.yml")));
         
         // Load the warps
         warps = new BasicWarps(this, new Configuration(loadFile("warps.yml")));
@@ -157,8 +156,9 @@ public class BasicBukkit extends JavaPlugin
         
         /*** Block Place / Usage Events ***/
         
-        // Check all block placement
+        // Check all block placement and breaks
         pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
         
         // Spreading fire, lava, water, etc..
         pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
@@ -170,40 +170,49 @@ public class BasicBukkit extends JavaPlugin
         /*** Player Commands ***/
         
         // Register all plugin commands
-        getCommand("help").setExecutor(new BasicMiscCommands(this));            // Done
-        getCommand("motd").setExecutor(new BasicMiscCommands(this));            // Done
-        getCommand("clear").setExecutor(new BasicMiscCommands(this));           // Done
-        getCommand("where").setExecutor(new BasicMiscCommands(this));           // Done
+        BasicMiscCommands MiscCommands = new BasicMiscCommands(this);
+        getCommand("help").setExecutor(MiscCommands);                           // Done
+        getCommand("motd").setExecutor(MiscCommands);                           // Done
+        getCommand("clear").setExecutor(MiscCommands);                          // Done
+        getCommand("where").setExecutor(MiscCommands);                          // Done
         
-        getCommand("op").setExecutor(new BasicAdminCommands(this));             // Done
-        getCommand("kick").setExecutor(new BasicAdminCommands(this));           // Done
-        getCommand("ban").setExecutor(new BasicAdminCommands(this));            // Done
-        getCommand("who").setExecutor(new BasicAdminCommands(this));            // Done
-        getCommand("time").setExecutor(new BasicAdminCommands(this));           // Done
-        getCommand("weather").setExecutor(new BasicAdminCommands(this));        // Done
-        getCommand("kill").setExecutor(new BasicAdminCommands(this));           // Done
-        getCommand("say").setExecutor(new BasicAdminCommands(this));            // Done
+        BasicAdminCommands AdminCommands = new BasicAdminCommands(this);
+        getCommand("op").setExecutor(AdminCommands);                            // Done
+        getCommand("kick").setExecutor(AdminCommands);                          // Done
+        getCommand("ban").setExecutor(AdminCommands);                           // Done
+        getCommand("who").setExecutor(AdminCommands);                           // Done
+        getCommand("time").setExecutor(AdminCommands);                          // Done
+        getCommand("weather").setExecutor(AdminCommands);                       // Done
+        getCommand("kill").setExecutor(AdminCommands);                          // Done
+        getCommand("say").setExecutor(AdminCommands);                           // Done
         
-        getCommand("kit").setExecutor(new BasicItemCommands(this));             // Done
-        getCommand("item").setExecutor(new BasicItemCommands(this));            // Done
-        getCommand("give").setExecutor(new BasicItemCommands(this));            // Done
-        getCommand("clean").setExecutor(new BasicItemCommands(this));           // Done
+        BasicItemCommands ItemCommands = new BasicItemCommands(this);
+        getCommand("kit").setExecutor(ItemCommands);                            // Done
+        getCommand("item").setExecutor(ItemCommands);                           // Done
+        getCommand("give").setExecutor(ItemCommands);                           // Done
+        getCommand("clean").setExecutor(ItemCommands);                          // Done
         
-        getCommand("tp").setExecutor(new BasicWorldCommands(this));             // Done
-        getCommand("warp").setExecutor(new BasicWorldCommands(this));           // Done
-        getCommand("setwarp").setExecutor(new BasicWorldCommands(this));        // Done
-        getCommand("delwarp").setExecutor(new BasicWorldCommands(this));        // Done
-        getCommand("home").setExecutor(new BasicWorldCommands(this));           // Done
-        getCommand("sethome").setExecutor(new BasicWorldCommands(this));        // Done
-        getCommand("spawn").setExecutor(new BasicWorldCommands(this));          // Done
-        getCommand("setspawn").setExecutor(new BasicWorldCommands(this));       // Done
-        getCommand("top").setExecutor(new BasicWorldCommands(this));            // Done
+        BasicWorldCommands WorldCommands = new BasicWorldCommands(this);
+        getCommand("tp").setExecutor(WorldCommands);                            // Done
+        getCommand("warp").setExecutor(WorldCommands);                          // Done
+        getCommand("setwarp").setExecutor(WorldCommands);                       // Done
+        getCommand("delwarp").setExecutor(WorldCommands);                       // Done
+        getCommand("home").setExecutor(WorldCommands);                          // Done
+        getCommand("sethome").setExecutor(WorldCommands);                       // Done
+        getCommand("spawn").setExecutor(WorldCommands);                         // Done
+        getCommand("setspawn").setExecutor(WorldCommands);                      // Done
+        getCommand("top").setExecutor(WorldCommands);                           // Done
         
-        getCommand("protect").setExecutor(new BasicAdminCommands(this));        
-        getCommand("p1").setExecutor(new BasicAdminCommands(this));             
-        getCommand("p2").setExecutor(new BasicAdminCommands(this));             
-        getCommand("protectadd").setExecutor(new BasicAdminCommands(this));     
-        getCommand("protectdel").setExecutor(new BasicAdminCommands(this));     
+        BasicProtectionCommands Protection = new BasicProtectionCommands(this);
+        getCommand("p1").setExecutor(Protection);                               // Done
+        getCommand("p2").setExecutor(Protection);                               // Done
+        getCommand("protect").setExecutor(Protection);                          // Done
+        getCommand("protectadd").setExecutor(Protection);                       // Done
+        getCommand("protectrem").setExecutor(Protection);                       // Done
+        getCommand("protectdel").setExecutor(Protection);                       // Done
+        
+        // Turn off spawn protection
+        getServer().setSpawnRadius(0);
         
         // Print out plugin initialization
         PluginDescriptionFile pdfFile = this.getDescription();

@@ -85,19 +85,21 @@ commands:
         description: Warps player to the highest block in the player's column
         usage: /top
         
-    protect:
-        description: Protects the given area agains any modifications by non-owners
-        usage: /protect <area name>
     p1:
         description: Sets the first corner location of a protection volume
         usage: /p1
     p2:
         description: Sets the second corner location of a protection volume
         usage: /p2
+    protect:
+        description: Protects the given area agains any modifications by non-owners
+        usage: /protect <area name>
     protectadd:
         description: Adds player to protected area owners list
         usage: /protectadd <area name> <player>
+    protectrem:
+        description: Removes player from protected area owners list
+        usage: /protectrem <area name> <player>
     protectdel:
-        description: Removes player from protected area owners list. Deletes location if no owners are left
-        usage: /protectdel <area name> <player>
-    
+        description: Delete the protected area
+        usage: /protectdel <area name>

@@ -70,22 +70,36 @@ public class BasicBlockListener extends BlockListener
     @Override
     public void onBlockPlace(BlockPlaceEvent event)
     {
+        /*** Ban Check ***/
+        
         // Can the player place this block?
         Player player = event.getPlayer();
         int BlockID = event.getBlock().getTypeId();
         
-        // Ignore if the player has 
-        if(plugin.users.CanUseBannedItems(player.getName()))
-            return;
-        
-        // Else, is this a banned item?
+        // Can the player use this banned item?
         if(banned.contains(new Integer(BlockID)))
         {
-            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
-            event.setCancelled(true);
+            // If we cannot place banned items...
+            if(!plugin.users.CanUseBannedItems(player.getName()))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
+                event.setCancelled(true);
+                return;
+            }
         }
         
-        // Else, all good!
+        /*** Protection Check ***/
+        
+        System.out.println("Can place here: "+ CheckProtection(event.getPlayer(), event));
+        event.setCancelled(!CheckProtection(event.getPlayer(), event));
+    }
+    
+    // Did break?
+    @Override
+    public void onBlockBreak(BlockBreakEvent event)
+    {
+        /*** Protection Check ***/
+        event.setCancelled(!CheckProtection(event.getPlayer(), event));
     }
     
     // Does spread?
@@ -111,5 +125,27 @@ public class BasicBlockListener extends BlockListener
             event.setCancelled(true);
             event.getBlock().setType(Material.AIR);
         }
+    }
+    
+    // Custom check placement / break code
+    // Returns true if valid, false if not valid protection
+    private boolean CheckProtection(Player player, BlockEvent event)
+    {
+        // Get the owners of this protection area
+        String protectionName = plugin.protections.GetProtectionName(new Pair(event.getBlock().getX(), event.getBlock().getZ()));
+        if(protectionName != null)
+        {
+            // Are we in the owner's list?
+            LinkedList<String> protectionOwners = plugin.protections.GetProtectionOwners(protectionName);
+            if(!protectionOwners.contains(player.getName()))
+            {
+                // Not in list, cancel
+                player.sendMessage(ChatColor.RED + "You are not allowed to modify this protected land, named \"" + protectionName + "\"");
+                return false;
+            }
+        }
+        
+        // Else, all good
+        return true;
     }
 }
