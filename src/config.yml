@@ -20,35 +20,115 @@ motd:
 # Note that groups should ALWAYS be numbered 0, 1, 2, ....
 groups:
     
-    # Default group
+    # Guest group (can do nothing except observer)
     - id: 0
       name: Guest
       pre: "[&bGuest&f]"
       commands:
           - help
-          - who
           - motd
+          - clear
+          - where
+          - home
+          - sethome
+
       banned_access: false
     
-    # Op group
+    # Builder group
     - id: 1
-      name: OP
-      pre: "[&4SemiAdmin&f]"
+      name: Builder
+      pre: "[&3Builder&f]"
       commands:
           - help
-          - who
+          - motd
+          - clear
+          - where
+          - tp
+          - warp
+          - setwarp
+          - delwarp
+          - kit
           - item
+          - clean
+          - home
+          - sethome
+          - top
+      banned_access: false
+    
+    # Trusted group
+    - id: 2
+      name: Op
+      pre: "[&2Op&f]"
+      commands:
+          - help
+          - motd
+          - clear
+          - where
+          - kick
+          - ban
+          - who
+          - time
+          - weather
+          - kit
+          - item
+          - give
+          - clean
+          - op
+          - kill
+          - say
+          - tp
+          - warp
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - spawn
+          - setspawn
+          - top
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
       banned_access: true
     
-    # Admin
-    - id: 2
+    # Server owner
+    - id: 3
       name: Owner
       pre: "[&1Owner&f]"
       commands:
           - help
-          - item
-          - ban
+          - motd
+          - clear
+          - where
           - kick
+          - ban
+          - who
+          - time
+          - weather
+          - kit
+          - item
+          - give
+          - clean
+          - op
+          - kill
+          - say
+          - tp
+          - warp
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - spawn
+          - setspawn
+          - top
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
       banned_access: true
 
 # Banned items (cannot create, place, or use)
