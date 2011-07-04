@@ -39,6 +39,9 @@ Total commands: *28*
     * item:
         **description: Gives the player the target item
         **usage: {{{/item <item ID|keyword> [number, defaults to 64]}}}
+    * i:
+        **description: Same as /item
+        **usage: {{{/i <item ID|keyword> [number, defaults to 64]}}}
     * give:
         **description: Gives the target player the target item
         **usage: {{{/give <player> <item ID|keyword> [number, defaults to 64]}}}
@@ -75,6 +78,9 @@ Total commands: *28*
     * warp:
         **description: Warps self to given warp or lists warp locations
         **usage: {{{/warp [location]}}}
+    * list:
+        **description: As as /warp sans arguments
+        **usage: {{{/list}}}
     * setwarp:
         **description: Sets the current location as a warp location
         **usage: {{{/setwarp <warp name>}}}
