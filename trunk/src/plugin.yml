@@ -41,7 +41,7 @@ commands:
         usage: /item <item ID|keyword> [number, defaults to 64]
     i:
         description: Same as /item
-        usage: /item <item ID|keyword> [number, defaults to 64]
+        usage: /i <item ID|keyword> [number, defaults to 64]
     give:
         description: Gives the target player the target item
         usage: /give <player> <item ID|keyword> [number, defaults to 64]
