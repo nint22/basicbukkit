@@ -90,7 +90,6 @@ public class BasicBlockListener extends BlockListener
         
         /*** Protection Check ***/
         
-        System.out.println("Can place here: "+ CheckProtection(event.getPlayer(), event));
         event.setCancelled(!CheckProtection(event.getPlayer(), event));
     }
     

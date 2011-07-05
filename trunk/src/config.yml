@@ -13,8 +13,8 @@
 
 # Message of the Day
 motd:
-    Welcome to a BasicBukkit server!
-    Please type /help for a list of commands
+    - "Welcome to a BasicBukkit server!"
+    - "&aPlease type /help for a list of commands"
 
 # Op groups
 # Note that groups should ALWAYS be numbered 0, 1, 2, ....
@@ -28,6 +28,7 @@ groups:
           - help
           - motd
           - clear
+          - who
           - where
           - home
           - sethome
@@ -42,9 +43,11 @@ groups:
           - help
           - motd
           - clear
+          - who
           - where
           - tp
           - warp
+          - list
           - setwarp
           - delwarp
           - kit
@@ -63,6 +66,7 @@ groups:
           - help
           - motd
           - clear
+          - who
           - where
           - kick
           - ban
@@ -78,6 +82,7 @@ groups:
           - say
           - tp
           - warp
+          - list
           - setwarp
           - delwarp
           - home
@@ -101,6 +106,7 @@ groups:
           - help
           - motd
           - clear
+          - who
           - where
           - kick
           - ban
@@ -116,6 +122,7 @@ groups:
           - say
           - tp
           - warp
+          - list
           - setwarp
           - delwarp
           - home

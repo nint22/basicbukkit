@@ -51,13 +51,9 @@ public class BasicPlayerListener extends PlayerListener
         plugin.getServer().broadcastMessage(ChatColor.GRAY + player.getName() + " joined the server.");
         
         // Get the motd string
-        String[] motd = plugin.configuration.getString("motd").split("\n");
+        String[] motd = plugin.GetMOTD();
         for(int i = 0; i < motd.length; i++)
-        {
-            // Colorize and print
-            motd[i] = motd[i].replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
             player.sendMessage(motd[i]);
-        }
         
         // Has this player ever joined us before?
         if(plugin.users.GetGroupID(player.getName()) < 0)

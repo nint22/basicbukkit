@@ -175,9 +175,26 @@ public class BasicAdminCommands implements CommandExecutor
                     }
                 }
             }
-            // Else, fail
+            // Else, just list all players
             else
-                return false;
+            {
+                // Form users list
+                String allPlayers = "";
+                for(int i = 0; i < plugin.getServer().getOnlinePlayers().length; i++)
+                {
+                    String playerName = plugin.getServer().getOnlinePlayers()[i].getDisplayName();
+                    allPlayers += playerName;
+                    if(i != plugin.getServer().getOnlinePlayers().length - 1)
+                        allPlayers += ", ";
+                }
+                
+                // Replace colors..
+                allPlayers = allPlayers.toString().replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
+                
+                // Print all
+                player.sendMessage(ChatColor.GRAY + "Online Players:");
+                player.sendMessage(allPlayers);
+            }
         }
         else if(command.getName().compareToIgnoreCase("time") == 0)
         {

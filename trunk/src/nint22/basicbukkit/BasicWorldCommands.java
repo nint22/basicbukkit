@@ -116,7 +116,10 @@ public class BasicWorldCommands implements CommandExecutor
                 
                 // Print warps..
                 player.sendMessage(ChatColor.GRAY + "Available warps:");
-                player.sendMessage(warps);
+                if(warps == null || warps.length() <= 0)
+                    player.sendMessage(ChatColor.GRAY + "None");
+                else
+                    player.sendMessage(warps);
                 return true;
             }
             
@@ -131,6 +134,32 @@ public class BasicWorldCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Unable to warp to \"" + args[0] + "\"; warp not found");
                 return true;
             }
+        }
+        else if(command.getName().compareToIgnoreCase("list") == 0)
+        {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "warp"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
+            // Generate a string of all the warps
+            String warps = "";
+            for(int i = 0; i < plugin.warps.GetWarpNames().size(); i++)
+            {
+                warps += ChatColor.RED + plugin.warps.GetWarpNames().get(i);
+                if(i != plugin.warps.GetWarpNames().size() - 1)
+                    warps += ChatColor.GRAY + ", ";
+            }
+
+            // Print warps..
+            player.sendMessage(ChatColor.GRAY + "Available warps:");
+            if(warps == null || warps.length() <= 0)
+                player.sendMessage(ChatColor.GRAY + "None");
+            else
+                player.sendMessage(warps);
+            return true;
         }
         else if(command.getName().compareToIgnoreCase("setwarp") == 0)
         {

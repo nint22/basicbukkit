@@ -21,6 +21,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import java.util.*;
+import java.util.Map.Entry;
 
 public class BasicItemCommands implements CommandExecutor
 {
@@ -100,7 +101,7 @@ public class BasicItemCommands implements CommandExecutor
             player.sendMessage(ChatColor.GRAY + "You have been given a kit of useful items");
         }
         // Parse each specific command supported
-        else if(command.getName().compareToIgnoreCase("item") == 0)
+        else if(command.getName().compareToIgnoreCase("item") == 0 || command.getName().compareToIgnoreCase("i") == 0)
         {
             // Security check
             if(!plugin.users.CanExecute(player.getName(), "item"))
@@ -109,39 +110,71 @@ public class BasicItemCommands implements CommandExecutor
                 return true;
             }
             
-            // Do we have arguments?
+            // We must have between 1-2 args
             if(args.length < 1)
                 return false;
             
-            // Default item is -1
+            // Item ID we want
             int ItemID = -1;
+            int MetaID = 0;
+            String SimpleName = "Unknown Name";
             
-            // Check if number
-            boolean isNumber = true;
-            try
+            // The first arg is either the item name OR the item number
+            if(args[0].matches("\\d+"))
             {
-                ItemID = Integer.parseInt(args[0]);
-            }
-            catch(Exception e)
-            {
-                isNumber = false;
-            }
-            
-            // Is the argument only digits (ie. an item number?)
-            if(isNumber)
-            {
-                // It is an item
-                // ItemID already set
-            }
-            else if(plugin.itemNames.hashmap.containsKey(args[0].toLowerCase()))
-            {
-                // Known item name
-                player.sendMessage(ChatColor.GRAY + "Item: " + args[0]);
-                ItemID = Integer.parseInt((String)plugin.itemNames.hashmap.get(args[0]));
+                // Arg is integer
+                try
+                {
+                    ItemID = Integer.parseInt(args[0]);
+                }
+                catch(Exception e)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unable to parse args[0] integer");
+                    return true;
+                }
+                
+                // Attempt to get the short-name
+                Set<Entry<String, String>> AllData = plugin.itemNames.hashmap.entrySet();
+                for(Object obj : AllData)
+                {
+                    // Value matches...
+                    if(((Entry<String, String>)obj).getValue().equalsIgnoreCase(ItemID + "_0"))
+                    {
+                        SimpleName = ((Entry<String, String>)obj).getKey();
+                        break;
+                    }
+                }
             }
             else
             {
-                player.sendMessage(ChatColor.GRAY + "Unknown item");
+                // Arg is item string
+                if(plugin.itemNames.hashmap.containsKey(args[0].toLowerCase()))
+                {
+                    String ItemString = plugin.itemNames.hashmap.get(args[0].toLowerCase());
+                    SimpleName = args[0].toLowerCase();
+                    String[] StringData = ItemString.split("_");
+                    try
+                    {
+                        ItemID = Integer.parseInt(StringData[0]);
+                        MetaID = Integer.parseInt(StringData[1]);
+                    }
+                    catch(Exception e)
+                    {
+                        player.sendMessage(ChatColor.GRAY + "Unable to parse args[0] and args[1] integers");
+                        return true;
+                    }
+                }
+                else
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unknown item reference");
+                    return true;
+                }
+            }
+            
+            // Does this item exist at all?
+            if(Material.getMaterial(ItemID) == null)
+            {
+                player.sendMessage(ChatColor.GRAY + "Item does not exist");
                 return true;
             }
             
@@ -162,23 +195,11 @@ public class BasicItemCommands implements CommandExecutor
                 }
             }
             
-            // Test if item is valid
-            if(Material.getMaterial(ItemID) == null)
-            {
-                // Fail out
-                player.sendMessage(ChatColor.GRAY + "Unknown item");
-            }
-            else
-            {
-                // Get item easy name
-                String ItemName = "(Unknown name)";
-                if(plugin.itemNames.hashmap.containsKey(args[0].toLowerCase()))
-                    ItemName = "(" + args[0] + ")";
-
-                // Give the user item as needed
-                player.getInventory().addItem(new ItemStack(ItemID, count));
-                player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " " + ItemName);
-            }
+            player.getInventory().addItem(new ItemStack(ItemID, count));
+            player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")");
+            
+            // All done...
+            return true;
         }
         // Parse giving an item from player A to player B
         else if(command.getName().compareToIgnoreCase("give") == 0)
@@ -190,7 +211,7 @@ public class BasicItemCommands implements CommandExecutor
                 return true;
             }
             
-            // Do we have arguments?
+            // We must have between 2-3 args
             if(args.length < 2)
                 return false;
             
@@ -205,41 +226,73 @@ public class BasicItemCommands implements CommandExecutor
                 return true;
             }
             
-            // Default item is -1
+            // Item ID we want
             int ItemID = -1;
+            int MetaID = 0;
+            String SimpleName = "Unknown Name";
             
-            // Check if number
-            boolean isNumber = true;
-            try
+            // The first arg is either the item name OR the item number
+            if(args[1].matches("\\d+"))
             {
-                ItemID = Integer.parseInt(args[2]);
-            }
-            catch(Exception e)
-            {
-                isNumber = false;
-            }
-            
-            // Is the argument only digits (ie. an item number?)
-            if(isNumber)
-            {
-                // It is an item
-                // ItemID already set
-            }
-            else if(plugin.itemNames.hashmap.containsKey(args[1].toLowerCase()))
-            {
-                // Known item name
-                player.sendMessage(ChatColor.GRAY + "Item: " + args[1]);
-                ItemID = Integer.parseInt((String)plugin.itemNames.hashmap.get(args[1]));
+                // Arg is integer
+                try
+                {
+                    ItemID = Integer.parseInt(args[1]);
+                }
+                catch(Exception e)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unable to parse args[1] integer");
+                    return true;
+                }
+                
+                // Attempt to get the short-name
+                Set<Entry<String, String>> AllData = plugin.itemNames.hashmap.entrySet();
+                for(Object obj : AllData)
+                {
+                    // Value matches...
+                    if(((Entry<String, String>)obj).getValue().equalsIgnoreCase(ItemID + "_0"))
+                    {
+                        SimpleName = ((Entry<String, String>)obj).getKey();
+                        break;
+                    }
+                }
             }
             else
             {
-                player.sendMessage(ChatColor.GRAY + "Unknown item");
+                // Arg is item string
+                if(plugin.itemNames.hashmap.containsKey(args[1].toLowerCase()))
+                {
+                    String ItemString = plugin.itemNames.hashmap.get(args[1].toLowerCase());
+                    SimpleName = args[1].toLowerCase();
+                    String[] StringData = ItemString.split("_");
+                    try
+                    {
+                        ItemID = Integer.parseInt(StringData[0]);
+                        MetaID = Integer.parseInt(StringData[1]);
+                    }
+                    catch(Exception e)
+                    {
+                        player.sendMessage(ChatColor.GRAY + "Unable to parse args[1] and args[2] integers");
+                        return true;
+                    }
+                }
+                else
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unknown item reference");
+                    return true;
+                }
+            }
+            
+            // Does this item exist at all?
+            if(Material.getMaterial(ItemID) == null)
+            {
+                player.sendMessage(ChatColor.GRAY + "Item does not exist");
                 return true;
             }
             
             // Did we have an item count?
             int count = 64;
-            if(args.length > 1)
+            if(args.length > 2)
             {
                 try
                 {
@@ -254,24 +307,12 @@ public class BasicItemCommands implements CommandExecutor
                 }
             }
             
-            // Test if item is valid
-            if(Material.getMaterial(ItemID) == null)
-            {
-                // Fail out
-                player.sendMessage(ChatColor.GRAY + "Unknown item");
-            }
-            else
-            {
-                // Get item easy name
-                String ItemName = "(Unknown name)";
-                if(plugin.itemNames.hashmap.containsKey(args[1].toLowerCase()))
-                    ItemName = "(" + args[1] + ")";
-
-                // Give the user item as needed
-                recieving.getInventory().addItem(new ItemStack(ItemID, count));
-                recieving.sendMessage(ChatColor.GRAY + "Recieved " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " " + ItemName + ChatColor.GRAY + " from " + player.getName());
-                player.sendMessage(ChatColor.GRAY + "Giving " + ChatColor.RED + targetPlayer + " " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " " + ItemName);
-            }
+            player.getInventory().addItem(new ItemStack(ItemID, count));
+            player.sendMessage(ChatColor.GRAY + "Gave " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")" + ChatColor.GRAY + " to " + recieving.getName());
+            recieving.sendMessage(ChatColor.GRAY + "Recieved " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")" + ChatColor.GRAY + " from " + player.getName());
+            
+            // All done...
+            return true;
         }
         // Clean all inventory for the play
         else if(command.getName().compareToIgnoreCase("clean") == 0)

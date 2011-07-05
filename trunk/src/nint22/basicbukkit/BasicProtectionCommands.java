@@ -180,9 +180,18 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
             else
             {
+                // Remove and message
                 owners.remove(args[1]);
                 player.sendMessage(ChatColor.GRAY + "User \"" + args[1] + "\" has been removed from \"" + args[0] + "\"");
+                
+                // Do we self delete if there are no owners now?
+                owners = plugin.protections.GetProtectionOwners(args[0]);
+                if(owners == null || owners.size() <= 0)
+                {
+                    plugin.protections.RemoveProtection(args[0]);
+                }
             }
+            
         }
         else if(command.getName().compareToIgnoreCase("protectdel") == 0)
         {
