@@ -18,10 +18,13 @@ commands:
     
     kick:
         description: Kicks a given player off the server
-        usage: /kick <player> [duration in seconds]
+        usage: /kick <player> [duration in minutes]
     ban:
-        description: Bans the given player from the server
-        usage: /ban <player>
+        description: Bans the given player from the server; requires a reason
+        usage: /ban <player> [reason]
+    unban:
+        description: Removes a player's ban
+        usage: /unban <player>
     who:
         description: List all current players
         usage: /who
@@ -53,6 +56,9 @@ commands:
         description: Assigns the target player to the given op rank
         usage: /op <player> [op level, defaults to 0]
     
+    god:
+        description: Toggles invincibility; on by default
+        usage: /god
     kill:
         description: Kills self or the target player
         usage: /kill [player]
@@ -90,6 +96,9 @@ commands:
     top:
         description: Warps player to the highest block in the player's column
         usage: /top
+    jump:
+        description: Warps player to the player's targeted location
+        usage: /jump
         
     p1:
         description: Sets the first corner location of a protection volume

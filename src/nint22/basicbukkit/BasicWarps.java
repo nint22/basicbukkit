@@ -16,7 +16,9 @@ package nint22.basicbukkit;
 import java.util.*;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
 public class BasicWarps
@@ -257,5 +259,53 @@ public class BasicWarps
     public LinkedList<String> GetWarpNames()
     {
         return names;
+    }
+    
+    // Given a player (direction), maximum distance, and a step-resolution
+    // find a colliding block, or return null upon failure
+    // Note that the resolution is the distance applied to the ray, NOT
+    // distance relative to block sizes (which are unit 1 size)
+    public Location GetCollision(Player player, double maxDistance, double resolution)
+    {
+        // Get the ray's source location
+        Location raySource = player.getLocation();
+        
+        // Get the ray's direction (not a vector)
+        // Also note, these are degrees
+        double yRotation = player.getLocation().getPitch() * -1.0;
+        double xRotation = (player.getLocation().getYaw() + 90) % 360;
+        
+        // Get world geometry
+        World activeWorld = player.getWorld();
+        
+        // Previous (valid) point
+        Location prev = null;
+        
+        // From distance 0 to maxDistance, check for collision
+        for(double d = resolution; d < maxDistance; d += resolution)
+        {
+            // Get the ray offsets sans origin
+            double hypotenuse = (d * Math.cos(Math.toRadians(yRotation)));
+            double offsetX = hypotenuse * Math.cos(Math.toRadians(xRotation));
+            double offsetY = d * Math.sin(Math.toRadians(yRotation));
+            double offsetZ = hypotenuse * Math.sin(Math.toRadians(xRotation));
+            
+            // Add origin and cast to block position
+            double posX = raySource.getX() + (int)offsetX;
+            double posY = raySource.getY() + (int)offsetY;
+            double posZ = raySource.getZ() + (int)offsetZ;
+            
+            // Material at that block
+            Material mat = activeWorld.getBlockAt(new Location(activeWorld, posX, posY, posZ)).getType();
+            
+            // Is this not air? Return the previous (known air) location
+            if(mat != null && mat != Material.AIR && mat != Material.WATER)
+                return prev;
+            else
+                prev = new Location(activeWorld, posX, posY, posZ, player.getLocation().getYaw(), player.getLocation().getPitch());
+        }
+        
+        // No collisions
+        return null;
     }
 }

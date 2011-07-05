@@ -14,6 +14,7 @@
 
 package nint22.basicbukkit;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.*;
 
 public class BasicEntityListener extends EntityListener
@@ -46,5 +47,19 @@ public class BasicEntityListener extends EntityListener
     public void onEntityExplode(EntityExplodeEvent event)
     {
         event.setCancelled(!AllowTNT);
+    }
+    
+    // If a player gets damage, only apply it if god mode is off
+    @Override
+    public void onEntityDamage(EntityDamageEvent event)
+    {
+        // If not player, ignore
+        if(!(event.getEntity() instanceof Player))
+            return;
+        
+        // Cast to player; ignore damage if god is on
+        Player player = (Player)event.getEntity();
+        if(plugin.users.IsGod(player.getName()))
+            event.setCancelled(true);
     }
 }

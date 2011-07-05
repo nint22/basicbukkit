@@ -138,12 +138,8 @@ public class BasicBukkit extends JavaPlugin
         // Load the messaging system
         messages = new BasicMessages(this, configuration);
         
-        // Create a new block and player listener
-        playerListener = new BasicPlayerListener(this);
-        blockListener = new BasicBlockListener(this);
-        entityListener = new BasicEntityListener(this);
-        
         /*** Player Events ***/
+        playerListener = new BasicPlayerListener(this);
         
         // Join and leave game
         pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
@@ -156,6 +152,7 @@ public class BasicBukkit extends JavaPlugin
         pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Normal, this);
         
         /*** Block Place / Usage Events ***/
+        blockListener = new BasicBlockListener(this);
         
         // Check all block placement and breaks
         pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Normal, this);
@@ -164,9 +161,15 @@ public class BasicBukkit extends JavaPlugin
         // Spreading fire, lava, water, etc..
         pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
         
+        /*** Entity Events ***/
+        entityListener = new BasicEntityListener(this);
+        
         // Register TNT ignition and explosion
         pm.registerEvent(Event.Type.EXPLOSION_PRIME, entityListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Normal, this);
+        
+        // Prevent player damage if needed
+        pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
         
         /*** Player Commands ***/
         
@@ -181,16 +184,18 @@ public class BasicBukkit extends JavaPlugin
         getCommand("op").setExecutor(AdminCommands);                            // Done
         getCommand("kick").setExecutor(AdminCommands);                          // Done
         getCommand("ban").setExecutor(AdminCommands);                           // Done
+        getCommand("unban").setExecutor(AdminCommands);                         // Done
         getCommand("who").setExecutor(AdminCommands);                           // Done
         getCommand("time").setExecutor(AdminCommands);                          // Done
         getCommand("weather").setExecutor(AdminCommands);                       // Done
         getCommand("kill").setExecutor(AdminCommands);                          // Done
         getCommand("say").setExecutor(AdminCommands);                           // Done
+        getCommand("god").setExecutor(AdminCommands);                           // Done
         
         BasicItemCommands ItemCommands = new BasicItemCommands(this);
         getCommand("kit").setExecutor(ItemCommands);                            // Done
         getCommand("item").setExecutor(ItemCommands);                           // Done
-        getCommand("i").setExecutor(ItemCommands);                           // Done
+        getCommand("i").setExecutor(ItemCommands);                              // Done
         getCommand("give").setExecutor(ItemCommands);                           // Done
         getCommand("clean").setExecutor(ItemCommands);                          // Done
         
@@ -205,6 +210,7 @@ public class BasicBukkit extends JavaPlugin
         getCommand("spawn").setExecutor(WorldCommands);                         // Done
         getCommand("setspawn").setExecutor(WorldCommands);                      // Done
         getCommand("top").setExecutor(WorldCommands);                           // Done
+        getCommand("jump").setExecutor(WorldCommands);                          // Done
         
         BasicProtectionCommands Protection = new BasicProtectionCommands(this);
         getCommand("p1").setExecutor(Protection);                               // Done

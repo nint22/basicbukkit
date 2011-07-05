@@ -46,11 +46,26 @@ public class BasicPlayerListener extends PlayerListener
         // Get the player
         Player player = event.getPlayer();
         
+        // Check for ban
+        String BanReason = plugin.users.UserIsBanned(player.getName());
+        if(BanReason != null)
+        {
+            player.kickPlayer("You are banned. Reason: \"" + BanReason + "\"");
+            return;
+        }
+        
+        // Is it past their kick time?
+        if(!plugin.users.UserCanJoin(player.getName()))
+        {
+            player.kickPlayer("Your kick time is not yet up.");
+            return;
+        }
+        
         // Say where the player game from...
         System.out.println(player.getName() + " joined the server.");
         plugin.getServer().broadcastMessage(ChatColor.GRAY + player.getName() + " joined the server.");
         
-        // Get the motd string
+        // Show the MOTD string
         String[] motd = plugin.GetMOTD();
         for(int i = 0; i < motd.length; i++)
             player.sendMessage(motd[i]);
@@ -60,8 +75,10 @@ public class BasicPlayerListener extends PlayerListener
         {
             System.out.println(player.getName() + " is new to our server!");
             
-            // Warp to spawn and create default permissions
-            plugin.users.SetUser(player.getName(), 0);
+            // Register this first time user
+            plugin.users.SetUserGroup(player.getName(), 0);
+            
+            // Warp to spawn
             if(plugin.warps.GetSpawn() != null)
                 player.teleport(plugin.warps.GetSpawn());
         }

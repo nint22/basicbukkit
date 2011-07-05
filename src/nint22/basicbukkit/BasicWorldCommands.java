@@ -152,9 +152,9 @@ public class BasicWorldCommands implements CommandExecutor
                 if(i != plugin.warps.GetWarpNames().size() - 1)
                     warps += ChatColor.GRAY + ", ";
             }
-
+            
             // Print warps..
-            player.sendMessage(ChatColor.GRAY + "Available warps:");
+            player.sendMessage(ChatColor.GRAY + "Available warps: (Type /who for a list of users)");
             if(warps == null || warps.length() <= 0)
                 player.sendMessage(ChatColor.GRAY + "None");
             else
@@ -284,6 +284,29 @@ public class BasicWorldCommands implements CommandExecutor
             
             // Say where we now are
             player.sendMessage(ChatColor.GRAY + "You are now at a height of: " + (blockY + 2.0));
+        }
+        else if(command.getName().compareToIgnoreCase("jump") == 0)
+        {
+            // Security check
+            if(!plugin.users.CanExecute(player.getName(), "jump"))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
+                return true;
+            }
+            
+            // Find the block the user wants to get to...
+            Location jumpLocation = plugin.warps.GetCollision(player, 100.0, 1.0f);
+            if(jumpLocation == null)
+            {
+                // Failed to find target
+                player.sendMessage(ChatColor.GRAY + "Unable to jump to location; no collision or too far away");
+            }
+            else
+            {
+                // Move up then teleport
+                player.teleport(jumpLocation);
+                player.sendMessage(ChatColor.GRAY + "Jumped to target location");
+            }
         }
         // Else, unknown
         else
