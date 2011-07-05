@@ -53,7 +53,7 @@ Total commands: *28*
 
     * kick:
         **description: Kicks a given player off the server
-        **usage: {{{/kick <player> [duration in seconds]}}}
+        **usage: {{{/kick <player> [duration in minutes]}}}
     * ban:
         **description: Bans the given player from the server
         **usage: {{{/ban <player>}}}
