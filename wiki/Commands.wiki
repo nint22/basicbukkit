@@ -56,7 +56,10 @@ Total commands: *28*
         **usage: {{{/kick <player> [duration in minutes]}}}
     * ban:
         **description: Bans the given player from the server
-        **usage: {{{/ban <player>}}}
+        **usage: {{{/ban <player> [reason]}}}
+    * unban:
+        **description: Unbans the given player from the server
+        **usage: {{{/unban}}}
     * who:
         **description: List all current players
         **usage: {{{/who}}}
