@@ -179,6 +179,5 @@ kit:
 
 # Max size of the world (width, length)
 size:
-    - 256
-    - 256
-    
+    - 1024
+    - 1024
