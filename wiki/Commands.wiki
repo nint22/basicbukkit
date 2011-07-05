@@ -102,6 +102,9 @@ Total commands: *28*
     * top:
         **description: Warps player to the highest block in the player's column
         **usage: {{{/top}}}
+    * jump:
+        **description: Warps player to the player's targeted location
+        **usage: {{{/jump}}}
 
 == Protection Management ==
 
