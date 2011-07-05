@@ -82,11 +82,22 @@ public class BasicAdminCommands implements CommandExecutor
                 return true;
             }
             
+            // Get the target player's data
+            Player targetPlayer = plugin.getServer().getPlayer(args[0]);
+            if(targetPlayer == null)
+            {
+                player.sendMessage(ChatColor.GRAY + "Unable to find player named \"" + targetPlayer.getName() + "\"");
+                return true;
+            }
+            
             // Attempt to change group now
-            if(plugin.users.SetUserGroup(player.getName(), GroupID))
-                player.sendMessage(ChatColor.GRAY + "You have set \"" + player.getName() + "\" to group ID " + GroupID + ", " + plugin.users.GetGroupName(player.getName()) + "");
             else
-                player.sendMessage(ChatColor.GRAY + "Unable to assign \"" + player.getName() + "\" to group ID " + GroupID);
+            {
+                if(plugin.users.SetUserGroup(targetPlayer.getName(), GroupID))
+                    player.sendMessage(ChatColor.GRAY + "You have set \"" + targetPlayer.getName() + "\" to group ID " + GroupID + ", " + plugin.users.GetGroupName(targetPlayer.getName()) + "");
+                else
+                    player.sendMessage(ChatColor.GRAY + "Unable to assign \"" + targetPlayer.getName() + "\" to group ID " + GroupID);
+            }
         }
         else if(command.getName().compareToIgnoreCase("kick") == 0)
         {
