@@ -21,6 +21,12 @@ Total commands: *~35*
     * where:
             **description: Prints your location
             **usage: {{{/where}}}
+    * msg:
+            **description: Sends a private message to the given player
+            **usage: {{{/msg <player> <message>}}}
+    * afk:
+            **description: Declares yourself as away-from-keyboard; any movement or typing will de-afk you
+            **usage: {{{/afk}}}
 
 == Time & Weather Management ==
 
