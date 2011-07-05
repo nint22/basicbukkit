@@ -32,7 +32,6 @@ groups:
           - where
           - home
           - sethome
-
       banned_access: false
     
     # Builder group
@@ -40,6 +39,7 @@ groups:
       name: Builder
       pre: "[&3Builder&f]"
       commands:
+          - god
           - help
           - motd
           - clear
@@ -47,6 +47,7 @@ groups:
           - where
           - tp
           - warp
+          - jump
           - list
           - setwarp
           - delwarp
@@ -63,6 +64,7 @@ groups:
       name: Op
       pre: "[&2Op&f]"
       commands:
+          - god
           - help
           - motd
           - clear
@@ -70,6 +72,7 @@ groups:
           - where
           - kick
           - ban
+          - unban
           - who
           - time
           - weather
@@ -82,6 +85,7 @@ groups:
           - say
           - tp
           - warp
+          - jump
           - list
           - setwarp
           - delwarp
@@ -103,6 +107,7 @@ groups:
       name: Owner
       pre: "[&1Owner&f]"
       commands:
+          - god
           - help
           - motd
           - clear
@@ -110,6 +115,7 @@ groups:
           - where
           - kick
           - ban
+          - unban
           - who
           - time
           - weather
@@ -122,6 +128,7 @@ groups:
           - say
           - tp
           - warp
+          - jump
           - list
           - setwarp
           - delwarp
@@ -157,12 +164,12 @@ allowTNT: false
 # Note that "delay" is time between messages and "start" is the initial wait period
 messages:
     - message: Please support BasicBukkit, visit code.google.com/p/basicbukki
-      delay: 60
-      start: 10
-      
-    - message: This admin is awesome for using BasicBukkit
-      delay: 100
+      delay: 120
       start: 0
+      
+    - message: "Found a bug? Report it: code.google.com/p/basicbukki"
+      delay: 120
+      start: 60
 
 # Kit items
 kit:

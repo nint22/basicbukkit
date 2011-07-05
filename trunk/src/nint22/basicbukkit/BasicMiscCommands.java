@@ -173,8 +173,12 @@ public class BasicMiscCommands implements CommandExecutor
                 return true;
             }
             
-            // Print to the player where her or she is at
-            player.sendMessage(ChatColor.GRAY + "Your location: <" + player.getLocation().getBlockX() + ", " + player.getLocation().getBlockY() + ", " + player.getLocation().getBlockZ() + ">");
+            // Cast to string and change precision
+            String yaw = String.format("%.2f", player.getLocation().getYaw());
+            String pitch = String.format("%.2f", player.getLocation().getPitch());
+            
+            // Print to the player where her or she is at and their facing
+            player.sendMessage(ChatColor.GRAY + "Your location: <" + player.getLocation().getBlockX() + ", " + player.getLocation().getBlockY() + ", " + player.getLocation().getBlockZ() + ">, facing: <" + pitch + ", " + yaw + ">");
             
             String protectionName = plugin.protections.GetProtectionName(new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
             if(protectionName != null)
