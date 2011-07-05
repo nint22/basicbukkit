@@ -163,13 +163,13 @@ public class BasicUsers
     public boolean SetUserGroup(String UserName, int UserGroupID)
     {
         // Does the group ID exist?
-        if(OpGroup.contains(new Integer(UserGroupID)))
+        if(GroupID.contains(new Integer(UserGroupID)))
         {
             // Group exists, add user to group ID
             // Does the user already exist? If so, just change at the same index
             if(OpNames.contains(UserName))
             {
-                // Just change that index in OpGroup
+                // Just change that index in GroupID
                 int UserIndex = OpNames.indexOf(UserName);
                 OpGroup.set(UserIndex, UserGroupID);
             }
