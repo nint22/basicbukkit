@@ -1,3 +1,0 @@
-A Minecraft server application using the Bukkit Minecraft modding library. Used as this mod's software platform.
-
-[http://bukkit.org/ Learn more on the official Bukkit site: Bukkit.org]
