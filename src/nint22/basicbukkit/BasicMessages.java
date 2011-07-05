@@ -126,7 +126,7 @@ public class BasicMessages extends Thread
                     {
                         String message = messages.get(i);
                         message = message.toString().replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
-                        plugin.getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "Broadcast: " + message);
+                        plugin.getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "Automated Broadcast: " + message);
                     }
                 }
             }

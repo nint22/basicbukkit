@@ -211,4 +211,16 @@ public class BasicUsers
         // Get the group's permissions
         return GroupBannedItems.get(GroupIndex).booleanValue();
     }
+
+    // Get a list of commands this user can use (based on his or her group)
+    public String[] GetGroupCommands(String name)
+    {
+        // Find the user's group (and fail out if does not exist)
+        int GroupIndex = GetGroupID(name);
+        if(GroupIndex < 0)
+            return null;
+        
+        // Get the group's permissions
+        return GroupCommands.get(GroupIndex);
+    }
 }

@@ -20,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.config.Configuration;
 import java.io.*;
+import java.util.List;
 
 public class BasicBukkit extends JavaPlugin
 {
@@ -189,12 +190,14 @@ public class BasicBukkit extends JavaPlugin
         BasicItemCommands ItemCommands = new BasicItemCommands(this);
         getCommand("kit").setExecutor(ItemCommands);                            // Done
         getCommand("item").setExecutor(ItemCommands);                           // Done
+        getCommand("i").setExecutor(ItemCommands);                           // Done
         getCommand("give").setExecutor(ItemCommands);                           // Done
         getCommand("clean").setExecutor(ItemCommands);                          // Done
         
         BasicWorldCommands WorldCommands = new BasicWorldCommands(this);
         getCommand("tp").setExecutor(WorldCommands);                            // Done
         getCommand("warp").setExecutor(WorldCommands);                          // Done
+        getCommand("list").setExecutor(WorldCommands);                          // Done
         getCommand("setwarp").setExecutor(WorldCommands);                       // Done
         getCommand("delwarp").setExecutor(WorldCommands);                       // Done
         getCommand("home").setExecutor(WorldCommands);                          // Done
@@ -217,6 +220,24 @@ public class BasicBukkit extends JavaPlugin
         // Print out plugin initialization
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( "### BasicBukkiet (v." + pdfFile.getVersion() + ") plugin enabled. ");
+    }
+    
+    // Get a list of strings that are the MOTD
+    public String[] GetMOTD()
+    {
+        // Get all motd messages
+        List<Object> sourceMOTD = configuration.getList("motd");
+        
+        String[] motd = new String[sourceMOTD.size()];
+        for(int i = 0; i < sourceMOTD.size(); i++)
+            motd[i] = (String)sourceMOTD.get(i);
+        
+        // Fix colors for each string
+        for(int i = 0; i < motd.length; i++)
+            motd[i] = motd[i].replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
+        
+        // Return motd
+        return motd;
     }
 }
 

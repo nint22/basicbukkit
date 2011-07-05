@@ -21,6 +21,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.ChatColor;
 import java.util.*;
+import org.bukkit.util.config.ConfigurationNode;
 
 public class BasicMiscCommands implements CommandExecutor
 {
@@ -59,39 +60,80 @@ public class BasicMiscCommands implements CommandExecutor
             // Get help list
             Collection collection = Map.values();
             
-            // How many pages of help do we have?
-            int Count = collection.size();
-            int Pages = Count / 5;
-            int PageIndex = 0;
-            
-            // Convert arg to int
-            try
+            // Remove all commands that the user does NOT have access to
+            String[] ValidCommands = plugin.users.GetGroupCommands(player.getName());
+            if(ValidCommands == null)
             {
-                PageIndex = Integer.parseInt(args[0]) - 1;
+                player.sendMessage(ChatColor.GRAY + "Unable to retrieve commands for your group");
             }
-            catch(Exception e)
+            else
             {
-                // Just default back to 0
-                PageIndex = 0;
-            }
-            
-            // To lower to the lowest page count..
-            PageIndex = Math.min(Pages, PageIndex);
-            
-            // How page count and command count
-            // Note the +1 offset so we are human friendly (i.e. we are 1..n rather than 0..n-1)
-            player.sendMessage(ChatColor.WHITE + "Page " + ChatColor.RED + "[" + (PageIndex + 1) + "]" + ChatColor.WHITE + " of " + ChatColor.RED + "[" + (Pages+1) + "]" + ChatColor.WHITE +"; " + Count + " total commands");
-            
-            // Print off 5 commands for this page
-            for(int i = PageIndex * 5; i < Math.min(Count, PageIndex * 5 + 5); i++)
-            {
-                // Command struct
-                LinkedHashMap CommandDetails = (LinkedHashMap)collection.toArray()[i];
+                // Command names & descriptions
+                LinkedList<String> CommandName = new LinkedList();
+                LinkedList<String> CommandDescription = new LinkedList();
                 
-                // Print out info
-                String name = CommandDetails.values().toArray()[1].toString();
-                String description = CommandDetails.values().toArray()[0].toString();
-                player.sendMessage(ChatColor.GRAY + "#" + (i+1) + ": " + ChatColor.RED + name + ChatColor.GRAY + " - " + description);
+                // For each collection item
+                for(Object cmd : collection)
+                {
+                    // If within valid commands, add to list
+                    boolean IsValid = false;
+                    for(int i = 0; i < ValidCommands.length; i++)
+                    {
+                        // Get this commands info
+                        // My god look at the horrible casting...
+                        String Command = ((String)((LinkedHashMap)cmd).get("usage")).split(" ")[0];
+                        String Description = (String)((LinkedHashMap)cmd).get("description");
+                        
+                        // Remove the forward slash
+                        Command = Command.substring(1, Command.length());
+                        
+                        // Get command string
+                        if(Command.compareToIgnoreCase(ValidCommands[i]) == 0)
+                        {
+                            IsValid = true;
+                            break;
+                        }
+                    }
+                    
+                    // If valid, add to list
+                    if(IsValid)
+                    {
+                        CommandName.add((String)((LinkedHashMap)cmd).get("usage"));
+                        CommandDescription.add((String)((LinkedHashMap)cmd).get("description"));
+                    }
+                }
+
+                // How many pages of help do we have?
+                int Count = CommandName.size();
+                int Pages = Count / 5;
+                int PageIndex = 0;
+
+                // Convert arg to int
+                try
+                {
+                    PageIndex = Integer.parseInt(args[0]) - 1;
+                }
+                catch(Exception e)
+                {
+                    // Just default back to 0
+                    PageIndex = 0;
+                }
+
+                // To lower to the lowest page count..
+                PageIndex = Math.min(Pages, PageIndex);
+
+                // How page count and command count
+                // Note the +1 offset so we are human friendly (i.e. we are 1..n rather than 0..n-1)
+                player.sendMessage(ChatColor.WHITE + "Page " + ChatColor.RED + "[" + (PageIndex + 1) + "]" + ChatColor.WHITE + " of " + ChatColor.RED + "[" + (Pages+1) + "]" + ChatColor.WHITE +"; " + Count + " commands available of " + collection.size());
+
+                // Print off 5 commands for this page
+                for(int i = PageIndex * 5; i < Math.min(Count, PageIndex * 5 + 5); i++)
+                {
+                    // Print out info
+                    String name = CommandName.get(i);
+                    String description = CommandDescription.get(i);
+                    player.sendMessage(ChatColor.GRAY + "#" + (i+1) + ": " + ChatColor.RED + name + ChatColor.GRAY + " - " + description);
+                }
             }
         }
         else if(command.getName().compareToIgnoreCase("motd") == 0)
@@ -104,13 +146,9 @@ public class BasicMiscCommands implements CommandExecutor
             }
             
             // Get the motd string
-            String[] motd = plugin.configuration.getString("motd").split("\n");
+            String[] motd = plugin.GetMOTD();
             for(int i = 0; i < motd.length; i++)
-            {
-                // Colorize and print
-                motd[i] = motd[i].replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
                 player.sendMessage(motd[i]);
-            }
         }
         else if(command.getName().compareToIgnoreCase("clear") == 0)
         {
