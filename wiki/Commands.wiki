@@ -4,7 +4,7 @@
 
 The following is a list of commands available to certain users. Based on the server's basicbukkit.yml configuration file, certains users may or may not have access to any of the following commands.
 
-Total commands: *35*
+Total commands: *~35*
 
 = Commands =
 == General Commands ==
@@ -66,6 +66,9 @@ Total commands: *35*
     * op:
         **description: Assigns the target player to the given op rank
         **usage: {{{/op <player> [op level, defaults to 0]}}}
+    * god:
+        **description: Toggles invincibility; on by default
+        **usage: /god
     * kill:
         **description: Kills self or the target player
         **usage: {{{/kill [player]}}}
