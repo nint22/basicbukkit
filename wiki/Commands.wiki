@@ -37,7 +37,7 @@ Total commands: *~35*
         **description: Sets the current weather
         **usage: {{{/weather <dry|wet>}}}
 
-== Item Generation ==
+== Item Management ==
 
     * kit:
         **description: Gives the player the decalred kit
@@ -54,6 +54,9 @@ Total commands: *~35*
     * clean:
         **description: Removes all of the user's inventory except the active inventory
         **usage: {{{/clean}}}
+    * iclean:
+        **description: Removes all items and vehicles in the world
+        **usage: /iclean
 
 == User Managament ==
 
