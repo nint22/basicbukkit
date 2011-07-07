@@ -34,6 +34,9 @@ commands:
     who:
         description: List all current players
         usage: /who
+    iclean:
+        description: Removes all items and vehicles in the world
+        usage: /iclean
     
     time:
         description: Sets the current time to either day or night

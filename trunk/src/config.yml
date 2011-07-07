@@ -156,6 +156,7 @@ groups:
           - protectadd
           - protectrem
           - protectdel
+          - iclean
       banned_access: true
 
 # Banned items (cannot create, place, or use)

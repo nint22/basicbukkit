@@ -17,11 +17,12 @@ package nint22.basicbukkit;
 import java.util.*;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Entity;
 
 public class BasicAdminCommands implements CommandExecutor
 {
@@ -532,6 +533,49 @@ public class BasicAdminCommands implements CommandExecutor
 
                 // Tell the player if it is on or off
                 player.sendMessage(ChatColor.GRAY + "God mode has been turned " + (IsGod ? "on" : "off"));
+            }
+            else if(plugin.IsCommand(player, command, args, "iclean"))
+            {
+                // Get the current world
+                World world = player.getWorld();
+                List<Entity> worldEntities = world.getEntities();
+                
+                int TotalRemoved = 0;
+                for(Entity entity : worldEntities)
+                {
+                    // If craft item, remove
+                    // Though this is not a good method, it prevents the
+                    // need to include a new library (i.e. org.craftbukkit)
+                    if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftItem"))
+                    {
+                        entity.remove();
+                        TotalRemoved++;
+                    }
+                    // Remove vehicles
+                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftBoat"))
+                    {
+                        entity.remove();
+                        TotalRemoved++;
+                    }
+                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftMinecart"))
+                    {
+                        entity.remove();
+                        TotalRemoved++;
+                    }
+                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftPoweredMinecart"))
+                    {
+                        entity.remove();
+                        TotalRemoved++;
+                    }
+                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftStorageMinecart"))
+                    {
+                        entity.remove();
+                        TotalRemoved++;
+                    }
+                }
+                
+                // How many did we remove?
+                player.sendMessage(ChatColor.GRAY + "Removed a total of " + TotalRemoved + " items in this world");
             }
             
             // Done - parsed
