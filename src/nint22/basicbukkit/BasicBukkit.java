@@ -200,6 +200,7 @@ public class BasicBukkit extends JavaPlugin
         getCommand("kill").setExecutor(AdminCommands);                          // Done
         getCommand("say").setExecutor(AdminCommands);                           // Done
         getCommand("god").setExecutor(AdminCommands);                           // Done
+        getCommand("iclean").setExecutor(AdminCommands);                        // Done
         
         BasicItemCommands ItemCommands = new BasicItemCommands(this);
         getCommand("kit").setExecutor(ItemCommands);                            // Done
