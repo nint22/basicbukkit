@@ -15,6 +15,12 @@ commands:
     where:
         description: Prints your location
         usage: /where
+    msg:
+        description: Sends a private message to the given player
+        usage: /msg <player> <message>
+    afk:
+        description: Declares yourself as away-from-keyboard; any movement or typing will de-afk you
+        usage: /afk
     
     kick:
         description: Kicks a given player off the server
@@ -59,6 +65,9 @@ commands:
     god:
         description: Toggles invincibility; on by default
         usage: /god
+    pvp:
+        description: Toggles invincibility; on by default
+        usage: /pvp
     kill:
         description: Kills self or the target player
         usage: /kill [player]

@@ -17,7 +17,6 @@ package nint22.basicbukkit;
 import java.util.*;
 import org.bukkit.ChatColor;
 import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
 public class BasicMessages extends Thread
 {
@@ -125,8 +124,10 @@ public class BasicMessages extends Thread
                     if((TotalSeconds - starts.get(i)) % delays.get(i) == 0)
                     {
                         String message = messages.get(i);
-                        message = message.toString().replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
-                        plugin.getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "Automated Broadcast: " + message);
+                        message = plugin.ColorString(message);
+                        
+                        plugin.BroadcastMessage(ChatColor.LIGHT_PURPLE + "Automated Broadcast:");
+                        plugin.BroadcastMessage(ChatColor.LIGHT_PURPLE + message);
                     }
                 }
             }

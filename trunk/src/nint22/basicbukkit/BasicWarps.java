@@ -14,11 +14,11 @@
 package nint22.basicbukkit;
 
 import java.util.*;
-import org.bukkit.util.config.Configuration;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
 public class BasicWarps

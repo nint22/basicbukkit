@@ -13,12 +13,12 @@
 
 package nint22.basicbukkit;
 
+import org.bukkit.Location;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.Location;
-import org.bukkit.ChatColor;
 
 public class BasicWorldCommands implements CommandExecutor
 {
@@ -41,15 +41,8 @@ public class BasicWorldCommands implements CommandExecutor
         Player player = (Player) sender;
         
         // Parse each specific command supported
-        if(command.getName().compareToIgnoreCase("tp") == 0)
+        if(plugin.IsCommand(player, command, args, "tp"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "tp"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Is there only one arg?
             if(args.length == 1)
             {
@@ -67,10 +60,10 @@ public class BasicWorldCommands implements CommandExecutor
                 
                 // Done
                 player.sendMessage(ChatColor.GRAY + "You have been teleported to \"" + target.getName() + "\"");
-                target.sendMessage(ChatColor.GRAY + "\"" + target.getName() + "\" has teleported to your location");
+                target.sendMessage(ChatColor.GRAY + "\"" + player.getName() + "\" has teleported to your location");
             }
             // Moving x to y
-            if(args.length == 2)
+            else if(args.length == 2)
             {
                 // Does this player exist?
                 Player target1 = plugin.getServer().getPlayer(args[0]);
@@ -93,15 +86,8 @@ public class BasicWorldCommands implements CommandExecutor
             else
                 return false;
         }
-        else if(command.getName().compareToIgnoreCase("warp") == 0)
+        else if(plugin.IsCommand(player, command, args, "warp"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "warp"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Must have at least one argument
             if(args.length != 1)
             {
@@ -135,15 +121,8 @@ public class BasicWorldCommands implements CommandExecutor
                 return true;
             }
         }
-        else if(command.getName().compareToIgnoreCase("list") == 0)
+        else if(plugin.IsCommand(player, command, args, "list"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "warp"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Generate a string of all the warps
             String warps = "";
             for(int i = 0; i < plugin.warps.GetWarpNames().size(); i++)
@@ -161,15 +140,8 @@ public class BasicWorldCommands implements CommandExecutor
                 player.sendMessage(warps);
             return true;
         }
-        else if(command.getName().compareToIgnoreCase("setwarp") == 0)
+        else if(plugin.IsCommand(player, command, args, "setwarp"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "setwarp"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Must have at least one argument
             if(args.length != 1)
                 return false;
@@ -178,15 +150,8 @@ public class BasicWorldCommands implements CommandExecutor
             plugin.warps.SetWarp(args[0], player.getLocation());
             player.sendMessage(ChatColor.GRAY + "Warp \"" + args[0] + "\" saved");
         }
-        else if(command.getName().compareToIgnoreCase("delwarp") == 0)
+        else if(plugin.IsCommand(player, command, args, "delwarp"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "delwarp"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Must have at least one argument
             if(args.length != 1)
                 return false;
@@ -195,15 +160,8 @@ public class BasicWorldCommands implements CommandExecutor
             plugin.warps.DelWarp(args[0]);
             player.sendMessage(ChatColor.GRAY + "Warp \"" + args[0] + "\" removed");
         }
-        else if(command.getName().compareToIgnoreCase("home") == 0)
+        else if(plugin.IsCommand(player, command, args, "home"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "home"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Is home defined?
             Location home = plugin.warps.GetHome(player.getName());
             if(home == null)
@@ -217,28 +175,14 @@ public class BasicWorldCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "You have warped to your home location");
             }
         }
-        else if(command.getName().compareToIgnoreCase("sethome") == 0)
+        else if(plugin.IsCommand(player, command, args, "sethome"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "sethome"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Save this as the player's home
             plugin.warps.SetHome(player.getName(), player.getLocation());
             player.sendMessage(ChatColor.GRAY + "You have set your home location");
         }
-        else if(command.getName().compareToIgnoreCase("spawn") == 0)
+        else if(plugin.IsCommand(player, command, args, "spawn"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "spawn"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Is spawn defined?
             Location spawn = plugin.warps.GetSpawn();
             if(spawn == null)
@@ -252,28 +196,14 @@ public class BasicWorldCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "You have warped to spawn");
             }
         }
-        else if(command.getName().compareToIgnoreCase("setspawn") == 0)
+        else if(plugin.IsCommand(player, command, args, "setspawn"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "setspawn"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Save this as the spawn
             plugin.warps.SetSpawn(player.getLocation());
             player.sendMessage(ChatColor.GRAY + "You have set the spawn location");
         }
-        else if(command.getName().compareToIgnoreCase("top") == 0)
+        else if(plugin.IsCommand(player, command, args, "top"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "top"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Find the highest block...
             int blockY = player.getWorld().getHighestBlockYAt(player.getLocation());
             
@@ -285,15 +215,8 @@ public class BasicWorldCommands implements CommandExecutor
             // Say where we now are
             player.sendMessage(ChatColor.GRAY + "You are now at a height of: " + (blockY + 2.0));
         }
-        else if(command.getName().compareToIgnoreCase("jump") == 0)
+        else if(plugin.IsCommand(player, command, args, "jump"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "jump"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Find the block the user wants to get to...
             Location jumpLocation = plugin.warps.GetCollision(player, 100.0, 1.0f);
             if(jumpLocation == null)
@@ -303,14 +226,14 @@ public class BasicWorldCommands implements CommandExecutor
             }
             else
             {
+                // Find distance
+                double Distance = jumpLocation.subtract(player.getLocation()).length();
+                
                 // Move up then teleport
                 player.teleport(jumpLocation);
-                player.sendMessage(ChatColor.GRAY + "Jumped to target location");
+                player.sendMessage(ChatColor.GRAY + "Jumped to target location, distance: " + String.format("%.2f", Distance) + " blocks");
             }
         }
-        // Else, unknown
-        else
-            return false;
         
         // Done - parsed
         return true;

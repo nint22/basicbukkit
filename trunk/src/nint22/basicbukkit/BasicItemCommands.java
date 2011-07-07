@@ -13,6 +13,8 @@
 
 package nint22.basicbukkit;
 
+import java.util.*;
+import java.util.Map.Entry;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,8 +22,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
-import java.util.*;
-import java.util.Map.Entry;
 
 public class BasicItemCommands implements CommandExecutor
 {
@@ -44,15 +44,8 @@ public class BasicItemCommands implements CommandExecutor
         Player player = (Player) sender;
         
         // Get the kit items
-        if(command.getName().compareToIgnoreCase("kit") == 0)
+        if(plugin.IsCommand(player, command, args, "kit"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "kit"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Find all the items in the config file
             List<Object> kit = plugin.configuration.getList("kit");
             for(Object item : kit)
@@ -101,15 +94,8 @@ public class BasicItemCommands implements CommandExecutor
             player.sendMessage(ChatColor.GRAY + "You have been given a kit of useful items");
         }
         // Parse each specific command supported
-        else if(command.getName().compareToIgnoreCase("item") == 0 || command.getName().compareToIgnoreCase("i") == 0)
+        else if(plugin.IsCommand(player, command, args, "item") || plugin.IsCommand(player, command, args, "i"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "item"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // We must have between 1-2 args
             if(args.length < 1)
                 return false;
@@ -120,6 +106,7 @@ public class BasicItemCommands implements CommandExecutor
             String SimpleName = "Unknown Name";
             
             // The first arg is either the item name OR the item number
+            // Reg-ex matches only decimal
             if(args[0].matches("\\d+"))
             {
                 // Arg is integer
@@ -134,7 +121,7 @@ public class BasicItemCommands implements CommandExecutor
                 }
                 
                 // Attempt to get the short-name
-                Set<Entry<String, String>> AllData = plugin.itemNames.hashmap.entrySet();
+                Set<Entry<String, String>> AllData = plugin.itemNames.itemNames.entrySet();
                 for(Object obj : AllData)
                 {
                     // Value matches...
@@ -148,9 +135,9 @@ public class BasicItemCommands implements CommandExecutor
             else
             {
                 // Arg is item string
-                if(plugin.itemNames.hashmap.containsKey(args[0].toLowerCase()))
+                if(plugin.itemNames.itemNames.containsKey(args[0].toLowerCase()))
                 {
-                    String ItemString = plugin.itemNames.hashmap.get(args[0].toLowerCase());
+                    String ItemString = plugin.itemNames.itemNames.get(args[0].toLowerCase());
                     SimpleName = args[0].toLowerCase();
                     String[] StringData = ItemString.split("_");
                     try
@@ -195,22 +182,23 @@ public class BasicItemCommands implements CommandExecutor
                 }
             }
             
-            player.getInventory().addItem(new ItemStack(ItemID, count));
-            player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")");
+            // Can this user spawn banned items?
+            if(plugin.users.CanUseBannedItem(ItemID, player.getName()))
+            {
+                player.getInventory().addItem(new ItemStack(ItemID, count));
+                player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")");
+            }
+            else
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot recieve banned blocks.");
+            }
             
             // All done...
             return true;
         }
         // Parse giving an item from player A to player B
-        else if(command.getName().compareToIgnoreCase("give") == 0)
+        else if(plugin.IsCommand(player, command, args, "give"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "give"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // We must have between 2-3 args
             if(args.length < 2)
                 return false;
@@ -246,7 +234,7 @@ public class BasicItemCommands implements CommandExecutor
                 }
                 
                 // Attempt to get the short-name
-                Set<Entry<String, String>> AllData = plugin.itemNames.hashmap.entrySet();
+                Set<Entry<String, String>> AllData = plugin.itemNames.itemNames.entrySet();
                 for(Object obj : AllData)
                 {
                     // Value matches...
@@ -260,9 +248,9 @@ public class BasicItemCommands implements CommandExecutor
             else
             {
                 // Arg is item string
-                if(plugin.itemNames.hashmap.containsKey(args[1].toLowerCase()))
+                if(plugin.itemNames.itemNames.containsKey(args[1].toLowerCase()))
                 {
-                    String ItemString = plugin.itemNames.hashmap.get(args[1].toLowerCase());
+                    String ItemString = plugin.itemNames.itemNames.get(args[1].toLowerCase());
                     SimpleName = args[1].toLowerCase();
                     String[] StringData = ItemString.split("_");
                     try
@@ -315,15 +303,8 @@ public class BasicItemCommands implements CommandExecutor
             return true;
         }
         // Clean all inventory for the play
-        else if(command.getName().compareToIgnoreCase("clean") == 0)
+        else if(plugin.IsCommand(player, command, args, "clean"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "clean"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             ItemStack[] items = player.getInventory().getContents();
             for(int i = 0; i < items.length; i++)
             {
@@ -336,9 +317,6 @@ public class BasicItemCommands implements CommandExecutor
             player.getInventory().setContents(items);
             player.sendMessage(ChatColor.GRAY + "Inventory cleaned");
         }
-        // Else, unknown
-        else
-            return false;
         
         // Done - parsed
         return true;
