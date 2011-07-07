@@ -75,6 +75,9 @@ Total commands: *~35*
     * god:
         **description: Toggles invincibility; on by default
         **usage: /god
+    * pvp:
+        **description: Toggles invincibility; on by default
+        **usage: /pvp
     * kill:
         **description: Kills self or the target player
         **usage: {{{/kill [player]}}}
