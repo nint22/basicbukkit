@@ -74,7 +74,7 @@ Total commands: *~35*
         **usage: {{{/who}}}
     * op:
         **description: Assigns the target player to the given op rank
-        **usage: {{{/op <player> [op level, defaults to 0]}}}
+        **usage: {{{/op <player> [group ID or name]}}}
     * god:
         **description: Toggles invincibility; on by default
         **usage: /god
