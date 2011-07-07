@@ -14,14 +14,13 @@
 
 package nint22.basicbukkit;
 
+import java.util.*;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.ChatColor;
-import java.util.*;
-import org.bukkit.util.config.ConfigurationNode;
 
 public class BasicMiscCommands implements CommandExecutor
 {
@@ -44,15 +43,8 @@ public class BasicMiscCommands implements CommandExecutor
         Player player = (Player) sender;
         
         // Parse each specific command supported
-        if(command.getName().compareToIgnoreCase("help") == 0)
+        if(plugin.IsCommand(player, command, args, "help"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "help"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Get LinkedHashMap of the commands
             PluginDescriptionFile pdfFile = plugin.getDescription();
             LinkedHashMap Map = (LinkedHashMap)pdfFile.getCommands();
@@ -136,43 +128,22 @@ public class BasicMiscCommands implements CommandExecutor
                 }
             }
         }
-        else if(command.getName().compareToIgnoreCase("motd") == 0)
+        else if(plugin.IsCommand(player, command, args, "motd"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "motd"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Get the motd string
             String[] motd = plugin.GetMOTD();
             for(int i = 0; i < motd.length; i++)
                 player.sendMessage(motd[i]);
         }
-        else if(command.getName().compareToIgnoreCase("clear") == 0)
+        else if(plugin.IsCommand(player, command, args, "clear"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "clear"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Send enough empty lines to the client to
             // make sure we clear out the user's screen buffer
             for(int i = 0; i < 20; i++)
                 player.sendMessage("");
         }
-        else if(command.getName().compareToIgnoreCase("where") == 0)
+        else if(plugin.IsCommand(player, command, args, "where"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "where"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Cast to string and change precision
             String yaw = String.format("%.2f", player.getLocation().getYaw());
             String pitch = String.format("%.2f", player.getLocation().getPitch());
@@ -184,9 +155,42 @@ public class BasicMiscCommands implements CommandExecutor
             if(protectionName != null)
                 player.sendMessage(ChatColor.GRAY + "You are in the protected area named \"" + protectionName + "\"");
         }
-        // Unknown command
-        else
-            return false;
+        else if(plugin.IsCommand(player, command, args, "afk"))
+        {
+            // Set self to afk
+            plugin.users.SetAFK(player.getName(), true);
+            plugin.BroadcastMessage(ChatColor.GRAY + "Player \"" + player.getName() + "\" is now AFK");
+        }
+        else if(plugin.IsCommand(player, command, args, "msg"))
+        {
+            // Do we have at least 2 args? (0: name, 1: message, message...)
+            if(args.length >= 2)
+            {
+                // Get player
+                Player targetPlayer = plugin.getServer().getPlayer(args[0]);
+                if(targetPlayer == null)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unable to find player \"" + targetPlayer.getName() + "\" to message");
+                    return true;
+                }
+                
+                // Form message
+                String message = ChatColor.GRAY + "Private message from \"" + player.getName() + "\":";
+                targetPlayer.sendMessage(message);
+                
+                // For full message
+                message = "&f";
+                for(int i = 1; i < args.length; i++)
+                    message += args[i] + " ";
+                message = plugin.ColorString(message);
+                targetPlayer.sendMessage(message);
+                
+                // Message sent
+                player.sendMessage(ChatColor.GRAY + "Private message sent");
+            }
+            else
+                return false;
+        }
         
         // Done - parsed
         return true;

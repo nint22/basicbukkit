@@ -19,6 +19,9 @@ import org.bukkit.util.config.Configuration;
 
 public class BasicUsers
 {
+    // Main plugin handler
+    private BasicBukkit plugin;
+    
     // Internal config handler
     private Configuration users;
     
@@ -43,9 +46,15 @@ public class BasicUsers
     // God mode (if true, player recieves no damage); not saved to file!
     private HashMap<String, Boolean> GodMode;
     
+    // AFK users (if true, user is afk)
+    private HashMap<String, Boolean> AFKMode;
+    
     // Initialize users
-    public BasicUsers(Configuration users, Configuration config)
+    public BasicUsers(BasicBukkit plugin, Configuration users, Configuration config)
     {
+        // Save plugin handle
+        this.plugin = plugin;
+        
         // Load the users file (just in case it hasn't yet)
         this.users = users;
         this.users.load();
@@ -65,6 +74,7 @@ public class BasicUsers
         KickedTimes = new HashMap();
         BannedUsers = new HashMap();
         GodMode = new HashMap();        // Note that this one is not saved
+        AFKMode = new HashMap();
         
         // Parse config file that has all group info
         List<Object> ConfigGroups = config.getList("groups");
@@ -246,15 +256,30 @@ public class BasicUsers
     }
     
     // Can the given user place / use banned blocks / items?
-    public boolean CanUseBannedItems(String name)
+    public boolean CanUseBannedItem(int ItemID, String name)
     {
         // Find the user's group (and fail out if does not exist)
         int GroupIndex = GetGroupID(name);
         if(GroupIndex < 0)
             return false;
         
-        // Get the group's permissions
-        return GroupBannedItems.get(GroupIndex).booleanValue();
+        // Can we use banned items?
+        boolean CanUseBanned = GroupBannedItems.get(GroupIndex).booleanValue();
+        
+        // Is it a banned item?
+        boolean IsBanned = plugin.itemNames.banned.contains(new Integer(ItemID)); 
+        
+        // If it is a banned item and we cannot use it, return false
+        if(IsBanned)
+        {
+            if(CanUseBanned)
+                return true;
+            else
+                return false;
+        }
+        // Not-banned, just use
+        else
+            return true;
     }
 
     // Get a list of commands this user can use (based on his or her group)
@@ -270,7 +295,7 @@ public class BasicUsers
     }
     
     // Can a user join? i.e. is he or she not in the kicked list?
-    public boolean UserCanJoin(String userName)
+    public boolean IsKicked(String userName)
     {
         // Is it in the map?
         Integer time = KickedTimes.get(userName);
@@ -293,7 +318,7 @@ public class BasicUsers
     }
     
     // Insert new kick for length
-    public void UserSetKickTime(String userName, int minutes)
+    public void SetKickTime(String userName, int minutes)
     {
         // Create the time when the user can join back
         int KickEndTime = (int)(System.currentTimeMillis()/1000) + minutes * 60;
@@ -303,21 +328,33 @@ public class BasicUsers
     }
     
     // Ban user
-    public void UserBan(String userName, String reason)
+    public void SetBan(String userName, String reason)
     {
         BannedUsers.put(userName, reason);
     }
     
     // Pardon user
-    public void UserUnban(String userName)
+    public void SetUnban(String userName)
     {
         BannedUsers.remove(userName);
     }
     
     // Return a string if banned
-    public String UserIsBanned(String userName)
+    public String IsBanned(String userName)
     {
-        return BannedUsers.get(userName);
+        /*
+        // Did we ban using BasicBukkit?
+        String basicBanned = BannedUsers.get(userName);
+        String mcBanned = plugin.getServer();
+        if(basicBanned == null)
+        {
+            
+        }
+        else
+            return basicBanned;
+        
+         */
+        return null;
     }
     
     // Gets god mode; initial (default) value is true
@@ -336,5 +373,25 @@ public class BasicUsers
     {
         // Just save and overwrite
         GodMode.put(name, new Boolean(newState));
+    }
+    
+    // Get AFK mode
+    public boolean GetAFK(String name)
+    {
+        Boolean isAFK = AFKMode.get(name);
+        if(isAFK == null || (isAFK.booleanValue() == false))
+        {
+            AFKMode.remove(name);
+            return false;
+        }
+        else
+            return true;
+    }
+    
+    // Set AFK mode
+    public void SetAFK(String name, boolean isAFK)
+    {
+        // Just save and overwrite
+        AFKMode.put(name, new Boolean(isAFK));
     }
 }

@@ -21,7 +21,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.Location;
 import org.bukkit.ChatColor;
 
 public class BasicProtectionCommands implements CommandExecutor
@@ -53,45 +52,24 @@ public class BasicProtectionCommands implements CommandExecutor
         Player player = (Player) sender;
         
         // Parse each specific command supported
-        if(command.getName().compareToIgnoreCase("p1") == 0)
+        if(plugin.IsCommand(player, command, args, "p1"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "p1"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Save point
             Pair currentPos = new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ());
             TempPoints.put(player.getName() + "_1", currentPos);
             
             player.sendMessage(ChatColor.GRAY + "First point saved for protection: (" + currentPos.x + ", " + currentPos.y + ")");
         }
-        else if(command.getName().compareToIgnoreCase("p2") == 0)
+        else if(plugin.IsCommand(player, command, args, "p2"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "p2"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Save point
             Pair currentPos = new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ());
             TempPoints.put(player.getName() + "_2", currentPos);
             
             player.sendMessage(ChatColor.GRAY + "Second point saved for protection: (" + currentPos.x + ", " + currentPos.y + ")");
         }
-        else if(command.getName().compareToIgnoreCase("protect") == 0)
+        else if(plugin.IsCommand(player, command, args, "protect"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "protect"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Do we have a name?
             if(args.length != 1)
             {
@@ -132,15 +110,8 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Unable to create a protected area; it is too large! (Max: 64x64)");
             }
         }
-        else if(command.getName().compareToIgnoreCase("protectadd") == 0)
+        else if(plugin.IsCommand(player, command, args, "protectadd"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "protectadd"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Must include name
             if(args.length != 2)
             {
@@ -158,15 +129,8 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "User \"" + args[1] + "\" has been added to \"" + args[0] + "\"");
             }
         }
-        else if(command.getName().compareToIgnoreCase("protectrem") == 0)
+        else if(plugin.IsCommand(player, command, args, "protectrem"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "protectrem"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Must include name
             if(args.length != 2)
             {
@@ -193,15 +157,8 @@ public class BasicProtectionCommands implements CommandExecutor
             }
             
         }
-        else if(command.getName().compareToIgnoreCase("protectdel") == 0)
+        else if(plugin.IsCommand(player, command, args, "protectdel"))
         {
-            // Security check
-            if(!plugin.users.CanExecute(player.getName(), "protectdel"))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot use this command.");
-                return true;
-            }
-            
             // Must include name
             if(args.length != 1)
             {
@@ -219,9 +176,6 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Protected area \"" + args[0] + "\" has been removed");
             }
         }
-        // Else, unknown
-        else
-            return false;
         
         // Done - parsed
         return true;

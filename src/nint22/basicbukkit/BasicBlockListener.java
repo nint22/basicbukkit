@@ -28,9 +28,6 @@ public class BasicBlockListener extends BlockListener
     // Three types of flows
     boolean LavaFlows, WaterFlows, FireFlows;
     
-    // List of banned items
-    LinkedList<Integer> banned = null;
-    
     // Constructor saves plugin handle
     public BasicBlockListener(BasicBukkit instance)
     {
@@ -41,29 +38,6 @@ public class BasicBlockListener extends BlockListener
         LavaFlows = plugin.configuration.getBoolean("lavaflows", false);
         WaterFlows = plugin.configuration.getBoolean("waterflows", false);
         FireFlows = plugin.configuration.getBoolean("fireflows", false);
-        
-        // Get list of banned items
-        banned = new LinkedList();
-        
-        String bannedString = plugin.configuration.getString("banned");
-        String[] splitString = bannedString.split(",");
-        try
-        {
-            for(int i = 0; i < splitString.length; i++)
-            {
-                // Note we clean the string...
-                int ItemID = Integer.parseInt(splitString[i].trim());
-                banned.add(new Integer(ItemID));
-            }
-        }
-        catch(Exception e)
-        {
-            // Force crash
-            System.out.println("### BasicBukkit unable to parse the banned items array: " + e.toString());
-        }
-        
-        // How may did we ban?
-        System.out.println("### BasicBukkit loaded " + banned.size() + " banned items");
     }
     
     // When a block is placed
@@ -76,16 +50,12 @@ public class BasicBlockListener extends BlockListener
         Player player = event.getPlayer();
         int BlockID = event.getBlock().getTypeId();
         
-        // Can the player use this banned item?
-        if(banned.contains(new Integer(BlockID)))
+        // If we cannot place banned items...
+        if(!plugin.users.CanUseBannedItem(BlockID, player.getName()))
         {
-            // If we cannot place banned items...
-            if(!plugin.users.CanUseBannedItems(player.getName()))
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
-                event.setCancelled(true);
-                return;
-            }
+            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
+            event.setCancelled(true);
+            return;
         }
         
         /*** Protection Check ***/

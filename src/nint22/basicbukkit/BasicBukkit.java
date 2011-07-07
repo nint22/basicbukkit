@@ -13,14 +13,17 @@
 
 package nint22.basicbukkit;
 
+import java.io.*;
+import java.util.List;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.config.Configuration;
-import java.io.*;
-import java.util.List;
 
 public class BasicBukkit extends JavaPlugin
 {
@@ -119,15 +122,15 @@ public class BasicBukkit extends JavaPlugin
         // Register all plugin events
         PluginManager pm = getServer().getPluginManager();
         
-        // Load the items file
-        itemNames = new ItemNames(loadFile("items.csv"));
-        
         // Load config file
         configuration = new Configuration(loadFile("config.yml"));
         configuration.load();
         
+        // Load the items file
+        itemNames = new ItemNames(loadFile("items.csv"), configuration);
+        
         // Load users file
-        users = new BasicUsers(new Configuration(loadFile("users.yml")), configuration);
+        users = new BasicUsers(this, new Configuration(loadFile("users.yml")), configuration);
         
         // Load protected areas file
         protections = new BasicProtection(new Configuration(loadFile("protections.yml")));
@@ -150,6 +153,10 @@ public class BasicBukkit extends JavaPlugin
         
         // Intercept all chat messages so we can replace the color...
         pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Normal, this);
+        
+        // Item drop / steal
+        pm.registerEvent(Event.Type.PLAYER_DROP_ITEM, playerListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.PLAYER_PICKUP_ITEM, playerListener, Priority.Normal, this);
         
         /*** Block Place / Usage Events ***/
         blockListener = new BasicBlockListener(this);
@@ -179,6 +186,8 @@ public class BasicBukkit extends JavaPlugin
         getCommand("motd").setExecutor(MiscCommands);                           // Done
         getCommand("clear").setExecutor(MiscCommands);                          // Done
         getCommand("where").setExecutor(MiscCommands);                          // Done
+        getCommand("afk").setExecutor(MiscCommands);                            // Done
+        getCommand("msg").setExecutor(MiscCommands);                            // Done
         
         BasicAdminCommands AdminCommands = new BasicAdminCommands(this);
         getCommand("op").setExecutor(AdminCommands);                            // Done
@@ -228,6 +237,8 @@ public class BasicBukkit extends JavaPlugin
         System.out.println( "### BasicBukkiet (v." + pdfFile.getVersion() + ") plugin enabled. ");
     }
     
+    /*** Global Helper Functions ***/
+    
     // Get a list of strings that are the MOTD
     public String[] GetMOTD()
     {
@@ -240,10 +251,57 @@ public class BasicBukkit extends JavaPlugin
         
         // Fix colors for each string
         for(int i = 0; i < motd.length; i++)
-            motd[i] = motd[i].replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
+            motd[i] = ColorString(motd[i]);
         
         // Return motd
         return motd;
     }
+    
+    // True if we can execute it, false otherwise
+    public boolean IsCommand(Player player, Command command, String[] args, String commandName)
+    {
+        // Is this a match?
+        if(command.getName().compareToIgnoreCase(commandName) == 0)
+        {
+            // Print the command we are using...
+            String argsList = "[";
+            for(int i = 0; i < args.length; i++)
+            {
+                argsList += args[i];
+                if(i != args.length - 1)
+                    argsList += ", ";
+            }
+            argsList += "]";
+            System.out.println(player.getName() + ": /" + commandName + " " + argsList);
+            
+            // Security check (i.e. can this player execute this command?
+            if(!users.CanExecute(player.getName(), commandName))
+            {
+                System.out.println(player.getName() + ": Group \"" + users.GetGroupName(player.getName()) + "\" (GID " + users.GetGroupID(player.getName()) + ") cannot use this command.");
+                player.sendMessage(ChatColor.RED + "Your group \"" + users.GetGroupName(player.getName()) + "\" (GID " + users.GetGroupID(player.getName()) + ") cannot use this command.");
+                return false;
+            }
+            
+            // All good
+            return true;
+        }
+        
+        // Failed to match
+        return false;
+    }
+    
+    // Colorize a string (i.e. replace all &0, &1, ..., &f) with the associated color
+    public String ColorString(String message)
+    {
+        return message.replaceAll("&([0-9a-f])", (char)0xA7 + "$1");
+    }
+    
+    // Make a global broadcast
+    public void BroadcastMessage(String message)
+    {
+        // Replace color and send over
+        message = message.replaceAll(message, message);
+        System.out.println("Server log: " + message);
+        getServer().broadcastMessage(message);
+    }
 }
-
