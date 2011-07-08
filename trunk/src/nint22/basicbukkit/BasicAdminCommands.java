@@ -180,7 +180,7 @@ public class BasicAdminCommands implements CommandExecutor
                     allPlayers = plugin.ColorString(allPlayers);
 
                     // Print all
-                    sender.sendMessage(ChatColor.GRAY + "Online Players:");
+                    sender.sendMessage(ChatColor.GRAY + "Online Players: (" + plugin.getServer().getOnlinePlayers().length + ")");
                     sender.sendMessage(allPlayers);
                 }
             }
@@ -420,7 +420,7 @@ public class BasicAdminCommands implements CommandExecutor
                     allPlayers = plugin.ColorString(allPlayers);
 
                     // Print all
-                    player.sendMessage(ChatColor.GRAY + "Online Players:");
+                    player.sendMessage(ChatColor.GRAY + "Online Players: (" + plugin.getServer().getOnlinePlayers().length + ")");
                     player.sendMessage(allPlayers);
                 }
             }

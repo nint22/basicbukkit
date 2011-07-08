@@ -185,7 +185,12 @@ public class BasicItemCommands implements CommandExecutor
             // Can this user spawn banned items?
             if(plugin.users.CanUseBannedItem(ItemID, player.getName()))
             {
-                player.getInventory().addItem(new ItemStack(ItemID, count));
+                // Create the item stack...
+                ItemStack newItems = new ItemStack(ItemID, count);
+                if(MetaID != 0)
+                    newItems.setDurability((short)MetaID);
+                player.getInventory().addItem(newItems);
+                
                 player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")");
             }
             else
@@ -295,7 +300,12 @@ public class BasicItemCommands implements CommandExecutor
                 }
             }
             
-            player.getInventory().addItem(new ItemStack(ItemID, count));
+            // Create the item stack...
+            ItemStack newItems = new ItemStack(ItemID, count);
+            if(MetaID != 0)
+                newItems.setDurability((short)MetaID);
+            player.getInventory().addItem(newItems);
+            
             player.sendMessage(ChatColor.GRAY + "Gave " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")" + ChatColor.GRAY + " to " + recieving.getName());
             recieving.sendMessage(ChatColor.GRAY + "Recieved " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")" + ChatColor.GRAY + " from " + player.getName());
             
