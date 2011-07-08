@@ -42,6 +42,7 @@ Groups in BasicBukkit are always listed in config.yml. A single group is defined
           - who
           - motd
       banned_access: false
+      build: true
 }}}
 
 The first line of any group should be a unique integer, used for op assignment in-game. All groups follows simple hierarchy with this number, so that group 0 is less powerful than group 1, while group 1 is less powerful than group 2, etc.. Though this isn't strictly enforced in code, it is a good protocol to conform to for the sake of configuration readability.
@@ -52,7 +53,7 @@ The third line is the "pre" title, meaning the title given to all of those in th
 
 The fourth line is an array of strings which represents commands users of this group may access. You must *explicitly* list all commands you want available to the user of this group. Higher-numbered group do not allow access to lower group number's commands. Again, note this block-array is tabbed since it is owned by the commands header.
 
-Finally, the last line is a boolean that declares whether or not this group's users can access (i.e. generate and/or use) banned items.
+Finally, the last two lines that are booleans that declares whether or not this group's users can access (i.e. generate and/or use) banned items and if they can build (i.e. place or break blocks).
 
 == Banned Items ==
 
