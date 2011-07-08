@@ -13,8 +13,11 @@
 
 package nint22.basicbukkit;
 
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
 public class BasicUsers
@@ -35,6 +38,7 @@ public class BasicUsers
     private LinkedList<String[]> GroupCommands;     // Valid commands in group (index based on groups)
     private LinkedList<String> GroupPreTitle;       // Pre-title for the given group
     private LinkedList<Boolean> GroupBannedItems;   // True if this group can access banned items
+    private LinkedList<Boolean> GroupCanBuild;      // Can this group build? (i.e. break and place?)
     
     // All kicked users time (unix time)
     // The unix epoch time when a user can join back
@@ -69,6 +73,7 @@ public class BasicUsers
         GroupCommands = new LinkedList();
         GroupPreTitle = new LinkedList();
         GroupBannedItems = new LinkedList();
+        GroupCanBuild = new LinkedList();
         
         // Create new hash map
         KickedTimes = new HashMap();
@@ -91,6 +96,7 @@ public class BasicUsers
             ArrayList<String> Commands = (ArrayList<String>)GroupData.get("commands");
             String PreTitle = (String)GroupData.get("pre");
             Boolean BannedItems = (Boolean)GroupData.get("banned_access");
+            Boolean CanBuild = (Boolean)GroupData.get("build");
             
             // Convert to string data (commands)
             String[] TempCommands = new String[Commands.size()];
@@ -103,6 +109,7 @@ public class BasicUsers
             GroupCommands.add(TempCommands);
             GroupPreTitle.add(PreTitle);
             GroupBannedItems.add(BannedItems);
+            GroupCanBuild.add(CanBuild);
         }
         
         // Load all users
@@ -206,7 +213,14 @@ public class BasicUsers
         if(GroupIndex < 0)
             return "[Undefined Group]";
         
-        return GroupPreTitle.get(GroupIndex);
+        // Get group title
+        String title = GroupPreTitle.get(GroupIndex);
+        
+        // If the user is afk, add it
+        if(GetAFK(UserName))
+            title = ChatColor.WHITE + "[" + ChatColor.RED + "afk" + ChatColor.WHITE + "]" + title;
+        
+        return title;
     }
     
     // Return the user's group's ID index
@@ -330,31 +344,120 @@ public class BasicUsers
     // Ban user
     public void SetBan(String userName, String reason)
     {
+        // Put to self-ban list
         BannedUsers.put(userName, reason);
+        
+        // Add to official banned list
+        // Open the ban files
+        try
+        {
+            // Append
+            BufferedWriter writer = new BufferedWriter(new FileWriter("banned-players.txt"));
+            writer.write(userName);
+            writer.close();
+        }
+        catch(Exception e)
+        {
+            System.out.println("Unable to update bad list: " + e.getMessage());
+        }
     }
     
     // Pardon user
-    public void SetUnban(String userName)
+    // True on success, false on failure of unban
+    public boolean SetUnban(String userName)
     {
-        BannedUsers.remove(userName);
+        // Is the user in our users list?
+        if(BannedUsers.containsKey(userName))
+        {
+            // Remove self from BasicBukkit data
+            BannedUsers.remove(userName);
+            
+            // Open the ban files
+            try
+            {
+                // Read banned and write to new banned list
+                BufferedReader reader = new BufferedReader(new FileReader("banned-players.txt"));
+                BufferedWriter writer = new BufferedWriter(new FileWriter("temp.txt"));
+                
+                // Source to out line
+                String source = "";
+                
+                // Keep reading line-by-line
+                while((source = reader.readLine()) != null)
+                {
+                    // If it doesn't match, write out
+                    if(!source.equalsIgnoreCase(userName))
+                        writer.write(source);
+                }
+                
+                // All done
+                reader.close();
+                writer.close();
+                
+                // Change file
+                File temp = new File("temp.txt");
+                temp.renameTo(new File("banned-players.txt"));
+            }
+            catch(Exception e)
+            {
+                System.out.println("Unable to update bad list: " + e.getMessage());
+            }
+            
+            // All done
+            return true;
+        }
+        else
+        {
+            // Failed to find
+            return false;
+        }
     }
     
     // Return a string if banned
     public String IsBanned(String userName)
     {
-        /*
         // Did we ban using BasicBukkit?
         String basicBanned = BannedUsers.get(userName);
-        String mcBanned = plugin.getServer();
-        if(basicBanned == null)
-        {
-            
-        }
-        else
-            return basicBanned;
         
-         */
-        return null;
+        // Is banned via basicbukkit?
+        if(basicBanned != null)
+            return basicBanned;
+        // Is banned via official ban-list?
+        else
+        {
+            try
+            {
+                // Read banned and write to new banned list
+                BufferedReader reader = new BufferedReader(new FileReader("banned-players.txt"));
+                
+                // Source to out line
+                String source = "";
+                
+                // Keep reading line-by-line
+                while((source = reader.readLine()) != null)
+                {
+                    // If matched, it is a banned user
+                    if(source.equalsIgnoreCase(userName))
+                    {
+                        basicBanned = "No defined ban reason";
+                        break;
+                    }
+                }
+                
+                // All done
+                reader.close();
+            }
+            catch(Exception e)
+            {
+                System.out.println("Unable to update bad list: " + e.getMessage());
+            }
+        }
+        
+        // Final ban check
+        if(basicBanned != null)
+            return basicBanned;
+        else
+            return null;
     }
     
     // Gets god mode; initial (default) value is true
@@ -393,5 +496,49 @@ public class BasicUsers
     {
         // Just save and overwrite
         AFKMode.put(name, new Boolean(isAFK));
+        
+        // Update title
+        Player player = plugin.getServer().getPlayer(name);
+        if(player != null)
+            player.setDisplayName( plugin.users.GetUserTitle(name)  + player.getName() );
+    }
+    
+    // Return a group ID based on groupName; returns -1 on error
+    public int GetGroupIDByGroup(String groupName)
+    {
+        // Go through manually so we can do comparisons; ignore case
+        for(int i = 0; i < GroupName.size(); i++)
+        {
+            // Does match (ignore case)
+            if(GroupName.get(i).equalsIgnoreCase(groupName))
+                return GroupID.get(i);
+        }
+        
+        // Not found, return -1
+        return -1;
+    }
+    
+    // Get all group IDs
+    public LinkedList<Integer> GetGroupIDs()
+    {
+        return GroupID;
+    }
+    
+    // get all group names based on list index, not group ID
+    public LinkedList<String> GetGroupNames()
+    {
+        return GroupName;
+    }
+    
+    // Can build
+    public boolean CanBuild(String userName)
+    {
+        // Get user's group
+        int GroupID = GetGroupID(userName);
+        if(GroupID < 0)
+            return false;
+        
+        // Get group's build status
+        return GroupCanBuild.get(GroupID).booleanValue();
     }
 }

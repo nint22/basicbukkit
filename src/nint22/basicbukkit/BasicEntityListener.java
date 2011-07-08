@@ -14,6 +14,7 @@
 
 package nint22.basicbukkit;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.*;
 
@@ -61,5 +62,18 @@ public class BasicEntityListener extends EntityListener
         Player player = (Player)event.getEntity();
         if(plugin.users.IsGod(player.getName()))
             event.setCancelled(true);
+    }
+    
+    // When the player dies, make a global message
+    @Override
+    public void onEntityDeath(EntityDeathEvent event)
+    {
+        // Only do player events
+        if(event.getEntity() instanceof Player)
+        {
+            // Who died?
+            Player player = (Player)event.getEntity();
+            plugin.BroadcastMessage(ChatColor.GRAY + "Player \"" + player.getDisplayName() + ChatColor.GRAY + "\" died...");
+        }
     }
 }

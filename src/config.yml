@@ -13,8 +13,9 @@
 
 # Message of the Day
 motd:
-    - "Welcome to a BasicBukkit server!"
+    - "Welcome to a BasicBukkit server! V1.0"
     - "&aPlease type /help for a list of commands"
+    - "&aFound a bug? Report it at: code.google.com/p/basicbukkit"
 
 # Op groups
 # Note that groups should ALWAYS be numbered 0, 1, 2, ....
@@ -35,6 +36,7 @@ groups:
           - afk
           - msg
       banned_access: false
+      build: false
     
     # Builder group
     - id: 1
@@ -64,6 +66,7 @@ groups:
           - msg
           - top
       banned_access: false
+      build: true
     
     # Trusted group
     - id: 2
@@ -110,6 +113,7 @@ groups:
           - protectrem
           - protectdel
       banned_access: true
+      build: true
     
     # Server owner
     - id: 3
@@ -158,6 +162,7 @@ groups:
           - protectdel
           - iclean
       banned_access: true
+      build: true
 
 # Banned items (cannot create, place, or use)
 banned: 0, 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79
@@ -178,12 +183,12 @@ allowTNT: false
 # Note that "delay" is time between messages and "start" is the initial wait period
 messages:
     - message: Please support BasicBukkit, visit code.google.com/p/basicbukki
-      delay: 120
+      delay: 240
       start: 0
       
-    - message: "Found a bug? Report it: code.google.com/p/basicbukki"
-      delay: 120
-      start: 60
+    - message: "Found a bug? Report it: code.google.com/p/basicbukkit"
+      delay: 240
+      start: 120
 
 # Kit items
 kit:

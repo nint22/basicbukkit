@@ -99,7 +99,7 @@ public class BasicProtectionCommands implements CommandExecutor
             }
             
             // Good to insert
-            if(plugin.protections.AddProtection(player.getName(), name, p1, p2))
+            if(plugin.protections.AddProtection(player, name, p1, p2))
             {
                 // Good
                 player.sendMessage(ChatColor.GRAY + "Your protected area \"" + name + "\" has been created");

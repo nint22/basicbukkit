@@ -128,7 +128,7 @@ public class BasicPlayerListener extends PlayerListener
         
         // Get current zone
         String oldZone = playerProtectionLocations.get(event.getPlayer().getName());
-        String newZone = plugin.protections.GetProtectionName(new Pair(event.getPlayer().getLocation().getBlockX(), event.getPlayer().getLocation().getBlockZ()));
+        String newZone = plugin.protections.GetProtectionName(event.getPlayer());
         
         // Did we go from a non-zone to a new zone
         if(oldZone == null && newZone != null)
@@ -198,7 +198,7 @@ public class BasicPlayerListener extends PlayerListener
         /*** Protection Check ***/
         
         // If we aren't in the area's owners list, we can't steal
-        String protectionName = plugin.protections.GetProtectionName(new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+        String protectionName = plugin.protections.GetProtectionName(event.getPlayer());
         if(protectionName == null)
         {
             // Nothing to wory about; no land
@@ -237,7 +237,7 @@ public class BasicPlayerListener extends PlayerListener
         /*** Protection Check ***/
         
         // If we aren't in the area's owners list, we can't steal
-        String protectionName = plugin.protections.GetProtectionName(new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+        String protectionName = plugin.protections.GetProtectionName(event.getPlayer());
         if(protectionName == null)
         {
             // Nothing to wory about; no land
