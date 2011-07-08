@@ -268,12 +268,12 @@ public class BasicWarps
     public Location GetCollision(Player player, double maxDistance, double resolution)
     {
         // Get the ray's source location
-        Location raySource = player.getLocation();
+        Location raySource = player.getEyeLocation();
         
         // Get the ray's direction (not a vector)
         // Also note, these are degrees
-        double yRotation = player.getLocation().getPitch() * -1.0;
-        double xRotation = (player.getLocation().getYaw() + 90) % 360;
+        double yaw = Math.toRadians((player.getLocation().getYaw() + 90) % 360); // +z is yaw 0
+        double pitch = Math.toRadians(player.getLocation().getPitch() * -1); // Change to positive up, negative down
         
         // Get world geometry
         World activeWorld = player.getWorld();
@@ -282,13 +282,12 @@ public class BasicWarps
         Location prev = null;
         
         // From distance 0 to maxDistance, check for collision
-        for(double d = resolution; d < maxDistance; d += resolution)
+        for(double d = 2; d < maxDistance; d += resolution)
         {
             // Get the ray offsets sans origin
-            double hypotenuse = (d * Math.cos(Math.toRadians(yRotation)));
-            double offsetX = hypotenuse * Math.cos(Math.toRadians(xRotation));
-            double offsetY = d * Math.sin(Math.toRadians(yRotation));
-            double offsetZ = hypotenuse * Math.sin(Math.toRadians(xRotation));
+            double offsetX = d * Math.cos(yaw) * Math.cos(pitch);
+            double offsetY = d * Math.sin(pitch);
+            double offsetZ = d * Math.sin(yaw) * Math.cos(pitch);
             
             // Add origin and cast to block position
             double posX = raySource.getX() + (int)offsetX;
@@ -300,9 +299,7 @@ public class BasicWarps
             
             // Is this not air? Return the previous (known air) location
             if(mat != null && mat != Material.AIR && mat != Material.WATER)
-                return prev;
-            else
-                prev = new Location(activeWorld, posX, posY, posZ, player.getLocation().getYaw(), player.getLocation().getPitch());
+                return new Location(activeWorld, posX, posY, posZ, player.getLocation().getYaw(), player.getLocation().getPitch());
         }
         
         // No collisions

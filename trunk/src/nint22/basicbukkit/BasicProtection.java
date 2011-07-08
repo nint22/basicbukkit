@@ -16,6 +16,8 @@
 package nint22.basicbukkit;
 
 import java.util.*;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
@@ -39,6 +41,7 @@ public class BasicProtection
     // List of all protections (arrays run in parallel)
     private LinkedList<String> names;
     private LinkedList<LinkedList<String>> owners = null;   // List of owners for each protection
+    private LinkedList<String> world = null;
     private LinkedList<Pair> corner1 = null;
     private LinkedList<Pair> corner2 = null;
     
@@ -51,6 +54,7 @@ public class BasicProtection
         
         // Allocate as needed
         names = new LinkedList();
+        world = new LinkedList();
         owners = new LinkedList();
         corner1 = new LinkedList();
         corner2 = new LinkedList();
@@ -66,11 +70,13 @@ public class BasicProtection
                 
                 // Get owner and pair info
                 String Name = (String)map.get("name");
+                String WorldName = (String)map.get("world");
                 String Owner = (String)map.get("owners");
                 String Geometry = (String)map.get("geometry");
                 
-                // Add name
+                // Add name and world name
                 names.add(Name); 
+                world.add(WorldName);
                 
                 // Parse all owners
                 String[] splitString = Owner.split(",");
@@ -101,7 +107,7 @@ public class BasicProtection
                 catch(Exception e)
                 {
                     // Force crash
-                    System.out.println("### BasicBukkit unable to parse the geometry string: " + e.toString());
+                    System.out.println("### BasicBukkit unable to parse the geometry string: " + e.getMessage());
                 }
             }
         }
@@ -122,6 +128,9 @@ public class BasicProtection
             
             // Put name
             map.put("name", names.get(i));
+            
+            // Put worl name
+            map.put("world", world.get(i));
             
             // Put owners (generate comma-delimited list)
             String allOwners = "";
@@ -164,13 +173,17 @@ public class BasicProtection
     }
     
     // Get the name of the area based on a position
-    public String GetProtectionName(Pair location)
+    public String GetProtectionName(Player player)
     {
+        // Get location and world
+        Pair location = new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ());
+        
         // For all protections..
         for(int i = 0; i < names.size(); i++)
         {
             if(location.x >= corner1.get(i).x && location.y >= corner1.get(i).y &&
-               location.x <= corner2.get(i).x && location.y <= corner2.get(i).y)
+               location.x <= corner2.get(i).x && location.y <= corner2.get(i).y &&
+               world.get(i).equalsIgnoreCase(player.getWorld().getName()))
             {
                 // Found, return index
                 return names.get(i);
@@ -195,7 +208,7 @@ public class BasicProtection
     
     // Add a new area
     // Returns true on success, false if there is an intersection
-    public boolean AddProtection(String owner, String name, Pair p1, Pair p2)
+    public boolean AddProtection(Player owner, String name, Pair p1, Pair p2)
     {
         // Make sure the the first point is always the smallest one
         if(p1.x > p2.x)
@@ -223,8 +236,9 @@ public class BasicProtection
         
         // Add to list of points
         names.add(name);
+        world.add(owner.getWorld().getName());
         LinkedList<String> newOwners = new LinkedList();
-        newOwners.add(owner);
+        newOwners.add(owner.getName());
         owners.add(newOwners);
         corner1.add(p1);
         corner2.add(p2);

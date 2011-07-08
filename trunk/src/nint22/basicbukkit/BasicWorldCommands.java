@@ -218,7 +218,7 @@ public class BasicWorldCommands implements CommandExecutor
         else if(plugin.IsCommand(player, command, args, "jump"))
         {
             // Find the block the user wants to get to...
-            Location jumpLocation = plugin.warps.GetCollision(player, 100.0, 1.0f);
+            Location jumpLocation = plugin.warps.GetCollision(player, 150.0, 1.0f);
             if(jumpLocation == null)
             {
                 // Failed to find target
@@ -226,8 +226,12 @@ public class BasicWorldCommands implements CommandExecutor
             }
             else
             {
-                // Find distance
-                double Distance = jumpLocation.subtract(player.getLocation()).length();
+                // Get block y
+                int blockY = jumpLocation.getWorld().getHighestBlockYAt(jumpLocation);
+                jumpLocation.setY(blockY + 2.0);
+                
+                // Get distance
+                double Distance = jumpLocation.distance(player.getLocation());
                 
                 // Move up then teleport
                 player.teleport(jumpLocation);

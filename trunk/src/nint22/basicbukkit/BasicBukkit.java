@@ -36,6 +36,9 @@ public class BasicBukkit extends JavaPlugin
     // Create the special case event listener
     private BasicEntityListener entityListener = null;
     
+    // Create the vehicle placement listener
+    private BasicVehicleListener vehicleListener = null;
+    
     // Global configuration
     public Configuration configuration = null;
     
@@ -88,7 +91,7 @@ public class BasicBukkit extends JavaPlugin
             catch(Exception e)
             {
                 // Just fail out writing the error message
-                System.out.println("### BasicBukkit warning: " + e.toString());
+                System.out.println("### BasicBukkit warning: " + e.getMessage());
             }
             
             // Now re-open the file
@@ -166,7 +169,9 @@ public class BasicBukkit extends JavaPlugin
         pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
         
         // Spreading fire, lava, water, etc..
-        pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_IGNITE, blockListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.BLOCK_BURN, blockListener, Priority.Normal, this);
         
         /*** Entity Events ***/
         entityListener = new BasicEntityListener(this);
@@ -175,8 +180,15 @@ public class BasicBukkit extends JavaPlugin
         pm.registerEvent(Event.Type.EXPLOSION_PRIME, entityListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Normal, this);
         
-        // Prevent player damage if needed
+        // Prevent player and death damage if needed
         pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
+        
+        /*** Vehicle Events ***/
+        vehicleListener = new BasicVehicleListener(this);
+        
+        // Prevent vehicle placement
+        pm.registerEvent(Event.Type.VEHICLE_CREATE, vehicleListener, Priority.Normal, this);
         
         /*** Player Commands ***/
         
@@ -302,7 +314,7 @@ public class BasicBukkit extends JavaPlugin
     public void BroadcastMessage(String message)
     {
         // Replace color and send over
-        message = message.replaceAll(message, message);
+        message = ColorString(message);
         System.out.println("Server log: " + message);
         getServer().broadcastMessage(message);
     }

@@ -151,7 +151,7 @@ public class BasicMiscCommands implements CommandExecutor
             // Print to the player where her or she is at and their facing
             player.sendMessage(ChatColor.GRAY + "Your location: <" + player.getLocation().getBlockX() + ", " + player.getLocation().getBlockY() + ", " + player.getLocation().getBlockZ() + ">, facing: <" + pitch + ", " + yaw + ">");
             
-            String protectionName = plugin.protections.GetProtectionName(new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+            String protectionName = plugin.protections.GetProtectionName(player);
             if(protectionName != null)
                 player.sendMessage(ChatColor.GRAY + "You are in the protected area named \"" + protectionName + "\"");
         }

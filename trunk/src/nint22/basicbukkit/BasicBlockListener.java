@@ -14,11 +14,11 @@
 
 package nint22.basicbukkit;
 
+import org.bukkit.Material;
+import org.bukkit.ChatColor;
 import java.util.LinkedList;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.*;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 
 public class BasicBlockListener extends BlockListener
 {
@@ -50,6 +50,14 @@ public class BasicBlockListener extends BlockListener
         Player player = event.getPlayer();
         int BlockID = event.getBlock().getTypeId();
         
+        // Can this user build?
+        if(!plugin.users.CanBuild(player.getName()))
+        {
+            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
+            event.setCancelled(true);
+            return;
+        }
+        
         // If we cannot place banned items...
         if(!plugin.users.CanUseBannedItem(BlockID, player.getName()))
         {
@@ -67,33 +75,64 @@ public class BasicBlockListener extends BlockListener
     @Override
     public void onBlockBreak(BlockBreakEvent event)
     {
+        // Get player if this was a player-based event
+        if(event.getPlayer() != null)
+        {
+            Player player = event.getPlayer();
+
+            // Can this user build?
+            if(!plugin.users.CanBuild(player.getName()))
+            {
+                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
+                event.setCancelled(true);
+                return;
+            }
+        }
+        
         /*** Protection Check ***/
         event.setCancelled(!CheckProtection(event.getPlayer(), event));
     }
     
     // Does spread?
     @Override
-    public void onBlockPhysics(BlockPhysicsEvent event)
+    public void onBlockFromTo(BlockFromToEvent event)
     {
         // Get block ID
-        int BlockID = event.getBlock().getTypeId();
+        Material BlockID = event.getBlock().getType();
         
         // Check for lava
-        if(BlockID == org.bukkit.Material.LAVA.getId() && !LavaFlows)
+        if((BlockID == Material.LAVA || BlockID == Material.STATIONARY_LAVA) && !LavaFlows)
         {
             event.setCancelled(true);
-            event.getBlock().setType(Material.AIR);
         }
-        else if(BlockID == org.bukkit.Material.WATER.getId() && !WaterFlows)
+        else if((BlockID == Material.WATER || BlockID == Material.STATIONARY_WATER) && !WaterFlows)
         {
             event.setCancelled(true);
-            event.getBlock().setType(Material.AIR);
         }
-        else if(BlockID == org.bukkit.Material.FIRE.getId() && !FireFlows)
+        else if(BlockID == Material.FIRE && !FireFlows)
         {
             event.setCancelled(true);
-            event.getBlock().setType(Material.AIR);
         }
+    }
+    
+    // Fire protection
+    @Override
+    public void onBlockIgnite(BlockIgniteEvent event)
+    {
+        // Is this fire?
+        if((event.getCause().equals(BlockIgniteEvent.IgniteCause.SPREAD)) && !FireFlows)
+        {
+            event.setCancelled(true);
+        }
+    }
+    
+    // Fire protection
+    @Override
+    public void onBlockBurn(BlockBurnEvent event)
+    {
+        // Is this a fire?
+        if(!FireFlows)
+            event.setCancelled(true);
     }
     
     // Custom check placement / break code
@@ -101,7 +140,7 @@ public class BasicBlockListener extends BlockListener
     private boolean CheckProtection(Player player, BlockEvent event)
     {
         // Get the owners of this protection area
-        String protectionName = plugin.protections.GetProtectionName(new Pair(event.getBlock().getX(), event.getBlock().getZ()));
+        String protectionName = plugin.protections.GetProtectionName(player);
         if(protectionName != null)
         {
             // Are we in the owner's list?
