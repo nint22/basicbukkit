@@ -224,10 +224,10 @@ public class BasicProtection
             p2.y = temp;
         }
         
-        // Max distance can only be 64 in both directions
-        if(p2.x - p1.x > 64)
+        // Max distance can only be 128 max in both directions
+        if(p2.x - p1.x > 128)
             return false;
-        if(p2.y - p1.y > 64)
+        if(p2.y - p1.y > 128)
             return false;
         
         // As of now, we do NOT do collision checks
@@ -242,6 +242,13 @@ public class BasicProtection
         owners.add(newOwners);
         corner1.add(p1);
         corner2.add(p2);
+        
+        // Sanity check with the world string:
+        if(owner.getWorld() == null || owner.getWorld().getName() == null | owner.getWorld().getName().length() <= 0)
+        {
+            System.out.println("### BasicBukkit internal error: Unable to get world name!");
+            return false;
+        }
         
         // All done
         return true;
