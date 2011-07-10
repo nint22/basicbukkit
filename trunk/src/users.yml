@@ -1,0 +1,10 @@
+#
+# A list of all users and permissions - only edit
+# this file through the minecraft command-line interface
+# It always follows this pattern of
+# name:
+#     group: 0
+#
+
+user_name:
+    group: 0
