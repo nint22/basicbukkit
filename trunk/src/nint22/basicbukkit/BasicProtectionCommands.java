@@ -107,7 +107,7 @@ public class BasicProtectionCommands implements CommandExecutor
             else
             {
                 // Failed
-                player.sendMessage(ChatColor.GRAY + "Unable to create a protected area; it is too large! (Max: 64x64)");
+                player.sendMessage(ChatColor.GRAY + "Unable to create a protected area; it is too large! (Max: 128x128)");
             }
         }
         else if(plugin.IsCommand(player, command, args, "protectadd"))
@@ -125,8 +125,18 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
             else
             {
-                owners.add(args[1]);
-                player.sendMessage(ChatColor.GRAY + "User \"" + args[1] + "\" has been added to \"" + args[0] + "\"");
+                // Does the user exist?
+                Player target = plugin.getServer().getPlayer(args[1]);
+                if(target != null)
+                {
+                    owners.add(target.getName());
+                    player.sendMessage(ChatColor.GRAY + "User \"" + target.getName() + "\" has been added to \"" + args[0] + "\"");
+                }
+                else
+                {
+                    owners.add(args[1]);
+                    player.sendMessage(ChatColor.GRAY + "User \"" + args[1] + "\" has been added to \"" + args[0] + "\"");
+                }
             }
         }
         else if(plugin.IsCommand(player, command, args, "protectrem"))
@@ -144,9 +154,18 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
             else
             {
-                // Remove and message
-                owners.remove(args[1]);
-                player.sendMessage(ChatColor.GRAY + "User \"" + args[1] + "\" has been removed from \"" + args[0] + "\"");
+                // Does the user exist?
+                Player target = plugin.getServer().getPlayer(args[1]);
+                if(target != null)
+                {
+                    owners.remove(target.getName());
+                    player.sendMessage(ChatColor.GRAY + "User \"" + target.getName() + "\" has been removed from \"" + args[0] + "\"");
+                }
+                else
+                {
+                    owners.remove(args[1]);
+                    player.sendMessage(ChatColor.GRAY + "User \"" + args[1] + "\" has been removed from \"" + args[0] + "\"");
+                }
                 
                 // Do we self delete if there are no owners now?
                 owners = plugin.protections.GetProtectionOwners(args[0]);

@@ -200,6 +200,7 @@ public class BasicBukkit extends JavaPlugin
         getCommand("where").setExecutor(MiscCommands);                          // Done
         getCommand("afk").setExecutor(MiscCommands);                            // Done
         getCommand("msg").setExecutor(MiscCommands);                            // Done
+        getCommand("mute").setExecutor(MiscCommands);                           // Done
         
         BasicAdminCommands AdminCommands = new BasicAdminCommands(this);
         getCommand("op").setExecutor(AdminCommands);                            // Done
@@ -221,6 +222,7 @@ public class BasicBukkit extends JavaPlugin
         getCommand("i").setExecutor(ItemCommands);                              // Done
         getCommand("give").setExecutor(ItemCommands);                           // Done
         getCommand("clean").setExecutor(ItemCommands);                          // Done
+        getCommand("cleanall").setExecutor(ItemCommands);                       // Done
         
         BasicWorldCommands WorldCommands = new BasicWorldCommands(this);
         getCommand("tp").setExecutor(WorldCommands);                            // Done

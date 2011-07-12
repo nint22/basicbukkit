@@ -7,7 +7,7 @@ commands:
         description: Prints all commands
         usage: /help [page]
     motd:
-        description: Prints prints the Mesage of the Day
+        description: Prints the Message of the Day
         usage: /motd
     clear:
         description: Clears the output buffer
@@ -21,6 +21,9 @@ commands:
     afk:
         description: Declares yourself as away-from-keyboard; any movement or typing will de-afk you
         usage: /afk
+    mute:
+        description: Mutes a given player; toggles on and off
+        usage: /mute <player>
     
     kick:
         description: Kicks a given player off the server
@@ -46,7 +49,7 @@ commands:
         usage: /weather <dry|wet>
     
     kit:
-        description: Gives the player the decalred kit
+        description: Gives the player the declared kit
         usage: /kit
     item:
         description: Gives the player the target item
@@ -60,6 +63,9 @@ commands:
     clean:
         description: Removes all of the user's inventory except the active inventory
         usage: /clean
+    cleanall:
+        description: Removes all of the user's inventory including the active inventory
+        usage: /cleanall
     
     op:
         description: Assigns the target player to the given op rank

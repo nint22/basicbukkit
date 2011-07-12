@@ -53,6 +53,9 @@ public class BasicUsers
     // AFK users (if true, user is afk)
     private HashMap<String, Boolean> AFKMode;
     
+    // Muted users: tuples are <"mutedtarget_mutedby"
+    private HashMap<String, Boolean> MuteMode;
+    
     // Initialize users
     public BasicUsers(BasicBukkit plugin, Configuration users, Configuration config)
     {
@@ -79,7 +82,8 @@ public class BasicUsers
         KickedTimes = new HashMap();
         BannedUsers = new HashMap();
         GodMode = new HashMap();        // Note that this one is not saved
-        AFKMode = new HashMap();
+        AFKMode = new HashMap();        // Not saved
+        MuteMode = new HashMap();       // Not saved
         
         // Parse config file that has all group info
         List<Object> ConfigGroups = config.getList("groups");
@@ -351,66 +355,81 @@ public class BasicUsers
         // Open the ban files
         try
         {
-            // Append
-            BufferedWriter writer = new BufferedWriter(new FileWriter("banned-players.txt"));
+            // Append (note the true boolean)
+            BufferedWriter writer = new BufferedWriter(new FileWriter("banned-players.txt", true));
             writer.write(userName);
             writer.close();
         }
         catch(Exception e)
         {
-            System.out.println("Unable to update bad list: " + e.getMessage());
+            System.out.println("### BasicBukkit Unable to update ban list: " + e.getMessage());
         }
     }
     
     // Pardon user
-    // True on success, false on failure of unban
-    public boolean SetUnban(String userName)
+    // Return the user's name if found, else returns null
+    public String SetUnban(String userName)
     {
-        // Is the user in our users list?
-        if(BannedUsers.containsKey(userName))
+        // Look at all banned users - can we find them in our own banned list
+        // We will be doing a "smart search"
+        boolean BasicBukkitFound = false;
+        for(String name : BannedUsers.keySet())
         {
-            // Remove self from BasicBukkit data
-            BannedUsers.remove(userName);
-            
-            // Open the ban files
-            try
+            // Do we have a partial match?
+            if(name.toLowerCase().startsWith(userName.toLowerCase()))
             {
-                // Read banned and write to new banned list
-                BufferedReader reader = new BufferedReader(new FileReader("banned-players.txt"));
-                BufferedWriter writer = new BufferedWriter(new FileWriter("temp.txt"));
-                
-                // Source to out line
-                String source = "";
-                
-                // Keep reading line-by-line
-                while((source = reader.readLine()) != null)
+                BasicBukkitFound = true;
+                userName= name;
+                break;
+            }
+        }
+        
+        // This user was found in our banned list; remove him/her
+        BannedUsers.remove(userName);
+        
+        // Now remove from the official list
+        boolean FileFound = false;
+        try
+        {
+            // Read banned and write to new banned list
+            BufferedReader reader = new BufferedReader(new FileReader("banned-players.txt"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter("temp.txt"));
+
+            // Source to out line
+            String source = "";
+
+            // Keep reading line-by-line
+            while((source = reader.readLine()) != null)
+            {
+                // If it doesn't match, write out
+                if(!source.toLowerCase().startsWith(userName.toLowerCase()))
+                    writer.write(source);
+                // Else found, so don't write name...
+                else
                 {
-                    // If it doesn't match, write out
-                    if(!source.equalsIgnoreCase(userName))
-                        writer.write(source);
+                    userName = source;
+                    FileFound = true;
                 }
-                
-                // All done
-                reader.close();
-                writer.close();
-                
-                // Change file
-                File temp = new File("temp.txt");
-                temp.renameTo(new File("banned-players.txt"));
             }
-            catch(Exception e)
-            {
-                System.out.println("Unable to update bad list: " + e.getMessage());
-            }
-            
+
             // All done
-            return true;
+            reader.close();
+            writer.close();
+
+            // Change file
+            File temp = new File("temp.txt");
+            temp.renameTo(new File("banned-players.txt"));
         }
-        else
+        catch(Exception e)
         {
-            // Failed to find
-            return false;
+            System.out.println("### BasicBukkit Unable to update ban list: " + e.getMessage());
         }
+        
+        // Was the player removed from either of the list?
+        if(BasicBukkitFound || FileFound)
+            return userName;
+        else
+            return null;
     }
     
     // Return a string if banned
@@ -449,7 +468,7 @@ public class BasicUsers
             }
             catch(Exception e)
             {
-                System.out.println("Unable to update bad list: " + e.getMessage());
+                System.out.println("### BasicBukkit Unable to read ban list: " + e.getMessage());
             }
         }
         
@@ -540,5 +559,21 @@ public class BasicUsers
         
         // Get group's build status
         return GroupCanBuild.get(GroupID).booleanValue();
+    }
+
+    boolean IsMutedBy(Player target, Player player)
+    {
+        // Find key
+        Boolean isMuted = MuteMode.get(target.getName() + "_" + player.getName());
+        if(isMuted == null)
+            return false;
+        else
+            return isMuted.booleanValue();
+    }
+
+    void SetMutedBy(Player target, Player player, boolean IsMuted)
+    {
+        // Save new hash
+        MuteMode.put(target.getName() + "_" + player.getName(), IsMuted);
     }
 }

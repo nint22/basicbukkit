@@ -16,6 +16,7 @@
 package nint22.basicbukkit;
 
 import java.util.*;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
@@ -172,18 +173,18 @@ public class BasicProtection
             return owners.get(index);
     }
     
-    // Get the name of the area based on a position
-    public String GetProtectionName(Player player)
+    // Get the name of the area based on location
+    public String GetProtectionName(Location loc)
     {
         // Get location and world
-        Pair location = new Pair(player.getLocation().getBlockX(), player.getLocation().getBlockZ());
+        Pair location = new Pair(loc.getBlockX(), loc.getBlockZ());
         
         // For all protections..
         for(int i = 0; i < names.size(); i++)
         {
             if(location.x >= corner1.get(i).x && location.y >= corner1.get(i).y &&
                location.x <= corner2.get(i).x && location.y <= corner2.get(i).y &&
-               world.get(i).equalsIgnoreCase(player.getWorld().getName()))
+               world.get(i).equalsIgnoreCase(loc.getWorld().getName()))
             {
                 // Found, return index
                 return names.get(i);

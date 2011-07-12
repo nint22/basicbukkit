@@ -128,7 +128,7 @@ public class BasicPlayerListener extends PlayerListener
         
         // Get current zone
         String oldZone = playerProtectionLocations.get(event.getPlayer().getName());
-        String newZone = plugin.protections.GetProtectionName(event.getPlayer());
+        String newZone = plugin.protections.GetProtectionName(event.getPlayer().getLocation());
         
         // Did we go from a non-zone to a new zone
         if(oldZone == null && newZone != null)
@@ -187,6 +187,15 @@ public class BasicPlayerListener extends PlayerListener
         Player player = event.getPlayer();
         int ItemID = event.getItemDrop().getItemStack().getTypeId();
         
+        // If the player is not allowed to build, then they are not allowed to
+        // throw / drop off items
+        if(!plugin.users.CanBuild(player.getName()))
+        {
+            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup items.");
+            event.setCancelled(true);
+            return;
+        }
+        
         // If we cannot place banned items...
         if(!plugin.users.CanUseBannedItem(ItemID, player.getName()))
         {
@@ -198,7 +207,7 @@ public class BasicPlayerListener extends PlayerListener
         /*** Protection Check ***/
         
         // If we aren't in the area's owners list, we can't steal
-        String protectionName = plugin.protections.GetProtectionName(event.getPlayer());
+        String protectionName = plugin.protections.GetProtectionName(event.getItemDrop().getLocation());
         if(protectionName == null)
         {
             // Nothing to wory about; no land
@@ -226,6 +235,15 @@ public class BasicPlayerListener extends PlayerListener
         Player player = event.getPlayer();
         int ItemID = event.getItem().getItemStack().getTypeId();
         
+        // If the player is not allowed to build, then they are not allowed to
+        // pickup items
+        if(!plugin.users.CanBuild(player.getName()))
+        {
+            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup items.");
+            event.setCancelled(true);
+            return;
+        }
+        
         // If we cannot place banned items...
         if(!plugin.users.CanUseBannedItem(ItemID, player.getName()))
         {
@@ -237,7 +255,7 @@ public class BasicPlayerListener extends PlayerListener
         /*** Protection Check ***/
         
         // If we aren't in the area's owners list, we can't steal
-        String protectionName = plugin.protections.GetProtectionName(event.getPlayer());
+        String protectionName = plugin.protections.GetProtectionName(event.getPlayer().getLocation());
         if(protectionName == null)
         {
             // Nothing to wory about; no land

@@ -151,7 +151,7 @@ public class BasicMiscCommands implements CommandExecutor
             // Print to the player where her or she is at and their facing
             player.sendMessage(ChatColor.GRAY + "Your location: <" + player.getLocation().getBlockX() + ", " + player.getLocation().getBlockY() + ", " + player.getLocation().getBlockZ() + ">, facing: <" + pitch + ", " + yaw + ">");
             
-            String protectionName = plugin.protections.GetProtectionName(player);
+            String protectionName = plugin.protections.GetProtectionName(player.getLocation());
             if(protectionName != null)
                 player.sendMessage(ChatColor.GRAY + "You are in the protected area named \"" + protectionName + "\"");
         }
@@ -170,12 +170,12 @@ public class BasicMiscCommands implements CommandExecutor
                 Player targetPlayer = plugin.getServer().getPlayer(args[0]);
                 if(targetPlayer == null)
                 {
-                    player.sendMessage(ChatColor.GRAY + "Unable to find player \"" + targetPlayer.getName() + "\" to message");
+                    player.sendMessage(ChatColor.GRAY + "Unable to find player \"" + args[0] + "\" to message");
                     return true;
                 }
                 
                 // Form message
-                String message = ChatColor.GRAY + "Private message from \"" + player.getName() + "\":";
+                String message = ChatColor.GREEN + "Private message from \"" + player.getName() + "\":";
                 targetPlayer.sendMessage(message);
                 
                 // For full message
@@ -186,10 +186,45 @@ public class BasicMiscCommands implements CommandExecutor
                 targetPlayer.sendMessage(message);
                 
                 // Message sent
-                player.sendMessage(ChatColor.GRAY + "Private message sent");
+                player.sendMessage(ChatColor.GREEN + "Private message sent to \"" + targetPlayer.getName() + "\":");
+                player.sendMessage(message);
             }
             else
                 return false;
+        }
+        else if(plugin.IsCommand(player, command, args, "mute"))
+        {
+            // Mutes the given player name
+            if(args.length < 1)
+                return false;
+            
+            // Get player
+            Player target = plugin.getServer().getPlayer(args[0]);
+            if(target == null)
+            {
+                player.sendMessage(ChatColor.GRAY + "Unable to find player \"" + args[0] + "\"");
+                return true;
+            }
+            
+            // Get the current status for this target player by this player
+            boolean IsMuted = plugin.users.IsMutedBy(target, player);
+            if(IsMuted)
+                IsMuted = false;
+            else
+                IsMuted = true;
+            plugin.users.SetMutedBy(target, player, IsMuted);
+            
+            // Message both players
+            if(IsMuted)
+            {
+                player.sendMessage(ChatColor.GRAY + "You have muted player \"" + target.getName() + "\"");
+                target.sendMessage(ChatColor.GRAY + "Player \"" + player.getName() + "\" can no longer hear you (muted)");
+            }
+            else
+            {
+                player.sendMessage(ChatColor.GRAY + "You have unmuted player \"" + target.getName() + "\"");
+                target.sendMessage(ChatColor.GRAY + "Player \"" + player.getName() + "\" can now longer hear you (unmuted)");
+            }
         }
         
         // Done - parsed
