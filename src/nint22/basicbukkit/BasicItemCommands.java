@@ -100,214 +100,42 @@ public class BasicItemCommands implements CommandExecutor
             if(args.length < 1)
                 return false;
             
-            // Item ID we want
-            int ItemID = -1;
-            int MetaID = 0;
-            String SimpleName = "Unknown Name";
-            
-            // The first arg is either the item name OR the item number
-            // Reg-ex matches only decimal
-            if(args[0].matches("\\d+"))
-            {
-                // Arg is integer
-                try
-                {
-                    ItemID = Integer.parseInt(args[0]);
-                }
-                catch(Exception e)
-                {
-                    player.sendMessage(ChatColor.GRAY + "Unable to parse args[0] integer");
-                    return true;
-                }
-                
-                // Attempt to get the short-name
-                Set<Entry<String, String>> AllData = plugin.itemNames.itemNames.entrySet();
-                for(Object obj : AllData)
-                {
-                    // Value matches...
-                    if(((Entry<String, String>)obj).getValue().equalsIgnoreCase(ItemID + "_0"))
-                    {
-                        SimpleName = ((Entry<String, String>)obj).getKey();
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                // Arg is item string
-                if(plugin.itemNames.itemNames.containsKey(args[0].toLowerCase()))
-                {
-                    String ItemString = plugin.itemNames.itemNames.get(args[0].toLowerCase());
-                    SimpleName = args[0].toLowerCase();
-                    String[] StringData = ItemString.split("_");
-                    try
-                    {
-                        ItemID = Integer.parseInt(StringData[0]);
-                        MetaID = Integer.parseInt(StringData[1]);
-                    }
-                    catch(Exception e)
-                    {
-                        player.sendMessage(ChatColor.GRAY + "Unable to parse args[0] and args[1] integers");
-                        return true;
-                    }
-                }
-                else
-                {
-                    player.sendMessage(ChatColor.GRAY + "Unknown item reference");
-                    return true;
-                }
-            }
-            
-            // Does this item exist at all?
-            if(Material.getMaterial(ItemID) == null)
-            {
-                player.sendMessage(ChatColor.GRAY + "Item does not exist");
+            // Create items
+            ItemStack newItems = CreateItems(player, args);
+            if(newItems == null)
                 return true;
-            }
             
-            // Did we have an item count?
-            int count = 64;
-            if(args.length > 1)
-            {
-                try
-                {
-                    count = Integer.parseInt(args[1]);
-                }
-                catch(Exception e)
-                {
-                    // Just ignore
-                    count = 64;
-                    player.sendMessage(ChatColor.GRAY + "Invalid item count");
-                    return true;
-                }
-            }
-            
-            // Can this user spawn banned items?
-            if(plugin.users.CanUseBannedItem(ItemID, player.getName()))
-            {
-                // Create the item stack...
-                ItemStack newItems = new ItemStack(ItemID, count);
-                if(MetaID != 0)
-                    newItems.setDurability((short)MetaID);
-                player.getInventory().addItem(newItems);
-                
-                player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")");
-            }
-            else
-            {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot recieve banned blocks.");
-            }
-            
+            // Give items to player
+            player.getInventory().addItem(newItems);
+            player.sendMessage(ChatColor.GRAY + "Given " + ChatColor.RED + newItems.getAmount() + ChatColor.GRAY + " of item " + ChatColor.RED + newItems.getType().getId() + " (" + newItems.getType().name() + ")");
+
             // All done...
             return true;
         }
         // Parse giving an item from player A to player B
         else if(plugin.IsCommand(player, command, args, "give"))
         {
-            // We must have between 2-3 args
+            // We must have at least 2 args
             if(args.length < 2)
                 return false;
             
-            // Get player name
-            String targetPlayer = args[0];
-            
-            // Does this player exist on the server?
-            Player recieving = plugin.getServer().getPlayer(targetPlayer); 
-            if(recieving == null)
+            // Does the target player exist?
+            Player target = plugin.getServer().getPlayer(args[0]);
+            if(target == null)
             {
-                player.sendMessage(ChatColor.GRAY + "Unable to find player \"" + targetPlayer + "\"");
+                player.sendMessage(ChatColor.GRAY + "Player \"" + args[0] + "\" does not exist");
                 return true;
             }
             
-            // Item ID we want
-            int ItemID = -1;
-            int MetaID = 0;
-            String SimpleName = "Unknown Name";
-            
-            // The first arg is either the item name OR the item number
-            if(args[1].matches("\\d+"))
-            {
-                // Arg is integer
-                try
-                {
-                    ItemID = Integer.parseInt(args[1]);
-                }
-                catch(Exception e)
-                {
-                    player.sendMessage(ChatColor.GRAY + "Unable to parse args[1] integer");
-                    return true;
-                }
-                
-                // Attempt to get the short-name
-                Set<Entry<String, String>> AllData = plugin.itemNames.itemNames.entrySet();
-                for(Object obj : AllData)
-                {
-                    // Value matches...
-                    if(((Entry<String, String>)obj).getValue().equalsIgnoreCase(ItemID + "_0"))
-                    {
-                        SimpleName = ((Entry<String, String>)obj).getKey();
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                // Arg is item string
-                if(plugin.itemNames.itemNames.containsKey(args[1].toLowerCase()))
-                {
-                    String ItemString = plugin.itemNames.itemNames.get(args[1].toLowerCase());
-                    SimpleName = args[1].toLowerCase();
-                    String[] StringData = ItemString.split("_");
-                    try
-                    {
-                        ItemID = Integer.parseInt(StringData[0]);
-                        MetaID = Integer.parseInt(StringData[1]);
-                    }
-                    catch(Exception e)
-                    {
-                        player.sendMessage(ChatColor.GRAY + "Unable to parse args[1] and args[2] integers");
-                        return true;
-                    }
-                }
-                else
-                {
-                    player.sendMessage(ChatColor.GRAY + "Unknown item reference");
-                    return true;
-                }
-            }
-            
-            // Does this item exist at all?
-            if(Material.getMaterial(ItemID) == null)
-            {
-                player.sendMessage(ChatColor.GRAY + "Item does not exist");
+            // Create items
+            ItemStack newItems = CreateItems(player, target, args);
+            if(newItems == null)
                 return true;
-            }
             
-            // Did we have an item count?
-            int count = 64;
-            if(args.length > 2)
-            {
-                try
-                {
-                    count = Integer.parseInt(args[2]);
-                }
-                catch(Exception e)
-                {
-                    // Just ignore
-                    count = 64;
-                    player.sendMessage(ChatColor.GRAY + "Invalid item count");
-                    return true;
-                }
-            }
-            
-            // Create the item stack...
-            ItemStack newItems = new ItemStack(ItemID, count);
-            if(MetaID != 0)
-                newItems.setDurability((short)MetaID);
-            player.getInventory().addItem(newItems);
-            
-            player.sendMessage(ChatColor.GRAY + "Gave " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")" + ChatColor.GRAY + " to " + recieving.getName());
-            recieving.sendMessage(ChatColor.GRAY + "Recieved " + ChatColor.RED + count + ChatColor.GRAY + " of item " + ChatColor.RED + ItemID + " (" + SimpleName + ")" + ChatColor.GRAY + " from " + player.getName());
+            // Give items to player
+            target.getInventory().addItem(newItems);
+            player.sendMessage(ChatColor.GRAY + "Gave \"" + target.getName() + "\" " + ChatColor.RED + newItems.getAmount() + ChatColor.GRAY + " of item " + ChatColor.RED + newItems.getType().getId() + " (" + newItems.getType().name() + ")");
+            player.sendMessage(ChatColor.GRAY + "Recieved from \"" + player.getName() + "\" " + ChatColor.RED + newItems.getAmount() + ChatColor.GRAY + " of item " + ChatColor.RED + newItems.getType().getId() + " (" + newItems.getType().name() + ")");
             
             // All done...
             return true;
@@ -327,8 +155,180 @@ public class BasicItemCommands implements CommandExecutor
             player.getInventory().setContents(items);
             player.sendMessage(ChatColor.GRAY + "Inventory cleaned");
         }
+        // Clean all inventory
+        else if(plugin.IsCommand(player, command, args, "cleanall"))
+        {
+            ItemStack[] items = player.getInventory().getContents();
+            for(int i = 0; i < items.length; i++)
+                if(items[i] != null)
+                    items[i].setAmount(0);
+            
+            // Set the inventory back
+            player.getInventory().setContents(items);
+            player.sendMessage(ChatColor.GRAY + "Entire inventory cleaned");
+        }
         
         // Done - parsed
         return true;
+    }
+    
+    // Forwards to the longer CreateItems function with the reciever options
+    // Written short-hand function for /item (since it doesn't have a receiver,
+    // the reciever IS the caller
+    private ItemStack CreateItems(Player caller, String[] args)
+    {
+        return CreateItems(caller, null, args);
+    }
+    
+    // Private function that creates an item stack; this function was
+    // create to help merge the two code blocks found in /item and /give
+    // Returns null on error; writes the error to the player itself
+    // Does NOT actually give items, it is up to the specific /item and /give blocks
+    // Note: if doing /item, reciever MUST be null
+    private ItemStack CreateItems(Player caller, Player reciever, String[] args)
+    {
+        // If we have a reciever, shift all args back once
+        if(reciever != null)
+        {
+            String[] newArgs = new String[args.length - 1];
+            for(int i = 1; i < args.length; i++)
+                newArgs[i-1] = args[i];
+            args = newArgs;
+        }
+        
+        // Item ID we want (ItemID[:MetaID])
+        // Note that MetaID, when used (i.e. non zero) is set via
+        // the "setDurability" since items are essentially unions
+        // of block data types (which also use Meta)
+        int ItemID = -1;
+        int MetaID = -1;
+        String SimpleName = "Unknown Name";
+        
+        // The first arg is either the item name OR the item number
+        // Is item num,ber
+        if(args[0].matches("\\d+") || args[0].matches("\\d+:\\d+"))
+        {
+            // Attempt to get integers
+            try
+            {
+                // Is it an item id AND meta
+                if(args[0].indexOf(":") >= 0)
+                {
+                    String[] split = args[0].split(":");
+                    ItemID = Integer.parseInt(split[0]);
+                    MetaID = Integer.parseInt(split[1]);
+                }
+                // Just item ID with default meta ID
+                else
+                {
+                    ItemID = Integer.parseInt(args[0]);
+                    MetaID = 0;
+                }
+            }
+            catch(Exception e)
+            {
+                caller.sendMessage(ChatColor.GRAY + "Unable to item ID; assuming it is integer");
+                return null;
+            }
+
+            // Attempt to find the short name
+            // We must search through this method because we are finding the KEY (name) from the OBJECT (ItemID)
+            Set<Entry<String, String>> AllData = plugin.itemNames.itemNames.entrySet();
+            for(Object obj : AllData)
+            {
+                // Do we have a matching item ID?
+                if(((Entry<String, String>)obj).getValue().equalsIgnoreCase(ItemID + "_" + MetaID))
+                {
+                    SimpleName = ((Entry<String, String>)obj).getKey();
+                    break;
+                }
+            }
+        }
+        // Very likely an item string name
+        else
+        {
+            // Does this item exist?
+            if(plugin.itemNames.itemNames.containsKey(args[0].toLowerCase()))
+            {
+                // Get the item data information which is encoded as "ItemID_MetaID"
+                String ItemString = plugin.itemNames.itemNames.get(args[0].toLowerCase());
+                SimpleName = args[0].toLowerCase();
+                String[] StringData = ItemString.split("_");
+                
+                // Attempt to convert to Item and Meta ID
+                try
+                {
+                    ItemID = Integer.parseInt(StringData[0]);
+                    MetaID = Integer.parseInt(StringData[1]);
+                }
+                catch(Exception e)
+                {
+                    caller.sendMessage(ChatColor.GRAY + "Unable to parse the Item and Meta ID of your object from items.csv");
+                    return null;
+                }
+            }
+            // Else, this string is simply unknown
+            else
+            {
+                caller.sendMessage(ChatColor.GRAY + "Unknown item name or reference");
+                return null;
+            }
+        }
+        
+        // Done getting the Item and Meta ID
+        // Check for anything bizzare
+        if(ItemID <= 0)
+        {
+            caller.sendMessage(ChatColor.GRAY + "Cannot create this item");
+            return null;
+        }
+
+        
+        // Does this item exist at all?
+        if(Material.getMaterial(ItemID) == null)
+        {
+            caller.sendMessage(ChatColor.GRAY + "Item does not exist");
+            return null;
+        }
+        
+        // Did we have an item count?
+        int count = 64;
+        if(args.length > 1)
+        {
+            try
+            {
+                // Cast to get count
+                count = Integer.parseInt(args[1]);
+            }
+            catch(Exception e)
+            {
+                caller.sendMessage(ChatColor.GRAY + "Invalid item count");
+                return null;
+            }
+        }
+        
+        // Can this user use the item?
+        if(!plugin.users.CanUseBannedItem(ItemID, caller.getName()))
+        {
+            caller.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(caller.getName()) + ", " + plugin.users.GetGroupName(caller.getName()) + ") cannot create banned blocks.");
+            return null;
+        }
+        
+        // If we are giving blocks, can the reciever use the items?
+        if(reciever != null && !plugin.users.CanUseBannedItem(ItemID, reciever.getName()))
+        {
+            caller.sendMessage(ChatColor.RED + "You cannot give banned items to \"" + reciever.getName() + "\" because their group (GID " + plugin.users.GetGroupID(reciever.getName()) + ", " + plugin.users.GetGroupName(reciever.getName()) + ") cannot use banned blocks.");
+            return null;
+        }
+        
+        // Create the item stack...
+        ItemStack newItems = new ItemStack(ItemID, count);
+        
+        // Set meta as needed
+        if(MetaID != 0)
+            newItems.setDurability((short)MetaID);
+
+        // All done... give new stack
+        return newItems;
     }
 }

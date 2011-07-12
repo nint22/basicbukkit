@@ -17,6 +17,7 @@ package nint22.basicbukkit;
 import org.bukkit.Material;
 import org.bukkit.ChatColor;
 import java.util.LinkedList;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.*;
 
@@ -59,7 +60,8 @@ public class BasicBlockListener extends BlockListener
         }
         
         // If we cannot place banned items...
-        if(!plugin.users.CanUseBannedItem(BlockID, player.getName()))
+        // Note that slabs create block ID 0 before going double slab
+        if(BlockID != 0 && !plugin.users.CanUseBannedItem(BlockID, player.getName()))
         {
             player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
             event.setCancelled(true);
@@ -68,7 +70,7 @@ public class BasicBlockListener extends BlockListener
         
         /*** Protection Check ***/
         
-        event.setCancelled(!CheckProtection(event.getPlayer(), event));
+        event.setCancelled(!CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event));
     }
     
     // Did break?
@@ -90,7 +92,7 @@ public class BasicBlockListener extends BlockListener
         }
         
         /*** Protection Check ***/
-        event.setCancelled(!CheckProtection(event.getPlayer(), event));
+        event.setCancelled(!CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event));
     }
     
     // Does spread?
@@ -135,12 +137,14 @@ public class BasicBlockListener extends BlockListener
             event.setCancelled(true);
     }
     
-    // Custom check placement / break code
+    // Custom check placement / break code of the given location, not the player's location
     // Returns true if valid, false if not valid protection
-    private boolean CheckProtection(Player player, BlockEvent event)
+    private boolean CheckProtection(Player player, Location location, BlockEvent event)
     {
         // Get the owners of this protection area
-        String protectionName = plugin.protections.GetProtectionName(player);
+        String protectionName = plugin.protections.GetProtectionName(location);
+        
+        // Is there a location?
         if(protectionName != null)
         {
             // Are we in the owner's list?

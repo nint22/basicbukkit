@@ -96,59 +96,37 @@ public class BasicAdminCommands implements CommandExecutor
             }
             else if(command.getName().equalsIgnoreCase("kick"))
             {
-                // Find player and click if neeeded
-                Player toKick = plugin.getServer().getPlayer(args[0]);
-                if(toKick != null)
-                {
-                    toKick.kickPlayer("Kicked from the server by the server administrator.");
-                    sender.sendMessage("You have kicked player \"" + toKick.getName() + "\"");
-                }
-                else
-                    sender.sendMessage("Unable to kick; cannot find player \"" + toKick.getName() + "\"");
+                // Kick
+                if(args.length < 1 || args.length > 2)
+                    return false;
+                
+                // Kick with args
+                PlayerKick(null, args);
             }
             else if(command.getName().equalsIgnoreCase("ban"))
             {
                 // Must have a user name and reason
-                if(args.length >= 1)
-                {
-                    // Get the ban reason
-                    String reason = "No defined ban reason";
-                    if(args.length > 1)
-                    {
-                        reason = "";
-                        for(int i = 1; i < args.length; i++)
-                            reason += args[i];
-                    }
-                    
-                    // Attempt to kick
-                    Player banPlayer = plugin.getServer().getPlayer(args[0]);
-                    if(banPlayer == null)
-                    {
-                        sender.sendMessage("User \"" + args[0] + "\" banned but not kicked: user not found");
-                        plugin.users.SetBan(args[0], reason);
-                    }
-                    else
-                    {
-                        sender.sendMessage("User \"" + banPlayer.getName() + "\" banned and kicked");
-                        banPlayer.kickPlayer("Banned from the server by the server administrator's console.");
-                        plugin.users.SetBan(banPlayer.getName(), reason);
-                    }
-                }
-                // Else, fail
-                else
+                if(args.length < 1)
                     return false;
+                
+                // Ban with args
+                PlayerBan(null, args);
+                
             }
             else if(command.getName().equalsIgnoreCase("unban"))
             {
                 // Must have a user name
-                if(args.length == 1)
-                {
-                    // Remove player if found
-                    if(plugin.users.SetUnban(args[0]))
-                        sender.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\"");
-                    else
-                        sender.sendMessage(ChatColor.GRAY + "Player \"" + args[0] + "\" is now unbaned");
-                }
+                if(args.length < 1)
+                    return false;
+                
+                // Get player name
+                String playerName = plugin.users.SetUnban(args[0]);
+                
+                // Remove player if found
+                if(playerName != null)
+                    plugin.getServer().broadcastMessage(ChatColor.RED + "Player \"" + playerName + "\" is now unbaned by \"" + "Server Console" + "\"");
+                else
+                    sender.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\"");
             }
             else if(command.getName().equalsIgnoreCase("who"))
             {
@@ -288,107 +266,36 @@ public class BasicAdminCommands implements CommandExecutor
             }
             else if(plugin.IsCommand(player, command, args, "kick"))
             {
-                // Just a name
-                if(args.length == 1)
-                {
-                    // Find player and click if neeeded
-                    Player toKick = plugin.getServer().getPlayer(args[0]);
-                    if(toKick != null)
-                    {
-                        // Can only ban members of groups <= caller's groups
-                        int banGroupID = plugin.users.GetGroupID(toKick.getName());
-                        int myGroupID = plugin.users.GetGroupID(player.getName());
-                        if(banGroupID > myGroupID)
-                        {
-                            plugin.users.SetBan(toKick.getName(), "Cannot ban users with a higher group ID (theirs: " + banGroupID + ", yours: " + myGroupID + ")");
-                            return true;
-                        }
-
-                        toKick.kickPlayer("Kicked from the server by \"" + player.getName() + "\".");
-                        player.sendMessage("You have kicked player \"" + toKick.getName() + "\"");
-                    }
-                    else
-                        player.sendMessage("Unable to kick; cannot find player \"" + toKick.getName() + "\"");
-                }
-                // Just a name and minutes
-                else if(args.length == 2)
-                {
-                    // Get total time (in minutes)
-                    int KickTime = 0;
-                    try
-                    {
-                        KickTime = Integer.parseInt(args[1]);
-                    }
-                    catch(Exception e)
-                    {
-                        player.sendMessage("Unable to kick; unable parse time argument");
-                        return true;
-                    }
-
-                    // Find player and click if neeeded
-                    Player toKick = plugin.getServer().getPlayer(args[0]);
-                    if(toKick != null)
-                    {
-                        toKick.kickPlayer("Kicked from the server by \"" + player.getName() + "\" for " + KickTime + " minute(s).");
-                        player.sendMessage("You have kicked player \"" + toKick.getName() + "\" for " + KickTime + " minute(s).");
-                    }
-                    else
-                        player.sendMessage("Unable to kick; cannot find player \"" + toKick.getName() + "\"");
-
-                    // Save the time when the user can come back
-                    plugin.users.SetKickTime(player.getName(), KickTime);
-                }
-                // Else, fail
-                else
+                // Kick
+                if(args.length < 1 || args.length > 2)
                     return false;
+                
+                // Kick with args
+                PlayerKick(player, args);
             }
             else if(plugin.IsCommand(player, command, args, "ban"))
             {
                 // Must have a user name and reason
-                if(args.length >= 1)
-                {
-                    // Get the ban reason
-                    String reason = "No defined ban reason";
-                    if(args.length > 1)
-                    {
-                        reason = "";
-                        for(int i = 1; i < args.length; i++)
-                            reason += args[i];
-                    }
-                    
-                    // Attempt to kick
-                    plugin.users.SetBan(args[0], reason);
-                    Player banPlayer = plugin.getServer().getPlayer(args[0]);
-                    if(banPlayer == null)
-                    {
-                        player.sendMessage(ChatColor.GRAY + "User \"" + args[0] + "\" banned but not kicked: user not found");
-                        plugin.users.SetBan(args[0], reason);
-                    }
-                    else
-                    {
-                        player.sendMessage(ChatColor.GRAY + "User \"" + banPlayer.getName() + "\" banned and kicked");
-                        banPlayer.kickPlayer("Banned from the server by " + player.getName());
-                        plugin.users.SetBan(banPlayer.getName(), reason);
-                    }
-                }
-                // Else, fail
-                else
+                if(args.length < 1)
                     return false;
+                
+                // Ban with args
+                PlayerBan(player, args);
             }
             else if(plugin.IsCommand(player, command, args, "unban"))
             {
                 // Must have a user name
-                if(args.length == 1)
-                {
-                    // Remove player if found
-                    if(plugin.users.SetUnban(args[0]))
-                        sender.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\"");
-                    else
-                        sender.sendMessage(ChatColor.GRAY + "Player \"" + args[0] + "\" is now unbaned");
-                }
-                // Else, fail
-                else
+                if(args.length < 1)
                     return false;
+                
+                // Get player name
+                String playerName = plugin.users.SetUnban(args[0]);
+                
+                // Remove player if found
+                if(playerName != null)
+                    plugin.getServer().broadcastMessage(ChatColor.RED + "Player \"" + playerName + "\" is now unbaned by \"" + player.getName() + "\"");
+                else
+                    player.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\"");
             }
             else if(plugin.IsCommand(player, command, args, "who"))
             {
@@ -588,5 +495,128 @@ public class BasicAdminCommands implements CommandExecutor
         
         // Unknown sender...
         return true;
+    }
+    
+    // Ban the given player name; reason included is optional
+    // Checks permissions...
+    private void PlayerBan(Player player, String args[])
+    {
+        // Target player and message
+        String targetName = "";
+        String banReason = "";
+        
+        // Add the default message
+        if(args.length == 1)
+        {
+            targetName = args[0];
+            banReason = "No defined ban reason";
+        }
+        else
+        {
+            targetName = args[0];
+            for(int i = 1; i < args.length; i++)
+                banReason += args[i];
+        }
+        
+        // Find the player
+        Player banPlayer = plugin.getServer().getPlayer(targetName);
+        
+        // Check permissions (Only works if both players are online)
+        if(player != null && banPlayer != null)
+        {
+            int sourceGID = plugin.users.GetGroupID(player.getName());
+            int targetGID = plugin.users.GetGroupID(banPlayer.getName());
+            if(targetGID >= sourceGID)
+            {
+                // Cannot ban GIDs higher or equal
+                player.sendMessage(ChatColor.GRAY + "Cannot ban users with an equal or higher group ID (theirs: " + targetGID + ", yours: " + sourceGID + ")");
+                return;
+            }
+        }
+        
+        // If found...
+        if(banPlayer != null)
+        {
+            targetName = banPlayer.getName();
+            plugin.getServer().broadcastMessage(ChatColor.RED + "User \"" + targetName + "\" banned and kicked by \"" + (player == null ? "Server Console" : player.getName()) + "\"");
+            banPlayer.kickPlayer(banReason);
+        }
+        // Else, player not found...
+        else
+            plugin.getServer().broadcastMessage(ChatColor.RED + "User \"" + targetName + "\" banned but not kicked (user not online) by \"" + (player == null ? "Server Console" : player.getName()) + "\"");
+        
+        // Declare the reason
+        plugin.getServer().broadcastMessage(ChatColor.RED + "Reason: " + banReason);
+        
+        // Save the ban...
+        plugin.users.SetBan(targetName, banReason);
+    }
+    
+    // Kick a player based on args by the player (which may be null if console)
+    private void PlayerKick(Player player, String[] args)
+    {
+        // Get the target player
+        Player target = plugin.getServer().getPlayer(args[0]);
+        if(target == null && player != null)
+        {
+            player.sendMessage(ChatColor.GRAY + "Player \"" + args[0] + "\" is not online");
+            return;
+        }
+        
+        // Do we have a declared time?
+        int KickTime = -1;
+        if(args.length == 2)
+        {
+            try
+            {
+                KickTime = Integer.parseInt(args[1]);
+            }
+            catch(Exception e)
+            {
+                if(player != null)
+                    player.sendMessage(ChatColor.GRAY + "Unable to kick; unable parse time argument");
+                return;
+            }
+        }
+        
+        // Check permissions (Only works if both players are online)
+        if(player != null && target != null)
+        {
+            int sourceGID = plugin.users.GetGroupID(player.getName());
+            int targetGID = plugin.users.GetGroupID(target.getName());
+            if(targetGID >= sourceGID)
+            {
+                // Cannot ban GIDs higher or equal
+                player.sendMessage(ChatColor.GRAY + "Cannot kick users with an equal or higher group ID (theirs: " + targetGID + ", yours: " + sourceGID + ")");
+                return;
+            }
+        }
+        
+        // If player found, kick
+        if(target != null)
+        {
+            // Get kicker's name
+            String kickerName = player == null ? "Server Console" : player.getName();
+            
+            // With time?
+            if(KickTime > 0)
+            {
+                target.kickPlayer("Kicked from the server by \"" + kickerName + "\" for " + KickTime + " minute(s).");
+                plugin.users.SetKickTime(target.getName(), KickTime);
+                plugin.getServer().broadcastMessage(ChatColor.RED + "\"" + kickerName + "\" has kicked player \"" + target.getName() + "\" for " + KickTime + " minute(s)");
+            }
+            else
+            {
+                target.kickPlayer("Kicked from the server by \"" + kickerName + "\"");
+                plugin.getServer().broadcastMessage(ChatColor.RED + "\"" + kickerName + "\" has kicked player \"" + target.getName() + "\"");
+            }
+        }
+        // Else if player not found, send message iff its a player
+        else if(player != null)
+        {
+            player.sendMessage(ChatColor.GRAY + "Unable to kick player: player not found");
+        }
+        
+        // All done with kick
     }
 }

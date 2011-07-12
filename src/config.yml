@@ -21,10 +21,10 @@ motd:
 # Note that groups should ALWAYS be numbered 0, 1, 2, ....
 groups:
     
-    # Guest group (can do nothing except observer)
+    # Guest group (can do nothing except observe)
     - id: 0
       name: Guest
-      pre: "[&bGuest&f]"
+      pre: "[&7Guest&f]"
       commands:
           - help
           - motd
@@ -38,10 +38,30 @@ groups:
       banned_access: false
       build: false
     
-    # Builder group
+    # Trial group (can do simple building)
     - id: 1
+      name: Trial
+      pre: "[&8Trial&f]"
+      commands:
+          - help
+          - motd
+          - clear
+          - who
+          - where
+          - home
+          - sethome
+          - afk
+          - msg
+          - god
+          - pvp
+          - kit
+      banned_access: false
+      build: true
+    
+    # Builder group (trusted)
+    - id: 2
       name: Builder
-      pre: "[&3Builder&f]"
+      pre: "[&bBuilder&f]"
       commands:
           - god
           - pvp
@@ -60,6 +80,7 @@ groups:
           - item
           - i
           - clean
+          - cleanall
           - home
           - sethome
           - afk
@@ -68,10 +89,57 @@ groups:
       banned_access: false
       build: true
     
-    # Trusted group
-    - id: 2
-      name: Op
-      pre: "[&2Op&f]"
+    # Moderator group
+    - id: 3
+      name: Mod
+      pre: "[&9Mod&f]"
+      commands:
+          - god
+          - pvp
+          - help
+          - motd
+          - clear
+          - who
+          - where
+          - kick
+          - ban
+          - unban
+          - who
+          - time
+          - weather
+          - kit
+          - item
+          - i
+          - give
+          - clean
+          - op
+          - kill
+          - say
+          - tp
+          - warp
+          - jump
+          - list
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - afk
+          - msg
+          - spawn
+          - top
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
+      banned_access: false
+      build: true
+    
+    # Administrator group
+    - id: 4
+      name: Admin
+      pre: "[&1Admin&f]"
       commands:
           - god
           - pvp
@@ -116,9 +184,9 @@ groups:
       build: true
     
     # Server owner
-    - id: 3
+    - id: 5
       name: Owner
-      pre: "[&1Owner&f]"
+      pre: "[&4Owner&f]"
       commands:
           - god
           - pvp
@@ -138,6 +206,7 @@ groups:
           - i
           - give
           - clean
+          - cleanall
           - op
           - kill
           - say
@@ -165,7 +234,7 @@ groups:
       build: true
 
 # Banned items (cannot create, place, or use)
-banned: 0, 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79
+banned: 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79
 
 # Allow flow of lava
 lavaflows: false
