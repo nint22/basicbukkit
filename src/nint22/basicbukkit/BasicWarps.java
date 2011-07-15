@@ -197,9 +197,23 @@ public class BasicWarps
     }
     
     // Get a warp based on name; returns null on failure
-    public Location GetWarp(String name)
+    public Location GetWarp(String[] args)
     {
-        int locIndex = names.indexOf(name);
+        // Find the case-corrected warp name
+        for(int i = 0; i < names.size(); i++)
+        {
+            // Get the warp name
+            String warpName = (String)names.toArray()[i];
+            
+            // Do we have a match?
+            if(warpName.toLowerCase().startsWith(args[0].toLowerCase()))
+            {
+                args[0] = warpName;
+                break;
+            }
+        }
+        
+        int locIndex = names.indexOf(args[0]);
         if(locIndex < 0)
             return null;
         else

@@ -101,24 +101,27 @@ public class BasicWorldCommands implements CommandExecutor
                 }
                 
                 // Print warps..
-                player.sendMessage(ChatColor.GRAY + "Available warps:");
+                player.sendMessage(ChatColor.GRAY + "Available warps: (" + plugin.warps.GetWarpNames().size() + ")");
                 if(warps == null || warps.length() <= 0)
                     player.sendMessage(ChatColor.GRAY + "None");
                 else
                     player.sendMessage(warps);
                 return true;
             }
-            
-            // Does this warp exist?
-            Location warp = plugin.warps.GetWarp(args[0]);
-            if(warp != null)
-            {
-                player.teleport(warp);
-            }
             else
             {
-                player.sendMessage(ChatColor.GRAY + "Unable to warp to \"" + args[0] + "\"; warp not found");
-                return true;
+                // Does this warp exist?
+                Location warp = plugin.warps.GetWarp(args);
+                if(warp != null)
+                {
+                    player.teleport(warp);
+                    player.sendMessage(ChatColor.GRAY + "You have been warped to \"" + args[0] + "\"");
+                }
+                else
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unable to warp to \"" + args[0] + "\"; warp not found");
+                    return true;
+                }
             }
         }
         else if(plugin.IsCommand(player, command, args, "list"))
