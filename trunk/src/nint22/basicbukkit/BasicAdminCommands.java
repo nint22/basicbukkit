@@ -17,6 +17,8 @@ package nint22.basicbukkit;
 import java.util.*;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,10 +31,16 @@ public class BasicAdminCommands implements CommandExecutor
     // Plugin handle
     private final BasicBukkit plugin;
 
+    // Random number generator
+    private Random randomGenerator;
+    
     // Default constructor
     public BasicAdminCommands(BasicBukkit plugin)
     {
         this.plugin = plugin;
+        
+        // Generate a random number gen.
+        randomGenerator = new Random();
     }
     
     // General admin commands
@@ -49,50 +57,9 @@ public class BasicAdminCommands implements CommandExecutor
                 // There can only be either 1 or 2 args
                 if(args.length < 1 || args.length > 2)
                     return false;
-
-                // Target group
-                int GroupID = 0;
-
-                // Change group ID
-                if(args.length == 2)
-                {
-                    try
-                    {
-                        GroupID = Integer.parseInt(args[1]);
-                    }
-                    catch(Exception e)
-                    {
-                        // Failed to parse as int, attempt to get by group name
-                        GroupID = plugin.users.GetGroupIDByGroup(args[1]);
-                        
-                        // Just bug out if not valid
-                        if(GroupID < 0)
-                        {
-                            sender.sendMessage(ChatColor.GRAY + "Unable to op: Invalid group ID or name");
-                            return true;
-                        }
-                    }
-                }
                 
-                // Get the target player's data
-                Player targetPlayer = plugin.getServer().getPlayer(args[0]);
-                if(targetPlayer == null)
-                {
-                    sender.sendMessage(ChatColor.GRAY + "Unable to find player named \"" + targetPlayer.getName() + "\"");
-                    return true;
-                }
-
-                // Attempt to change group now
-                else
-                {
-                    if(plugin.users.SetUserGroup(targetPlayer.getName(), GroupID))
-                    {
-                        sender.sendMessage(ChatColor.GRAY + "You have set \"" + targetPlayer.getName() + "\" to group ID " + GroupID + ", \"" + plugin.users.GetGroupName(targetPlayer.getName()) + "\"");
-                        targetPlayer.sendMessage(ChatColor.GRAY + "You have been moved to group \"" + plugin.users.GetGroupName(targetPlayer.getName()) + "\", GID " + GroupID + "");
-                    }
-                    else
-                        sender.sendMessage(ChatColor.GRAY + "Unable to assign \"" + targetPlayer.getName() + "\" to group ID " + GroupID);
-                }
+                // Execute the op
+                PlayerOp(null, args);
             }
             else if(command.getName().equalsIgnoreCase("kick"))
             {
@@ -113,7 +80,7 @@ public class BasicAdminCommands implements CommandExecutor
                 PlayerBan(null, args);
                 
             }
-            else if(command.getName().equalsIgnoreCase("unban"))
+            else if(command.getName().equalsIgnoreCase("unban") || command.getName().equalsIgnoreCase("unkick"))
             {
                 // Must have a user name
                 if(args.length < 1)
@@ -124,9 +91,9 @@ public class BasicAdminCommands implements CommandExecutor
                 
                 // Remove player if found
                 if(playerName != null)
-                    plugin.getServer().broadcastMessage(ChatColor.RED + "Player \"" + playerName + "\" is now unbaned by \"" + "Server Console" + "\"");
+                    plugin.BroadcastMessage(ChatColor.RED + "Player \"" + playerName + "\" is now unbaned by \"" + "Server Console" + "\"");
                 else
-                    sender.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\"");
+                    sender.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\" in banned logs");
             }
             else if(command.getName().equalsIgnoreCase("who"))
             {
@@ -199,70 +166,10 @@ public class BasicAdminCommands implements CommandExecutor
                 // Command format: /op <player> [op level, defaults to 0]
                 // There can only be either 1 or 2 args
                 if(args.length < 1 || args.length > 2)
-                {
-                    // List groups
-                    String groups = "";
-                    for(int i = 0; i < plugin.users.GetGroupIDs().size(); i++)
-                    {
-                        groups += plugin.users.GetGroupIDs().get(i) + ": \"" + plugin.users.GetGroupNames().get(i) + "\"";
-                        if(i != plugin.users.GetGroupIDs().size() - 1)
-                            groups += ", ";
-                    }
-                    player.sendMessage(ChatColor.GRAY + "Existing groups: " + groups);
                     return false;
-                }
-
-                // Target group
-                int GroupID = 0;
-
-                // Change group ID
-                if(args.length == 2)
-                {
-                    try
-                    {
-                        GroupID = Integer.parseInt(args[1]);
-                    }
-                    catch(Exception e)
-                    {
-                        // Failed to parse as int, attempt to get by group name
-                        GroupID = plugin.users.GetGroupIDByGroup(args[1]);
-                        
-                        // Just bug out if not valid
-                        if(GroupID < 0)
-                        {
-                            player.sendMessage(ChatColor.GRAY + "Unable to op: Invalid group ID or name");
-                            return true;
-                        }
-                    }
-                }
                 
-                // What is this players ID? Can ONLY op groups lower or equal to self
-                int SelfGroupID = plugin.users.GetGroupID(player.getName());
-                if(GroupID > SelfGroupID)
-                {
-                    player.sendMessage(ChatColor.GRAY + "Unable to op: You cannot op players to a higher ranking group than your own (" + SelfGroupID + ")");
-                    return true;
-                }
-
-                // Get the target player's data
-                Player targetPlayer = plugin.getServer().getPlayer(args[0]);
-                if(targetPlayer == null)
-                {
-                    player.sendMessage(ChatColor.GRAY + "Unable to find player named \"" + targetPlayer.getName() + "\"");
-                    return true;
-                }
-
-                // Attempt to change group now
-                else
-                {
-                    if(plugin.users.SetUserGroup(targetPlayer.getName(), GroupID))
-                    {
-                        player.sendMessage(ChatColor.GRAY + "You have set \"" + targetPlayer.getName() + "\" to group ID " + GroupID + ", \"" + plugin.users.GetGroupName(targetPlayer.getName()) + "\"");
-                        targetPlayer.sendMessage(ChatColor.GRAY + "You have been moved to group \"" + plugin.users.GetGroupName(targetPlayer.getName()) + "\", GID " + GroupID + "");
-                    }
-                    else
-                        player.sendMessage(ChatColor.GRAY + "Unable to assign \"" + targetPlayer.getName() + "\" to group ID " + GroupID);
-                }
+                // Execute the op
+                PlayerOp(player, args);
             }
             else if(plugin.IsCommand(player, command, args, "kick"))
             {
@@ -282,7 +189,7 @@ public class BasicAdminCommands implements CommandExecutor
                 // Ban with args
                 PlayerBan(player, args);
             }
-            else if(plugin.IsCommand(player, command, args, "unban"))
+            else if(plugin.IsCommand(player, command, args, "unban") || plugin.IsCommand(player, command, args, "unkick"))
             {
                 // Must have a user name
                 if(args.length < 1)
@@ -293,9 +200,9 @@ public class BasicAdminCommands implements CommandExecutor
                 
                 // Remove player if found
                 if(playerName != null)
-                    plugin.getServer().broadcastMessage(ChatColor.RED + "Player \"" + playerName + "\" is now unbaned by \"" + player.getName() + "\"");
+                    plugin.BroadcastMessage(ChatColor.RED + "Player \"" + playerName + "\" is now unbaned by \"" + player.getName() + "\"");
                 else
-                    player.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\"");
+                    sender.sendMessage(ChatColor.GRAY + "Cannot find player \"" + args[0] + "\" in banned logs");
             }
             else if(plugin.IsCommand(player, command, args, "who"))
             {
@@ -488,6 +395,34 @@ public class BasicAdminCommands implements CommandExecutor
                 // How many did we remove?
                 player.sendMessage(ChatColor.GRAY + "Removed a total of " + TotalRemoved + " items in this world");
             }
+            else if(plugin.IsCommand(player, command, args, "scout"))
+            {
+                // Warp this player silently and slighty away from any other
+                // random player
+                if(plugin.getServer().getOnlinePlayers().length <= 1)
+                    player.sendMessage(ChatColor.GRAY + "You need more online players to scout");
+                else
+                {
+                    // Get the list of online players
+                    LinkedList<Player> onlinePlayers = new LinkedList();
+                    for(int i = 0; i < plugin.getServer().getOnlinePlayers().length; i++)
+                    {
+                        if(plugin.getServer().getOnlinePlayers()[i] != player)
+                            onlinePlayers.add(plugin.getServer().getOnlinePlayers()[i]);
+                    }
+                    
+                    // Randomly choose a player to warp to
+                    Player target = onlinePlayers.get(randomGenerator.nextInt(onlinePlayers.size() - 1));
+                    
+                    // Warp to that person
+                    player.sendMessage(ChatColor.GRAY + "You have been warped to player \"" + target.getDisplayName() + "\" to scout");
+                    
+                    // Warp to the target player but moved a little further
+                    Location targetLocation = target.getLocation();
+                    targetLocation.add(2, 2, 2);
+                    player.teleport(targetLocation);
+                }
+            }
             
             // Done - parsed
             return true;
@@ -495,6 +430,58 @@ public class BasicAdminCommands implements CommandExecutor
         
         // Unknown sender...
         return true;
+    }
+    
+    // Set a player to a given op group
+    // Player may be null if it is the console calling this function
+    private void PlayerOp(Player player, String args[])
+    {
+        // Target group
+        int GroupID = 0;
+
+        // Change group ID
+        if(args.length == 2)
+        {
+            try
+            {
+                GroupID = Integer.parseInt(args[1]);
+            }
+            catch(Exception e)
+            {
+                // Failed to parse as int, attempt to get by group name
+                GroupID = plugin.users.GetGroupIDByGroup(args[1]);
+                
+                // Just bug out if not valid
+                if(GroupID < 0)
+                {
+                    if(player != null)
+                        player.sendMessage(ChatColor.GRAY + "Unable to op: Invalid group ID or name");
+                    return;
+                }
+            }
+        }
+        
+        // Get the target player's data
+        Player targetPlayer = plugin.getServer().getPlayer(args[0]);
+        if(targetPlayer == null)
+        {
+            if(player != null)
+                player.sendMessage(ChatColor.GRAY + "Unable to find player named \"" + targetPlayer.getName() + "\"");
+            return;
+        }
+        
+        // Attempt to change group now
+        else
+        {
+            if(plugin.users.SetUserGroup(targetPlayer.getName(), GroupID))
+            {
+                String playerName = player == null ? "Server Console" : player.getName();
+                String groupName = plugin.users.GetGroupName(targetPlayer.getName());
+                plugin.BroadcastMessage(ChatColor.RED + "\"" + playerName + "\" has set player \"" + targetPlayer.getName() + "\" to group \"" + groupName + "\" (GID " + GroupID + ")");
+            }
+            else if(player != null)
+                player.sendMessage(ChatColor.GRAY + "Unable to assign \"" + targetPlayer.getName() + "\" to group ID " + GroupID);
+        }
     }
     
     // Ban the given player name; reason included is optional
@@ -538,15 +525,15 @@ public class BasicAdminCommands implements CommandExecutor
         if(banPlayer != null)
         {
             targetName = banPlayer.getName();
-            plugin.getServer().broadcastMessage(ChatColor.RED + "User \"" + targetName + "\" banned and kicked by \"" + (player == null ? "Server Console" : player.getName()) + "\"");
+            plugin.BroadcastMessage(ChatColor.RED + "User \"" + targetName + "\" banned and kicked by \"" + (player == null ? "Server Console" : player.getName()) + "\"");
             banPlayer.kickPlayer(banReason);
         }
         // Else, player not found...
         else
-            plugin.getServer().broadcastMessage(ChatColor.RED + "User \"" + targetName + "\" banned but not kicked (user not online) by \"" + (player == null ? "Server Console" : player.getName()) + "\"");
+            plugin.BroadcastMessage(ChatColor.RED + "User \"" + targetName + "\" banned but not kicked (user not online) by \"" + (player == null ? "Server Console" : player.getName()) + "\"");
         
         // Declare the reason
-        plugin.getServer().broadcastMessage(ChatColor.RED + "Reason: " + banReason);
+        plugin.BroadcastMessage(ChatColor.RED + "Reason: " + banReason);
         
         // Save the ban...
         plugin.users.SetBan(targetName, banReason);
@@ -570,6 +557,18 @@ public class BasicAdminCommands implements CommandExecutor
             try
             {
                 KickTime = Integer.parseInt(args[1]);
+                if(KickTime < 0)
+                {
+                    if(player != null)
+                        player.sendMessage(ChatColor.GRAY + "Unable to kick; you cannot assign negative minutes");
+                    return;
+                }
+                else if(KickTime > 24 * 60)
+                {
+                    if(player != null)
+                        player.sendMessage(ChatColor.GRAY + "Unable to kick; you cannot assign greater than 24 hours");
+                    return;
+                }
             }
             catch(Exception e)
             {
@@ -603,12 +602,12 @@ public class BasicAdminCommands implements CommandExecutor
             {
                 target.kickPlayer("Kicked from the server by \"" + kickerName + "\" for " + KickTime + " minute(s).");
                 plugin.users.SetKickTime(target.getName(), KickTime);
-                plugin.getServer().broadcastMessage(ChatColor.RED + "\"" + kickerName + "\" has kicked player \"" + target.getName() + "\" for " + KickTime + " minute(s)");
+                plugin.BroadcastMessage(ChatColor.RED + "\"" + kickerName + "\" has kicked player \"" + target.getName() + "\" for " + KickTime + " minute(s)");
             }
             else
             {
                 target.kickPlayer("Kicked from the server by \"" + kickerName + "\"");
-                plugin.getServer().broadcastMessage(ChatColor.RED + "\"" + kickerName + "\" has kicked player \"" + target.getName() + "\"");
+                plugin.BroadcastMessage(ChatColor.RED + "\"" + kickerName + "\" has kicked player \"" + target.getName() + "\"");
             }
         }
         // Else if player not found, send message iff its a player

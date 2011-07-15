@@ -32,11 +32,17 @@ commands:
         description: Bans the given player from the server; requires a reason
         usage: /ban <player> [reason]
     unban:
-        description: Removes a player's ban
+        description: Removes a player's ban and/or kick
         usage: /unban <player>
+    unkick:
+        description: Alias of unban; removes a player's ban and/or kick
+        usage: /unkick <player>
     who:
         description: List all current players
         usage: /who
+    scout:
+        description: Randomly and silenty warp to a player to scout them for griefing
+        usage: /scout
     iclean:
         description: Removes all items and vehicles in the world
         usage: /iclean
@@ -136,3 +142,6 @@ commands:
     protectdel:
         description: Delete the protected area
         usage: /protectdel <area name>
+    protectinfo:
+        description: Prints off all protected area info. or the one you are in
+        usage: /protectinfo

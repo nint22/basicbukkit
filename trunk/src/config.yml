@@ -33,10 +33,13 @@ groups:
           - where
           - home
           - sethome
+          - protectinfo
           - afk
           - msg
+          - mute
       banned_access: false
       build: false
+      worldedit: false
     
     # Trial group (can do simple building)
     - id: 1
@@ -50,13 +53,16 @@ groups:
           - where
           - home
           - sethome
+          - protectinfo
           - afk
           - msg
           - god
           - pvp
           - kit
+          - mute
       banned_access: false
       build: true
+      worldedit: false
     
     # Builder group (trusted)
     - id: 2
@@ -83,11 +89,14 @@ groups:
           - cleanall
           - home
           - sethome
+          - protectinfo
           - afk
           - msg
           - top
+          - mute
       banned_access: false
       build: true
+      worldedit: false
     
     # Moderator group
     - id: 3
@@ -104,6 +113,7 @@ groups:
           - kick
           - ban
           - unban
+          - unkick
           - who
           - time
           - weather
@@ -123,6 +133,7 @@ groups:
           - delwarp
           - home
           - sethome
+          - protectinfo
           - afk
           - msg
           - spawn
@@ -133,8 +144,11 @@ groups:
           - protectadd
           - protectrem
           - protectdel
+          - mute
+          - scout
       banned_access: false
       build: true
+      worldedit: false
     
     # Administrator group
     - id: 4
@@ -151,6 +165,7 @@ groups:
           - kick
           - ban
           - unban
+          - unkick
           - who
           - time
           - weather
@@ -170,6 +185,7 @@ groups:
           - delwarp
           - home
           - sethome
+          - protectinfo
           - afk
           - msg
           - spawn
@@ -180,8 +196,12 @@ groups:
           - protectadd
           - protectrem
           - protectdel
+          - iclean
+          - mute
+          - scout
       banned_access: true
       build: true
+      worldedit: false
     
     # Server owner
     - id: 5
@@ -198,6 +218,7 @@ groups:
           - kick
           - ban
           - unban
+          - unkick
           - who
           - time
           - weather
@@ -218,6 +239,7 @@ groups:
           - delwarp
           - home
           - sethome
+          - protectinfo
           - afk
           - msg
           - spawn
@@ -230,8 +252,11 @@ groups:
           - protectrem
           - protectdel
           - iclean
+          - mute
+          - scout
       banned_access: true
       build: true
+      worldedit: true
 
 # Banned items (cannot create, place, or use)
 banned: 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79

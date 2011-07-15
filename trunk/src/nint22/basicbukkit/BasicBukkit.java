@@ -14,6 +14,7 @@
 package nint22.basicbukkit;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -24,8 +25,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.config.Configuration;
+import com.sk89q.bukkit.migration.PermissionsProvider;
 
-public class BasicBukkit extends JavaPlugin
+public class BasicBukkit extends JavaPlugin implements PermissionsProvider
 {
     // Create the main player listener object
     private BasicPlayerListener playerListener = null;
@@ -56,6 +58,12 @@ public class BasicBukkit extends JavaPlugin
     
     // Global item list
     public ItemNames itemNames = null;
+    
+    // A hashmap that contains an outgoing message of the form
+    // playername_message as the key and the unix epoch time stamp as the
+    // data; we only send messages after we make sure a solid 5 seconds has
+    // passed since the last message was sent
+    private HashMap<String, Long> MessageTime;
     
     // Create a file as needed, copying the source from the default package data
     private File loadFile(String fileName)
@@ -144,6 +152,9 @@ public class BasicBukkit extends JavaPlugin
         // Load the messaging system
         messages = new BasicMessages(this, configuration);
         
+        // Allocate the spam message check
+        MessageTime = new HashMap();
+        
         /*** Player Events ***/
         playerListener = new BasicPlayerListener(this);
         
@@ -207,6 +218,7 @@ public class BasicBukkit extends JavaPlugin
         getCommand("kick").setExecutor(AdminCommands);                          // Done
         getCommand("ban").setExecutor(AdminCommands);                           // Done
         getCommand("unban").setExecutor(AdminCommands);                         // Done
+        getCommand("unkick").setExecutor(AdminCommands);                        // Done
         getCommand("who").setExecutor(AdminCommands);                           // Done
         getCommand("time").setExecutor(AdminCommands);                          // Done
         getCommand("weather").setExecutor(AdminCommands);                       // Done
@@ -215,6 +227,7 @@ public class BasicBukkit extends JavaPlugin
         getCommand("god").setExecutor(AdminCommands);                           // Done
         getCommand("pvp").setExecutor(AdminCommands);                           // Done
         getCommand("iclean").setExecutor(AdminCommands);                        // Done
+        getCommand("scout").setExecutor(AdminCommands);                         // Done
         
         BasicItemCommands ItemCommands = new BasicItemCommands(this);
         getCommand("kit").setExecutor(ItemCommands);                            // Done
@@ -244,6 +257,7 @@ public class BasicBukkit extends JavaPlugin
         getCommand("protectadd").setExecutor(Protection);                       // Done
         getCommand("protectrem").setExecutor(Protection);                       // Done
         getCommand("protectdel").setExecutor(Protection);                       // Done
+        getCommand("protectinfo").setExecutor(Protection);                      // Done
         
         // Turn off spawn protection
         getServer().setSpawnRadius(0);
@@ -319,5 +333,61 @@ public class BasicBukkit extends JavaPlugin
         message = ColorString(message);
         System.out.println("Server log: " + message);
         getServer().broadcastMessage(message);
+    }
+    
+    
+    // Special function to verify outgoing text - only sends it
+    // if there has been a good 5 seconds elapsed since the last message
+    public void SendMessage(Player player, String message)
+    {
+        // Form the key
+        String key = player.getName() + "_" + message;
+        
+        // Get current epoch time
+        long epochNow = System.currentTimeMillis() / 1000;
+        
+        // Can we send the message now?
+        boolean canSend = false;
+        
+        // Does it exist, if so, check the time
+        if(MessageTime.containsKey(key))
+        {
+            // Check the time - are we up yet?
+            Long epochTime = (Long)MessageTime.get(key);
+            if(epochTime.longValue() <= epochNow)
+            {
+                // Delete this key
+                MessageTime.remove(key);
+                canSend = true;
+            }
+        }
+        else
+            canSend = true;
+        
+        // If we can send it, send it, AND save it as a new message event
+        if(canSend)
+        {
+            player.sendMessage(message);
+            MessageTime.put(key, new Long(epochNow + 3));
+        }
+    }
+    
+    /*** WorldEdit permissions system ***/
+    @Override
+    public boolean hasPermission(String string, String string1)
+    {
+        return users.CanWorldEdit(string);
+    }
+
+    @Override
+    public boolean inGroup(String string, String string1)
+    {
+        return true;
+    }
+
+    @Override
+    public String[] getGroups(String string)
+    {
+        return null;
     }
 }

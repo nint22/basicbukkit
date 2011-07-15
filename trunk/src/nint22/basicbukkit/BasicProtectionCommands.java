@@ -195,6 +195,43 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Protected area \"" + args[0] + "\" has been removed");
             }
         }
+        else if(plugin.IsCommand(player, command, args, "protectinfo"))
+        {
+            // Are we on a protected area?
+            String protection = plugin.protections.GetProtectionName(player.getLocation());
+            if(protection != null)
+            {
+                // Tell the user the name and owners
+                LinkedList<String> owners = plugin.protections.GetProtectionOwners(protection);
+                String ownersString = "";
+                for(int i = 0; i < owners.size(); i++)
+                {
+                    ownersString += owners.get(i);
+                    if(i != owners.size() - 1)
+                        ownersString += ", ";
+                }
+                
+                // Tell the user this information
+                player.sendMessage(ChatColor.GRAY + "You are in the protected zone \"" + protection + "\"");
+                player.sendMessage(ChatColor.GRAY + "Owners: " + ChatColor.WHITE + ownersString);
+            }
+            else
+            {
+                // List all protection names
+                LinkedList<String> names = plugin.protections.GetProtectedNames();
+                String namesString = "";
+                for(int i = 0; i < names.size(); i++)
+                {
+                    namesString += names.get(i);
+                    if(i != names.size() - 1)
+                        namesString += ", ";
+                }
+                
+                // Tell the user this information
+                player.sendMessage(ChatColor.GRAY + "All protected areas: (" + plugin.protections.GetProtectionCount() + ")");
+                player.sendMessage(ChatColor.GRAY + "Protected area names: " + ChatColor.WHITE + namesString);
+            }
+        }
         
         // Done - parsed
         return true;

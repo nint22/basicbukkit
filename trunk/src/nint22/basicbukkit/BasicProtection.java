@@ -162,6 +162,13 @@ public class BasicProtection
         return owners.size();
     }
     
+    // Get all protected area names
+    public LinkedList<String> GetProtectedNames()
+    {
+        // Simple return
+        return names;
+    }
+    
     // Get the owner of the said protection
     public LinkedList<String> GetProtectionOwners(String name)
     {

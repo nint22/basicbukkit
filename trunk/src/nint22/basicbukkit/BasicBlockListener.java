@@ -14,6 +14,7 @@
 
 package nint22.basicbukkit;
 
+import java.util.HashMap;
 import org.bukkit.Material;
 import org.bukkit.ChatColor;
 import java.util.LinkedList;
@@ -54,7 +55,7 @@ public class BasicBlockListener extends BlockListener
         // Can this user build?
         if(!plugin.users.CanBuild(player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
+            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
             event.setCancelled(true);
             return;
         }
@@ -63,7 +64,7 @@ public class BasicBlockListener extends BlockListener
         // Note that slabs create block ID 0 before going double slab
         if(BlockID != 0 && !plugin.users.CanUseBannedItem(BlockID, player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
+            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
             event.setCancelled(true);
             return;
         }
@@ -85,7 +86,7 @@ public class BasicBlockListener extends BlockListener
             // Can this user build?
             if(!plugin.users.CanBuild(player.getName()))
             {
-                player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
+                plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
                 event.setCancelled(true);
                 return;
             }
@@ -152,7 +153,7 @@ public class BasicBlockListener extends BlockListener
             if(!protectionOwners.contains(player.getName()))
             {
                 // Not in list, cancel
-                player.sendMessage(ChatColor.RED + "You are not allowed to modify this protected land, named \"" + protectionName + "\"");
+                plugin.SendMessage(player, ChatColor.RED + "You are not allowed to modify this protected land, named \"" + protectionName + "\"");
                 return false;
             }
         }

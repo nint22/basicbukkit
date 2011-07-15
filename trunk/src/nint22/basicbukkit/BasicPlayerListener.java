@@ -30,7 +30,7 @@ public class BasicPlayerListener extends PlayerListener
     int WorldWidth, WorldLength;
     
     // Locations of players
-    private HashMap<String, String> playerProtectionLocations;
+    private HashMap<String, String> PlayerProtectionLocations;
     
     // Constructor saves plugin handle
     public BasicPlayerListener(BasicBukkit instance)
@@ -44,7 +44,7 @@ public class BasicPlayerListener extends PlayerListener
         WorldLength = sizes.get(1).intValue();
         
         // Allocate player's current protection locations
-        playerProtectionLocations = new HashMap();
+        PlayerProtectionLocations = new HashMap();
     }
     
     // Player joined game: run MOTD
@@ -123,30 +123,30 @@ public class BasicPlayerListener extends PlayerListener
         {
             // Warp back player
             event.getPlayer().teleport(event.getFrom());
-            event.getPlayer().sendMessage(ChatColor.RED + "You have hit the world bounds of (" + WorldWidth + ", " + WorldLength + ")");
+            plugin.SendMessage(event.getPlayer(), ChatColor.RED + "You have hit the world bounds of (" + WorldWidth + ", " + WorldLength + ")");
         }
         
         // Get current zone
-        String oldZone = playerProtectionLocations.get(event.getPlayer().getName());
+        String oldZone = PlayerProtectionLocations.get(event.getPlayer().getName());
         String newZone = plugin.protections.GetProtectionName(event.getPlayer().getLocation());
         
         // Did we go from a non-zone to a new zone
         if(oldZone == null && newZone != null)
         {
             event.getPlayer().sendMessage(ChatColor.GRAY + "You have walked into the protected zone \"" + newZone + "\"");
-            playerProtectionLocations.put(event.getPlayer().getName(), newZone);
+            PlayerProtectionLocations.put(event.getPlayer().getName(), newZone);
         }
         // Did we get out of a zone to a non-zone
         else if(oldZone != null && newZone == null)
         {
             event.getPlayer().sendMessage(ChatColor.GRAY + "You have left the protected zone \"" + oldZone + "\"");
-            playerProtectionLocations.remove(event.getPlayer().getName());
+            PlayerProtectionLocations.remove(event.getPlayer().getName());
         }
         // Did we change zones?
         else if(oldZone != null && newZone != null && !newZone.equalsIgnoreCase(oldZone))
         {
             event.getPlayer().sendMessage(ChatColor.GRAY + "You have left the protected zone \"" + oldZone + "\" and are now in \"" + newZone + "\"");
-            playerProtectionLocations.put(event.getPlayer().getName(), newZone);
+            PlayerProtectionLocations.put(event.getPlayer().getName(), newZone);
         }
     }
     
@@ -191,7 +191,7 @@ public class BasicPlayerListener extends PlayerListener
         // throw / drop off items
         if(!plugin.users.CanBuild(player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup items.");
+            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup items.");
             event.setCancelled(true);
             return;
         }
@@ -199,7 +199,7 @@ public class BasicPlayerListener extends PlayerListener
         // If we cannot place banned items...
         if(!plugin.users.CanUseBannedItem(ItemID, player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot drop banned items.");
+            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot drop banned items.");
             event.setCancelled(true);
             return;
         }
@@ -218,7 +218,7 @@ public class BasicPlayerListener extends PlayerListener
         LinkedList<String> owners = plugin.protections.GetProtectionOwners(protectionName);
         if(!owners.contains(player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "You cannot drop items in this protected area.");
+            plugin.SendMessage(player, ChatColor.RED + "You cannot drop items in this protected area.");
             event.setCancelled(true);
         }
         
@@ -239,7 +239,7 @@ public class BasicPlayerListener extends PlayerListener
         // pickup items
         if(!plugin.users.CanBuild(player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup items.");
+            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup items.");
             event.setCancelled(true);
             return;
         }
@@ -247,7 +247,7 @@ public class BasicPlayerListener extends PlayerListener
         // If we cannot place banned items...
         if(!plugin.users.CanUseBannedItem(ItemID, player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup banned items.");
+            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup banned items.");
             event.setCancelled(true);
             return;
         }
@@ -266,7 +266,7 @@ public class BasicPlayerListener extends PlayerListener
         LinkedList<String> owners = plugin.protections.GetProtectionOwners(protectionName);
         if(!owners.contains(player.getName()))
         {
-            player.sendMessage(ChatColor.RED + "You cannot pickup items in this protected area.");
+            plugin.SendMessage(player, ChatColor.RED + "You cannot pickup items in this protected area.");
             event.setCancelled(true);
         }
         

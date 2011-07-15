@@ -39,6 +39,7 @@ public class BasicUsers
     private LinkedList<String> GroupPreTitle;       // Pre-title for the given group
     private LinkedList<Boolean> GroupBannedItems;   // True if this group can access banned items
     private LinkedList<Boolean> GroupCanBuild;      // Can this group build? (i.e. break and place?)
+    private LinkedList<Boolean> GroupCanWorldEdit;  // Group can use the world edit plugin
     
     // All kicked users time (unix time)
     // The unix epoch time when a user can join back
@@ -77,6 +78,7 @@ public class BasicUsers
         GroupPreTitle = new LinkedList();
         GroupBannedItems = new LinkedList();
         GroupCanBuild = new LinkedList();
+        GroupCanWorldEdit = new LinkedList();
         
         // Create new hash map
         KickedTimes = new HashMap();
@@ -101,6 +103,7 @@ public class BasicUsers
             String PreTitle = (String)GroupData.get("pre");
             Boolean BannedItems = (Boolean)GroupData.get("banned_access");
             Boolean CanBuild = (Boolean)GroupData.get("build");
+            Boolean CanWorldEdit = (Boolean)GroupData.get("worldedit"); 
             
             // Convert to string data (commands)
             String[] TempCommands = new String[Commands.size()];
@@ -114,6 +117,7 @@ public class BasicUsers
             GroupPreTitle.add(PreTitle);
             GroupBannedItems.add(BannedItems);
             GroupCanBuild.add(CanBuild);
+            GroupCanWorldEdit.add(CanWorldEdit);
         }
         
         // Load all users
@@ -348,6 +352,7 @@ public class BasicUsers
     // Ban user
     public void SetBan(String userName, String reason)
     {
+        // Ban / kick if online
         // Put to self-ban list
         BannedUsers.put(userName, reason);
         
@@ -357,7 +362,7 @@ public class BasicUsers
         {
             // Append (note the true boolean)
             BufferedWriter writer = new BufferedWriter(new FileWriter("banned-players.txt", true));
-            writer.write(userName);
+            writer.write("\n" + userName);
             writer.close();
         }
         catch(Exception e)
@@ -379,13 +384,32 @@ public class BasicUsers
             if(name.toLowerCase().startsWith(userName.toLowerCase()))
             {
                 BasicBukkitFound = true;
-                userName= name;
+                userName = name;
                 break;
             }
         }
         
-        // This user was found in our banned list; remove him/her
-        BannedUsers.remove(userName);
+        // Check the kicked logs..
+        if(BasicBukkitFound == false)
+        {
+            for(String name : KickedTimes.keySet())
+            {
+                // Do we have a partial match?
+                if(name.toLowerCase().startsWith(userName.toLowerCase()))
+                {
+                    BasicBukkitFound = true;
+                    userName = name;
+                    break;
+                }
+            }
+        }
+        
+        // Remove from BasicBukkit ban and system
+        if(BasicBukkitFound)
+        {
+            KickedTimes.remove(userName);
+            BannedUsers.remove(userName);
+        }
         
         // Now remove from the official list
         boolean FileFound = false;
@@ -403,7 +427,7 @@ public class BasicUsers
             {
                 // If it doesn't match, write out
                 if(!source.toLowerCase().startsWith(userName.toLowerCase()))
-                    writer.write(source);
+                    writer.write("\n" + source);
                 // Else found, so don't write name...
                 else
                 {
@@ -423,6 +447,13 @@ public class BasicUsers
         catch(Exception e)
         {
             System.out.println("### BasicBukkit Unable to update ban list: " + e.getMessage());
+        }
+        
+        // Remove from BasicBukkit ban and system
+        if(BasicBukkitFound)
+        {
+            KickedTimes.remove(userName);
+            BannedUsers.remove(userName);
         }
         
         // Was the player removed from either of the list?
@@ -529,7 +560,7 @@ public class BasicUsers
         for(int i = 0; i < GroupName.size(); i++)
         {
             // Does match (ignore case)
-            if(GroupName.get(i).equalsIgnoreCase(groupName))
+            if(GroupName.get(i).toLowerCase().startsWith(groupName.toLowerCase()))
                 return GroupID.get(i);
         }
         
@@ -561,6 +592,18 @@ public class BasicUsers
         return GroupCanBuild.get(GroupID).booleanValue();
     }
 
+    // Can use world edit
+    public boolean CanWorldEdit(String userName)
+    {
+        // Get user's group
+        int GroupID = GetGroupID(userName);
+        if(GroupID < 0)
+            return false;
+        
+        // Get group's build status
+        return GroupCanWorldEdit.get(GroupID).booleanValue();
+    }
+    
     boolean IsMutedBy(Player target, Player player)
     {
         // Find key
@@ -570,7 +613,7 @@ public class BasicUsers
         else
             return isMuted.booleanValue();
     }
-
+    
     void SetMutedBy(Player target, Player player, boolean IsMuted)
     {
         // Save new hash
