@@ -466,7 +466,7 @@ public class BasicAdminCommands implements CommandExecutor
         if(targetPlayer == null)
         {
             if(player != null)
-                player.sendMessage(ChatColor.GRAY + "Unable to find player named \"" + targetPlayer.getName() + "\"");
+                player.sendMessage(ChatColor.GRAY + "Unable to find player named \"" + args[0] + "\"");
             return;
         }
         
