@@ -135,7 +135,7 @@ public class BasicItemCommands implements CommandExecutor
             // Give items to player
             target.getInventory().addItem(newItems);
             player.sendMessage(ChatColor.GRAY + "Gave \"" + target.getName() + "\" " + ChatColor.RED + newItems.getAmount() + ChatColor.GRAY + " of item " + ChatColor.RED + newItems.getType().getId() + " (" + newItems.getType().name() + ")");
-            player.sendMessage(ChatColor.GRAY + "Recieved from \"" + player.getName() + "\" " + ChatColor.RED + newItems.getAmount() + ChatColor.GRAY + " of item " + ChatColor.RED + newItems.getType().getId() + " (" + newItems.getType().name() + ")");
+            target.sendMessage(ChatColor.GRAY + "Recieved from \"" + player.getName() + "\" " + ChatColor.RED + newItems.getAmount() + ChatColor.GRAY + " of item " + ChatColor.RED + newItems.getType().getId() + " (" + newItems.getType().name() + ")");
             
             // All done...
             return true;
@@ -201,7 +201,7 @@ public class BasicItemCommands implements CommandExecutor
         // the "setDurability" since items are essentially unions
         // of block data types (which also use Meta)
         int ItemID = -1;
-        int MetaID = -1;
+        int MetaID = 0;
         String SimpleName = "Unknown Name";
         
         // The first arg is either the item name OR the item number
@@ -232,26 +232,18 @@ public class BasicItemCommands implements CommandExecutor
             }
 
             // Attempt to find the short name
-            // We must search through this method because we are finding the KEY (name) from the OBJECT (ItemID)
-            Set<Entry<String, String>> AllData = plugin.itemNames.itemNames.entrySet();
-            for(Object obj : AllData)
-            {
-                // Do we have a matching item ID?
-                if(((Entry<String, String>)obj).getValue().equalsIgnoreCase(ItemID + "_" + MetaID))
-                {
-                    SimpleName = ((Entry<String, String>)obj).getKey();
-                    break;
-                }
-            }
+            SimpleName = plugin.itemNames.FindItem(ItemID, MetaID);
         }
         // Very likely an item string name
         else
         {
+            // Get the full item name
+            String ItemString = plugin.itemNames.FindItem(args[0].toLowerCase());
+            
             // Does this item exist?
-            if(plugin.itemNames.itemNames.containsKey(args[0].toLowerCase()))
+            if(ItemString != null)
             {
                 // Get the item data information which is encoded as "ItemID_MetaID"
-                String ItemString = plugin.itemNames.itemNames.get(args[0].toLowerCase());
                 SimpleName = args[0].toLowerCase();
                 String[] StringData = ItemString.split("_");
                 
@@ -307,15 +299,15 @@ public class BasicItemCommands implements CommandExecutor
             }
         }
         
-        // Can this user use the item?
-        if(!plugin.users.CanUseBannedItem(ItemID, caller.getName()))
+        // Can this user use banned item?
+        if(!plugin.users.CanUseItem(ItemID, MetaID, caller.getName()))
         {
             caller.sendMessage(ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(caller.getName()) + ", " + plugin.users.GetGroupName(caller.getName()) + ") cannot create banned blocks.");
             return null;
         }
         
         // If we are giving blocks, can the reciever use the items?
-        if(reciever != null && !plugin.users.CanUseBannedItem(ItemID, reciever.getName()))
+        if(reciever != null && !plugin.users.CanUseItem(ItemID, MetaID, reciever.getName()))
         {
             caller.sendMessage(ChatColor.RED + "You cannot give banned items to \"" + reciever.getName() + "\" because their group (GID " + plugin.users.GetGroupID(reciever.getName()) + ", " + plugin.users.GetGroupName(reciever.getName()) + ") cannot use banned blocks.");
             return null;

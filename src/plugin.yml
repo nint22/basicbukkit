@@ -24,6 +24,9 @@ commands:
     mute:
         description: Mutes a given player; toggles on and off
         usage: /mute <player>
+    title:
+        description: Adds a special title to a given user
+        usage: /title <player> [title; may be empty to remove]
     
     kick:
         description: Kicks a given player off the server

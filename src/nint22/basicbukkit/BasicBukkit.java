@@ -57,7 +57,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
     public BasicMessages messages = null;
     
     // Global item list
-    public ItemNames itemNames = null;
+    public BasicItems itemNames = null;
     
     // A hashmap that contains an outgoing message of the form
     // playername_message as the key and the unix epoch time stamp as the
@@ -138,7 +138,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         configuration.load();
         
         // Load the items file
-        itemNames = new ItemNames(loadFile("items.csv"), configuration);
+        itemNames = new BasicItems(loadFile("items.csv"), configuration);
         
         // Load users file
         users = new BasicUsers(this, new Configuration(loadFile("users.yml")), configuration);
@@ -196,10 +196,10 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
         
         /*** Vehicle Events ***/
-        vehicleListener = new BasicVehicleListener(this);
+        //vehicleListener = new BasicVehicleListener(this);
         
         // Prevent vehicle placement
-        pm.registerEvent(Event.Type.VEHICLE_CREATE, vehicleListener, Priority.Normal, this);
+        //pm.registerEvent(Event.Type.VEHICLE_CREATE, vehicleListener, Priority.Normal, this);
         
         /*** Player Commands ***/
         
@@ -212,6 +212,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("afk").setExecutor(MiscCommands);                            // Done
         getCommand("msg").setExecutor(MiscCommands);                            // Done
         getCommand("mute").setExecutor(MiscCommands);                           // Done
+        getCommand("title").setExecutor(MiscCommands);                          // Done
         
         BasicAdminCommands AdminCommands = new BasicAdminCommands(this);
         getCommand("op").setExecutor(AdminCommands);                            // Done

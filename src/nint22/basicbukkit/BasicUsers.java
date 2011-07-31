@@ -31,6 +31,7 @@ public class BasicUsers
     // All users and groups, etc.. (In parallel)
     private LinkedList<String> OpNames;         // User name
     private LinkedList<Integer> OpGroup;        // User's group ID
+    private LinkedList<String> OpTitle;         // Special title regardless of rank
     
     // All groups (in parallel)
     private LinkedList<Integer> GroupID;            // Group's unique ID
@@ -70,6 +71,7 @@ public class BasicUsers
         // Allocate users and info
         OpNames = new LinkedList();
         OpGroup = new LinkedList();
+        OpTitle = new LinkedList();
         
         // Allocate all lists as needed
         GroupID = new LinkedList();
@@ -132,6 +134,12 @@ public class BasicUsers
                 OpGroup.add((Integer)pair.getValue());
             }
             
+            // If the string ends in ".title" this is the user's title
+            if(pair.getKey().endsWith(".title"))
+            {
+                OpTitle.add((String)pair.getValue());
+            }
+            
             // If the string ends ".kicktime" this is the 
             else if(pair.getKey().endsWith(".kicktime"))
             {
@@ -164,6 +172,7 @@ public class BasicUsers
             // Update user
             HashMap<String, Object> map = new HashMap();
             map.put("group", OpGroup.get(i));
+            map.put("title", OpTitle.get(i));
             
             // Does this user have kick-time remaining?
             Integer kickTime = KickedTimes.get(OpNames.get(i));
@@ -217,18 +226,27 @@ public class BasicUsers
     public String GetUserTitle(String UserName)
     {
         // Get the user's group ID
+        String GroupTitle = "Undefined Group";
         int GroupIndex = GetGroupID(UserName);
-        if(GroupIndex < 0)
-            return "[Undefined Group]";
+        if(GroupIndex >= 0)
+            GroupTitle = GroupPreTitle.get(GroupIndex);
         
-        // Get group title
-        String title = GroupPreTitle.get(GroupIndex);
+        // Get the user's special title
+        String UserTitle = "";
+        int UserIndex = OpNames.indexOf(UserName);
+        if(UserIndex >= 0)
+            UserTitle = ChatColor.WHITE + "[" + OpTitle.get(0) + ChatColor.WHITE + "]";
+        
+        // Error check user title
+        if(UserTitle == null)
+            UserTitle = "";
         
         // If the user is afk, add it
+        String AFK = "";
         if(GetAFK(UserName))
-            title = ChatColor.WHITE + "[" + ChatColor.RED + "afk" + ChatColor.WHITE + "]" + title;
+            AFK =  ChatColor.WHITE + "[" + ChatColor.RED + "afk" + ChatColor.WHITE + "]";
         
-        return title;
+        return AFK + ChatColor.WHITE + "[" + GroupTitle + ChatColor.WHITE + "]" + UserTitle;
     }
     
     // Return the user's group's ID index
@@ -278,7 +296,13 @@ public class BasicUsers
     }
     
     // Can the given user place / use banned blocks / items?
-    public boolean CanUseBannedItem(int ItemID, String name)
+    public boolean CanUseItem(int ItemID, String name)
+    {
+        return CanUseItem(ItemID, 0, name);
+    }
+    
+    // Can the given user place / use banned blocks / items?
+    public boolean CanUseItem(int ItemID, int MetaID, String name)
     {
         // Find the user's group (and fail out if does not exist)
         int GroupIndex = GetGroupID(name);
@@ -289,7 +313,7 @@ public class BasicUsers
         boolean CanUseBanned = GroupBannedItems.get(GroupIndex).booleanValue();
         
         // Is it a banned item?
-        boolean IsBanned = plugin.itemNames.banned.contains(new Integer(ItemID)); 
+        boolean IsBanned = plugin.itemNames.IsBanned(ItemID, MetaID); 
         
         // If it is a banned item and we cannot use it, return false
         if(IsBanned)
@@ -604,7 +628,7 @@ public class BasicUsers
         return GroupCanWorldEdit.get(GroupID).booleanValue();
     }
     
-    boolean IsMutedBy(Player target, Player player)
+    public boolean IsMutedBy(Player target, Player player)
     {
         // Find key
         Boolean isMuted = MuteMode.get(target.getName() + "_" + player.getName());
@@ -614,9 +638,17 @@ public class BasicUsers
             return isMuted.booleanValue();
     }
     
-    void SetMutedBy(Player target, Player player, boolean IsMuted)
+    public void SetMutedBy(Player target, Player player, boolean IsMuted)
     {
         // Save new hash
         MuteMode.put(target.getName() + "_" + player.getName(), IsMuted);
+    }
+
+    public void SetTitle(Player target, String NewTitle)
+    {
+        // Is the player in the current groups?
+        int UserIndex = OpNames.indexOf(target.getName());
+        if(UserIndex > 0)
+            OpTitle.set(UserIndex, NewTitle);
     }
 }

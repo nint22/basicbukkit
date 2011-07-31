@@ -62,7 +62,7 @@ public class BasicBlockListener extends BlockListener
         
         // If we cannot place banned items...
         // Note that slabs create block ID 0 before going double slab
-        if(BlockID != 0 && !plugin.users.CanUseBannedItem(BlockID, player.getName()))
+        if(BlockID != 0 && !plugin.users.CanUseItem(BlockID, player.getName()))
         {
             plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
             event.setCancelled(true);
