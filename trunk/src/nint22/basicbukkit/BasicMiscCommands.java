@@ -226,6 +226,36 @@ public class BasicMiscCommands implements CommandExecutor
                 target.sendMessage(ChatColor.GRAY + "Player \"" + player.getName() + "\" can now longer hear you (unmuted)");
             }
         }
+        else if(plugin.IsCommand(player, command, args, "title"))
+        {
+            // We must have least 1 argument
+            if(args.length < 1)
+                return false;
+            
+            // Find the player
+            Player target = plugin.getServer().getPlayer(args[0]);
+            if(target == null)
+            {
+                player.sendMessage(ChatColor.GRAY + "Player \"" + args[0] + "\" not found");
+                return true;
+            }
+            
+            // Do we have a title? (Defaults to blank)
+            String NewTitle = "";
+            if(args.length > 1)
+            {
+                for(int i = 1; i < args.length; i++)
+                    NewTitle += args[i];
+            }
+            NewTitle = ChatColor.WHITE + "[" + NewTitle + ChatColor.WHITE + "]";
+            
+            // Set the user's new title and make the announcement
+            plugin.users.SetTitle(target, NewTitle);
+            if(NewTitle.length() > 0)
+                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has a new title: \"" + NewTitle + "\"");
+            else
+                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has had their title removed.");
+        }
         
         // Done - parsed
         return true;

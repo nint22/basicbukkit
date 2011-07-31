@@ -197,7 +197,7 @@ public class BasicPlayerListener extends PlayerListener
         }
         
         // If we cannot place banned items...
-        if(!plugin.users.CanUseBannedItem(ItemID, player.getName()))
+        if(!plugin.users.CanUseItem(ItemID, player.getName()))
         {
             plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot drop banned items.");
             event.setCancelled(true);
@@ -245,7 +245,7 @@ public class BasicPlayerListener extends PlayerListener
         }
         
         // If we cannot place banned items...
-        if(!plugin.users.CanUseBannedItem(ItemID, player.getName()))
+        if(!plugin.users.CanUseItem(ItemID, player.getName()))
         {
             plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot pickup banned items.");
             event.setCancelled(true);
