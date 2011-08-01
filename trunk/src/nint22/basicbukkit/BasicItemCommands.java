@@ -243,9 +243,9 @@ public class BasicItemCommands implements CommandExecutor
             // Does this item exist?
             if(ItemString != null)
             {
-                // Get the item data information which is encoded as "ItemID_MetaID"
+                // Get the item data information which is encoded as "ItemID:MetaID"
                 SimpleName = args[0].toLowerCase();
-                String[] StringData = ItemString.split("_");
+                String[] StringData = ItemString.split(":");
                 
                 // Attempt to convert to Item and Meta ID
                 try

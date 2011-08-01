@@ -86,13 +86,13 @@ public class BasicDaemon extends Thread
             
             // Is it time to reload?
             // 60 seconds in a minute, hence the multiplication
-            if(TotalSeconds % reloadMinutes * 60 == 0)
+            if(TotalSeconds % (reloadMinutes * 60) == 0)
             {
                 // Tell the server we're going to lag a little
                 plugin.BroadcastMessage(ChatColor.RED + "Server Warning: Saving plugin data...");
                 
                 // Attempt to do a full reload..
-                plugin.getServer().reload();
+                //plugin.getServer().reload();
                 
                 // Tell the server we're done!
                 plugin.BroadcastMessage(ChatColor.RED + "Server refresh done!");

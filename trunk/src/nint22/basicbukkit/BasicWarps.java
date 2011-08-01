@@ -279,7 +279,7 @@ public class BasicWarps
     // find a colliding block, or return null upon failure
     // Note that the resolution is the distance applied to the ray, NOT
     // distance relative to block sizes (which are unit 1 size)
-    public Location GetCollision(Player player, double maxDistance, double resolution)
+    public static Location GetCollision(Player player, double maxDistance, double resolution)
     {
         // Get the ray's source location
         Location raySource = player.getEyeLocation();

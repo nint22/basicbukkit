@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.*;
 import org.bukkit.Location;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.event.player.PlayerPreLoginEvent.*;
 
 public class BasicPlayerListener extends PlayerListener
@@ -287,5 +288,21 @@ public class BasicPlayerListener extends PlayerListener
         }
         
         // Else, all good
+    }
+    
+    // If the player attempts to interact / use items
+    @Override
+    public void onPlayerInteract(PlayerInteractEvent event)
+    {
+        // Do we allow jumping?
+        if(plugin.configuration.getBoolean("compassjump", false))
+        {
+            // Is it a compass?
+            if(event.getMaterial() == Material.COMPASS)
+            {
+                // Attempt a jump
+                BasicWorldCommands.JumpAtTarget(event.getPlayer());
+            }
+        }
     }
 }

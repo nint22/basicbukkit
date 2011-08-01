@@ -59,19 +59,20 @@ public class BasicItems
         }
         
         // Load the banned items list
-        List<Object> banned = configuration.getList("banned");
-        for(Object obj : banned)
+        String banned = configuration.getString("banned");
+        if(banned != null)
         {
-            // Is this a type string?
-            if(obj instanceof String)
+            // Split
+            String split[] = banned.split(",");
+            for(String obj : split)
             {
                 // Get the banned ID and make sure it is of form ID:Meta
                 String bannedID = (String)obj;
-                
+
                 // If there is no colon, add ":0" at the end for consistency
                 if(bannedID.indexOf(":") < 0)
                     bannedID += ":0";
-                
+
                 // Save in banned items
                 BannedItems.add(bannedID);
             }

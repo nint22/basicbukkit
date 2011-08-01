@@ -56,6 +56,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
     // Global messaging system, prints messages after certain time...
     public BasicMessages messages = null;
     
+    // Global daemon system
+    public BasicDaemon daemon = null;
+    
     // Global item list
     public BasicItems itemNames = null;
     
@@ -121,6 +124,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         
         // Stop messages (may take a second)
         messages.stop(true);
+        daemon.stop(true);
         
         // Release plugin
         System.out.println("### BasicBukkit plugin disabled.");
@@ -149,8 +153,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         // Load the warps
         warps = new BasicWarps(this, new Configuration(loadFile("warps.yml")));
         
-        // Load the messaging system
+        // Load the messaging system and the daemon system
         messages = new BasicMessages(this, configuration);
+        daemon = new BasicDaemon(this, configuration);
         
         // Allocate the spam message check
         MessageTime = new HashMap();
@@ -171,6 +176,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         // Item drop / steal
         pm.registerEvent(Event.Type.PLAYER_DROP_ITEM, playerListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.PLAYER_PICKUP_ITEM, playerListener, Priority.Normal, this);
+        
+        // Item usage
+        pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Normal, this);
         
         /*** Block Place / Usage Events ***/
         blockListener = new BasicBlockListener(this);
@@ -229,6 +237,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("god").setExecutor(AdminCommands);                           // Done
         getCommand("pvp").setExecutor(AdminCommands);                           // Done
         getCommand("iclean").setExecutor(AdminCommands);                        // Done
+        getCommand("mclean").setExecutor(AdminCommands);                        // Done
         getCommand("scout").setExecutor(AdminCommands);                         // Done
         
         BasicItemCommands ItemCommands = new BasicItemCommands(this);
@@ -251,6 +260,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("setspawn").setExecutor(WorldCommands);                      // Done
         getCommand("top").setExecutor(WorldCommands);                           // Done
         getCommand("jump").setExecutor(WorldCommands);                          // Done
+        getCommand("mob").setExecutor(WorldCommands);                           // Done
         
         BasicProtectionCommands Protection = new BasicProtectionCommands(this);
         getCommand("p1").setExecutor(Protection);                               // Done
