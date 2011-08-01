@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.*;
 import org.bukkit.Location;
 import org.bukkit.ChatColor;
+import org.bukkit.event.player.PlayerPreLoginEvent.*;
 
 public class BasicPlayerListener extends PlayerListener
 {
@@ -47,27 +48,28 @@ public class BasicPlayerListener extends PlayerListener
         PlayerProtectionLocations = new HashMap();
     }
     
+    // Do  permissions check before the player joins
+    @Override
+    public void onPlayerPreLogin(PlayerPreLoginEvent event)
+    {
+        // Check for ban
+        String BanReason = plugin.users.IsBanned(event.getName());
+        if(BanReason != null)
+            event.disallow(Result.KICK_BANNED, "You are banned. Reason: \"" + BanReason + "\"");
+        
+        // Is it past their kick time?
+        else if(!plugin.users.IsKicked(event.getName()))
+            event.disallow(Result.KICK_OTHER, "Your kick time is not yet up.");
+        
+        // Else, all good!
+    }
+    
     // Player joined game: run MOTD
     @Override
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        // Get the player
+        // Get player from event
         Player player = event.getPlayer();
-        
-        // Check for ban
-        String BanReason = plugin.users.IsBanned(player.getName());
-        if(BanReason != null)
-        {
-            player.kickPlayer("You are banned. Reason: \"" + BanReason + "\"");
-            return;
-        }
-        
-        // Is it past their kick time?
-        if(!plugin.users.IsKicked(player.getName()))
-        {
-            player.kickPlayer("Your kick time is not yet up.");
-            return;
-        }
         
         // Say where the player game from...
         plugin.BroadcastMessage(ChatColor.GRAY + player.getName() + " joined the server.");
@@ -80,7 +82,7 @@ public class BasicPlayerListener extends PlayerListener
         // Has this player ever joined us before?
         if(plugin.users.GetGroupID(player.getName()) < 0)
         {
-            System.out.println(player.getName() + " is a new user to your server.");
+            plugin.BroadcastMessage(ChatColor.GRAY + player.getName() + " is a new user to the server.");
             
             // Register this first time user
             plugin.users.SetUserGroup(player.getName(), 0);
@@ -90,7 +92,7 @@ public class BasicPlayerListener extends PlayerListener
                 player.teleport(plugin.warps.GetSpawn());
         }
         else
-            System.out.println(player.getName() + " is a known user.");
+            plugin.BroadcastMessage(ChatColor.GRAY + player.getName() + " is a known user to the server.");
         
         // Set the player's title
         player.setDisplayName(plugin.users.GetUserTitle(player.getName()) + player.getName());
@@ -154,15 +156,29 @@ public class BasicPlayerListener extends PlayerListener
     @Override
     public void onPlayerChat(PlayerChatEvent event) 
     {
+        // Get player
+        Player player = event.getPlayer();
+        
         // Player not longer afk
-        if(plugin.users.GetAFK(event.getPlayer().getName()))
+        if(plugin.users.GetAFK(player.getName()))
         {
-            plugin.users.SetAFK(event.getPlayer().getName(), false);
+            plugin.users.SetAFK(player.getName(), false);
             plugin.BroadcastMessage(ChatColor.GRAY + "Player \"" + event.getPlayer().getName() + "\" is no longer AFK");
         }
         
-        // Get player
-        Player player = event.getPlayer();
+        // Is this player muted?
+        if(plugin.users.IsMute(player))
+        {
+            player.sendMessage(ChatColor.GRAY + "You are currently muted.");
+            event.setCancelled(true);
+        }
+        
+        // Is this player spamming?
+        if(!plugin.CanSendChat(player, event.getMessage()))
+        {
+            player.sendMessage(ChatColor.GRAY + "You are chatting too fast; please wait.");
+            event.setCancelled(true);
+        }
         
         // Note the hex value is the signal byte for following colors
         String message = event.getMessage();

@@ -55,7 +55,7 @@ public class BasicUsers
     // AFK users (if true, user is afk)
     private HashMap<String, Boolean> AFKMode;
     
-    // Muted users: tuples are <"mutedtarget_mutedby"
+    // Muted users: key is users name and boolean is true/false
     private HashMap<String, Boolean> MuteMode;
     
     // Initialize users
@@ -628,20 +628,23 @@ public class BasicUsers
         return GroupCanWorldEdit.get(GroupID).booleanValue();
     }
     
-    public boolean IsMutedBy(Player target, Player player)
+    public boolean IsMute(Player target)
     {
         // Find key
-        Boolean isMuted = MuteMode.get(target.getName() + "_" + player.getName());
+        Boolean isMuted = MuteMode.get(target.getName());
         if(isMuted == null)
             return false;
         else
             return isMuted.booleanValue();
     }
     
-    public void SetMutedBy(Player target, Player player, boolean IsMuted)
+    public void SetMute(Player target, boolean IsMuted)
     {
         // Save new hash
-        MuteMode.put(target.getName() + "_" + player.getName(), IsMuted);
+        if(IsMuted == false)
+            MuteMode.remove(target.getName());
+        else
+            MuteMode.put(target.getName(), IsMuted);
     }
 
     public void SetTitle(Player target, String NewTitle)

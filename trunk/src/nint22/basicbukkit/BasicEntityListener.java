@@ -15,6 +15,7 @@
 package nint22.basicbukkit;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.*;
 
@@ -40,14 +41,18 @@ public class BasicEntityListener extends EntityListener
     @Override
     public void onExplosionPrime(ExplosionPrimeEvent event)
     {
-        event.setCancelled(!AllowTNT);
+        // Only supress TNT
+        if(!(event.getEntity() instanceof Creeper))
+            event.setCancelled(!AllowTNT);
     }
     
     // Disable explosion if needed
     @Override
     public void onEntityExplode(EntityExplodeEvent event)
     {
-        event.setCancelled(!AllowTNT);
+        // Only supress TNT
+        if(!(event.getEntity() instanceof Creeper))
+            event.setCancelled(!AllowTNT);
     }
     
     // If a player gets damage, only apply it if god mode is off

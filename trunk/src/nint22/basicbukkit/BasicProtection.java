@@ -232,10 +232,10 @@ public class BasicProtection
             p2.y = temp;
         }
         
-        // Max distance can only be 128 max in both directions
-        if(p2.x - p1.x > 128)
+        // Max distance can only be 256 max in both directions
+        if(p2.x - p1.x > 256)
             return false;
-        if(p2.y - p1.y > 128)
+        if(p2.y - p1.y > 256)
             return false;
         
         // As of now, we do NOT do collision checks

@@ -17,6 +17,7 @@ package nint22.basicbukkit;
 import java.util.*;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
@@ -264,7 +265,7 @@ public class BasicAdminCommands implements CommandExecutor
                 }
 
                 // Say we changed the weather
-                plugin.BroadcastMessage(ChatColor.GRAY + "Time set to " + time.toLowerCase());
+                plugin.BroadcastMessage(ChatColor.GRAY + "Time set to " + time.toLowerCase() + " by \"" + player.getName() + "\"");
             }
             else if(plugin.IsCommand(player, command, args, "weather"))
             {
@@ -288,7 +289,7 @@ public class BasicAdminCommands implements CommandExecutor
                 }
 
                 // Say we changed the weather
-                plugin.BroadcastMessage(ChatColor.GRAY + "Weather set to " + weatherType.toLowerCase());
+                plugin.BroadcastMessage(ChatColor.GRAY + "Weather set to " + weatherType.toLowerCase() + " by \"" + player.getName() + "\"");
             }
             else if(plugin.IsCommand(player, command, args, "kill"))
             {
@@ -350,47 +351,14 @@ public class BasicAdminCommands implements CommandExecutor
                 plugin.users.SetGod(player.getName(), IsGod);
 
                 // Tell the player if it is on or off
+                player.getWorld().strikeLightningEffect(player.getLocation());
                 player.sendMessage(ChatColor.GRAY + "God mode has been turned " + (IsGod ? "on" : "off"));
             }
             else if(plugin.IsCommand(player, command, args, "iclean"))
             {
                 // Get the current world
                 World world = player.getWorld();
-                List<Entity> worldEntities = world.getEntities();
-                
-                int TotalRemoved = 0;
-                for(Entity entity : worldEntities)
-                {
-                    // If craft item, remove
-                    // Though this is not a good method, it prevents the
-                    // need to include a new library (i.e. org.craftbukkit)
-                    if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftItem"))
-                    {
-                        entity.remove();
-                        TotalRemoved++;
-                    }
-                    // Remove vehicles
-                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftBoat"))
-                    {
-                        entity.remove();
-                        TotalRemoved++;
-                    }
-                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftMinecart"))
-                    {
-                        entity.remove();
-                        TotalRemoved++;
-                    }
-                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftPoweredMinecart"))
-                    {
-                        entity.remove();
-                        TotalRemoved++;
-                    }
-                    else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftStorageMinecart"))
-                    {
-                        entity.remove();
-                        TotalRemoved++;
-                    }
-                }
+                int TotalRemoved = ICleanWorld(world);
                 
                 // How many did we remove?
                 player.sendMessage(ChatColor.GRAY + "Removed a total of " + TotalRemoved + " items in this world");
@@ -473,6 +441,20 @@ public class BasicAdminCommands implements CommandExecutor
         // Attempt to change group now
         else
         {
+            // Check permissions (Only works if both players are online)
+            if(player != null && targetPlayer != null)
+            {
+                int sourceGID = plugin.users.GetGroupID(player.getName());
+                int targetGID = plugin.users.GetGroupID(targetPlayer.getName());
+                if(targetGID >= sourceGID)
+                {
+                    // Cannot ban GIDs higher or equal
+                    player.sendMessage(ChatColor.GRAY + "Cannot op-change users with an equal or higher group ID (theirs: " + targetGID + ", yours: " + sourceGID + ")");
+                    return;
+                }
+            }
+            
+            // Make actual change
             if(plugin.users.SetUserGroup(targetPlayer.getName(), GroupID))
             {
                 String playerName = player == null ? "Server Console" : player.getName();
@@ -617,5 +599,48 @@ public class BasicAdminCommands implements CommandExecutor
         }
         
         // All done with kick
+    }
+    
+    // Cleans all items, vehicle, etc.. in a given world (i.e. nether, etc..)
+    // Returns the number of items removed
+    public static int ICleanWorld(World world)
+    {
+        int TotalRemoved = 0;
+        List<Entity> worldEntities = world.getEntities();
+        
+        for(Entity entity : worldEntities)
+        {
+            // If craft item, remove
+            // Though this is not a good method, it prevents the
+            // need to include a new library (i.e. org.craftbukkit)
+            if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftItem"))
+            {
+                entity.remove();
+                TotalRemoved++;
+            }
+            // Remove vehicles
+            else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftBoat"))
+            {
+                entity.remove();
+                TotalRemoved++;
+            }
+            else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftMinecart"))
+            {
+                entity.remove();
+                TotalRemoved++;
+            }
+            else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftPoweredMinecart"))
+            {
+                entity.remove();
+                TotalRemoved++;
+            }
+            else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftStorageMinecart"))
+            {
+                entity.remove();
+                TotalRemoved++;
+            }
+        }
+        
+        return TotalRemoved;
     }
 }
