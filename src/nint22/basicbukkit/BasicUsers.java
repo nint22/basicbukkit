@@ -122,38 +122,27 @@ public class BasicUsers
             GroupCanWorldEdit.add(CanWorldEdit);
         }
         
-        // Load all users
-        Map<String, Object> UserData = users.getAll();
-        Set<Entry<String, Object>> pairs = UserData.entrySet();
-        for(Entry<String, Object> pair : pairs)
+        // For each user?
+        for(String key : users.getKeys())
         {
-            // If the string ends in ".group" this is the group ID key
-            if(pair.getKey().endsWith(".group"))
-            {
-                OpNames.add(pair.getKey().substring(0, pair.getKey().length() - 6));
-                OpGroup.add((Integer)pair.getValue());
-            }
+            // Player name is key
+            OpNames.add(key);
             
-            // If the string ends in ".title" this is the user's title
-            if(pair.getKey().endsWith(".title"))
-            {
-                OpTitle.add((String)pair.getValue());
-            }
+            // Get the group ID
+            OpGroup.add(users.getInt(key + ".group", 0));
             
-            // If the string ends ".kicktime" this is the 
-            else if(pair.getKey().endsWith(".kicktime"))
-            {
-                // Save the time in which the player can get back via a kick
-                KickedTimes.put(pair.getKey().substring(0, pair.getKey().length() - 9), (Integer)pair.getValue());
-            }
+            // Get the optional title
+            OpTitle.add(users.getString(key + ".title", ""));
             
-            // If banned, read string
-            else if(pair.getKey().endsWith(".banned"))
-            {
-                // Save as banned string
-                BannedUsers.put(pair.getKey().substring(0, pair.getKey().length() - 7), (String)pair.getValue());
-                
-            }
+            // Does this user have a kick time?
+            int KickTime = users.getInt(key + ".kicktime", 0);
+            if(KickTime > 0)
+                KickedTimes.put(key, KickTime);
+            
+            // Banned string
+            String BanReason = users.getString(key + ".banned", "");
+            if(BanReason.length() > 0)
+                BannedUsers.put(key, BanReason);
         }
         
         // How many did we load?
@@ -229,13 +218,13 @@ public class BasicUsers
         String GroupTitle = "Undefined Group";
         int GroupIndex = GetGroupID(UserName);
         if(GroupIndex >= 0)
-            GroupTitle = GroupPreTitle.get(GroupIndex);
+            GroupTitle = ChatColor.WHITE + "[" + GroupPreTitle.get(GroupIndex) + ChatColor.WHITE + "]";
         
         // Get the user's special title
         String UserTitle = "";
         int UserIndex = OpNames.indexOf(UserName);
-        if(UserIndex >= 0)
-            UserTitle = ChatColor.WHITE + "[" + OpTitle.get(0) + ChatColor.WHITE + "]";
+        if(UserIndex >= 0 && OpTitle.get(UserIndex).length() > 0)
+            UserTitle = ChatColor.WHITE + "[" + OpTitle.get(UserIndex) + ChatColor.WHITE + "]";
         
         // Error check user title
         if(UserTitle == null)
@@ -246,7 +235,7 @@ public class BasicUsers
         if(GetAFK(UserName))
             AFK =  ChatColor.WHITE + "[" + ChatColor.RED + "afk" + ChatColor.WHITE + "]";
         
-        return AFK + ChatColor.WHITE + "[" + GroupTitle + ChatColor.WHITE + "]" + UserTitle;
+        return AFK + GroupTitle + UserTitle;
     }
     
     // Return the user's group's ID index
@@ -651,7 +640,7 @@ public class BasicUsers
     {
         // Is the player in the current groups?
         int UserIndex = OpNames.indexOf(target.getName());
-        if(UserIndex > 0)
+        if(UserIndex >= 0)
             OpTitle.set(UserIndex, NewTitle);
     }
 }

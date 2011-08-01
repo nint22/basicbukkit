@@ -351,7 +351,7 @@ public class BasicAdminCommands implements CommandExecutor
                 plugin.users.SetGod(player.getName(), IsGod);
 
                 // Tell the player if it is on or off
-                player.getWorld().strikeLightningEffect(player.getLocation());
+                //player.getWorld().strikeLightningEffect(player.getLocation());
                 player.sendMessage(ChatColor.GRAY + "God mode has been turned " + (IsGod ? "on" : "off"));
             }
             else if(plugin.IsCommand(player, command, args, "iclean"))
@@ -362,6 +362,25 @@ public class BasicAdminCommands implements CommandExecutor
                 
                 // How many did we remove?
                 player.sendMessage(ChatColor.GRAY + "Removed a total of " + TotalRemoved + " items in this world");
+            }
+            else if(plugin.IsCommand(player, command, args, "mclean"))
+            {
+                // Get the current world
+                World world = player.getWorld();
+                int TotalRemoved = 0;
+                
+                // For all non-player entities, remove
+                for(Entity entity : world.getEntities())
+                {
+                    if(!(entity instanceof Player))
+                    {
+                        entity.remove();
+                        TotalRemoved++;
+                    }
+                }
+                
+                // How many did we remove?
+                player.sendMessage(ChatColor.GRAY + "Removed a total of " + TotalRemoved + " mobs in this world");
             }
             else if(plugin.IsCommand(player, command, args, "scout"))
             {
@@ -484,7 +503,11 @@ public class BasicAdminCommands implements CommandExecutor
         {
             targetName = args[0];
             for(int i = 1; i < args.length; i++)
+            {
                 banReason += args[i];
+                if(i != args.length - 1)
+                    banReason += " ";
+            }
         }
         
         // Find the player

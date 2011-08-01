@@ -13,20 +13,31 @@
 
 package nint22.basicbukkit;
 
+import java.util.*;
 import org.bukkit.Location;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.*;
 
 public class BasicWorldCommands implements CommandExecutor
 {
     // Plugin handle
     private final BasicBukkit plugin;
 
+    // Define mob string and the class types
+    private String MobNames[] = {"Chicken", "Cow", "Creeper", "Pig",
+        "PigZombie", "Sheep", "Skeleton", "Spider", "Squid", "Wolf",
+        "Zombie", "Ghast"};
+    
+    private Class MobClasses[] = {Chicken.class, Cow.class, Creeper.class, Pig.class,
+        PigZombie.class, Sheep.class, Skeleton.class, Spider.class, Squid.class, Wolf.class,
+        Zombie.class, Ghast.class};
+    
     // Default constructor
     public BasicWorldCommands(BasicBukkit plugin)
     {
@@ -91,7 +102,7 @@ public class BasicWorldCommands implements CommandExecutor
         else if(plugin.IsCommand(player, command, args, "warp"))
         {
             // Must have at least one argument
-            if(args.length != 1)
+            if(args.length < 1)
             {
                 // Generate a string of all the warps
                 String warps = "";
@@ -110,7 +121,7 @@ public class BasicWorldCommands implements CommandExecutor
                     player.sendMessage(warps);
                 return true;
             }
-            else
+            else if(args.length == 1)
             {
                 // Does this warp exist?
                 Location warp = plugin.warps.GetWarp(args);
@@ -124,6 +135,28 @@ public class BasicWorldCommands implements CommandExecutor
                     player.sendMessage(ChatColor.GRAY + "Unable to warp to \"" + args[0] + "\"; warp not found");
                     return true;
                 }
+            }
+            else if(args.length == 2)
+            {
+                // Find the two coordinates
+                int x = 0;
+                int z = 0;
+                
+                if(args[0].matches("\\d+"))
+                    x = new Integer(args[0]).intValue();
+                if(args[1].matches("\\d+"))
+                    z = new Integer(args[1]).intValue();
+                
+                // Does this position exist?
+                if(player.getWorld().getChunkAt(x, z) == null)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Cannot teleport you to an ungenerated chunk position.");
+                    return true;
+                }
+                
+                // Warp user to highest position there
+                int y = GetHighestBlock(new Location(player.getWorld(), x, 0, z));
+                player.teleport(new Location(player.getWorld(), x, y, z));
             }
         }
         else if(plugin.IsCommand(player, command, args, "list"))
@@ -222,25 +255,70 @@ public class BasicWorldCommands implements CommandExecutor
         }
         else if(plugin.IsCommand(player, command, args, "jump"))
         {
-            // Find the block the user wants to get to...
-            Location jumpLocation = plugin.warps.GetCollision(player, 150.0, 1.0f);
-            if(jumpLocation == null)
+            // Jump to target through a helper function
+            JumpAtTarget(player);
+        }
+        else if(plugin.IsCommand(player, command, args, "mob"))
+        {
+            // Default the count to 1
+            int Count = 1;
+            
+            // If there are two args, grab the count
+            if(args.length >= 2)
             {
-                // Failed to find target
-                player.sendMessage(ChatColor.GRAY + "Unable to jump to location; no collision or too far away");
+                try
+                {
+                    Count = Integer.parseInt(args[1]);
+                    if(Count > 8)
+                    {
+                        player.sendMessage(ChatColor.GRAY + "Cannot generate more mobs than 8 at a time");
+                        return true;
+                    }
+                }
+                catch(Exception e)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unable to parse mob count argument");
+                    return true;
+                }
             }
-            else
+            
+            // Mob takes 1 to 2 arguments
+            if(args.length >= 1)
             {
-                // Get block y
-                int blockY = GetHighestBlock(jumpLocation);
-                jumpLocation.setY(blockY + 2.0);
+                // For each mob
+                for(int i = 0; i < MobNames.length; i++)
+                {
+                    // Check for match
+                    if(MobNames[i].equalsIgnoreCase(args[0]))
+                    {
+                        // Generate and return
+                        for(int j = 0; j < Count; j++)
+                            player.getWorld().spawn(player.getLocation(), MobClasses[i]);
+                        
+                        // Say how much we generated and return
+                        player.sendMessage(ChatColor.GRAY + "Generated " + Count + " " + MobNames[i]);
+                        return true;
+                    }
+                }
                 
-                // Get distance
-                double Distance = jumpLocation.distance(player.getLocation());
+                // If reached here, that means the 
+                player.sendMessage(ChatColor.GRAY + "Unknown mob \"" + args[0] + "\"");
+            }
+            
+            // No args..
+            else if(args.length == 0)
+            {
+                // Print the list of mobs
+                String AllMobs = "";
+                for(int i = 0; i < MobNames.length; i++)
+                {
+                    AllMobs += MobNames[i];
+                    if(i != MobNames.length - 1)
+                        AllMobs += ", ";
+                }
                 
-                // Move up then teleport
-                player.teleport(jumpLocation);
-                player.sendMessage(ChatColor.GRAY + "Jumped to target location, distance: " + String.format("%.2f", Distance) + " blocks");
+                // Echo the user 
+                player.sendMessage(ChatColor.GRAY + "Mobs: " + AllMobs);
             }
         }
         
@@ -250,7 +328,7 @@ public class BasicWorldCommands implements CommandExecutor
     
     // Return the highest valid y position at the given location
     // I.e. searches for the highest non-air block from the top
-    private int GetHighestBlock(Location location)
+    public static int GetHighestBlock(Location location)
     {
         // Find the best "highest"
         int HighestY = location.getWorld().getHighestBlockYAt(location);
@@ -268,5 +346,31 @@ public class BasicWorldCommands implements CommandExecutor
         
         // Best top position
         return HighestY;
+    }
+    
+    // Helper function - takes a given player and makes him/her
+    // jump to the player's target location
+    public static void JumpAtTarget(Player player)
+    {
+        // Find the block the user wants to get to...
+        Location jumpLocation = BasicWarps.GetCollision(player, 150.0, 1.0f);
+        if(jumpLocation == null)
+        {
+            // Failed to find target
+            player.sendMessage(ChatColor.GRAY + "Unable to jump to location; no collision or too far away");
+        }
+        else
+        {
+            // Get block y
+            int blockY = GetHighestBlock(jumpLocation);
+            jumpLocation.setY(blockY + 2.0);
+
+            // Get distance
+            double Distance = jumpLocation.distance(player.getLocation());
+
+            // Move up then teleport
+            player.teleport(jumpLocation);
+            player.sendMessage(ChatColor.GRAY + "Jumped to target location, distance: " + String.format("%.2f", Distance) + " blocks");
+        }
     }
 }

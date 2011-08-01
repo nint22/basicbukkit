@@ -24,7 +24,7 @@ groups:
     # Guest group (can do nothing except observe)
     - id: 0
       name: Guest
-      pre: "[&7Guest&f]"
+      pre: "&7Guest"
       commands:
           - help
           - motd
@@ -44,7 +44,7 @@ groups:
     # Trial group (can do simple building)
     - id: 1
       name: Trial
-      pre: "[&8Trial&f]"
+      pre: "&8Trial"
       commands:
           - help
           - motd
@@ -67,7 +67,7 @@ groups:
     # Builder group (trusted)
     - id: 2
       name: Builder
-      pre: "[&bBuilder&f]"
+      pre: "&bBuilder"
       commands:
           - god
           - pvp
@@ -101,7 +101,7 @@ groups:
     # Moderator group
     - id: 3
       name: Mod
-      pre: "[&9Mod&f]"
+      pre: "&9Mod"
       commands:
           - god
           - pvp
@@ -154,7 +154,7 @@ groups:
     # Administrator group
     - id: 4
       name: Admin
-      pre: "[&1Admin&f]"
+      pre: "&1Admin"
       commands:
           - god
           - pvp
@@ -199,6 +199,7 @@ groups:
           - protectrem
           - protectdel
           - iclean
+          - mclean
           - mute
           - scout
       banned_access: true
@@ -208,7 +209,7 @@ groups:
     # Server owner
     - id: 5
       name: Owner
-      pre: "[&4Owner&f]"
+      pre: "&4Owner"
       commands:
           - god
           - pvp
@@ -254,9 +255,11 @@ groups:
           - protectrem
           - protectdel
           - iclean
+          - mclean
           - mute
           - scout
           - title
+          - mob
       banned_access: true
       build: true
       worldedit: true

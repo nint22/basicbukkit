@@ -238,7 +238,7 @@ public class BasicMiscCommands implements CommandExecutor
         }
         else if(plugin.IsCommand(player, command, args, "title"))
         {
-            // We must have least 1 argument
+            // We must have least 2 argument
             if(args.length < 1)
                 return false;
             
@@ -255,14 +255,17 @@ public class BasicMiscCommands implements CommandExecutor
             if(args.length > 1)
             {
                 for(int i = 1; i < args.length; i++)
+                {
                     NewTitle += args[i];
+                    if(i != args.length - 1)
+                        NewTitle += " ";
+                }
             }
-            NewTitle = ChatColor.WHITE + "[" + NewTitle + ChatColor.WHITE + "]";
             
             // Set the user's new title and make the announcement
             plugin.users.SetTitle(target, NewTitle);
             if(NewTitle.length() > 0)
-                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has a new title: \"" + NewTitle + "\"");
+                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has a new title: \"" + NewTitle + ChatColor.RED + "\"");
             else
                 plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has had their title removed.");
         }

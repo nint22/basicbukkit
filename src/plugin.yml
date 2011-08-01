@@ -16,7 +16,10 @@ commands:
         description: Prints your location
         usage: /where
     msg:
-        description: Sends a private message to the given player
+        description: Sends a private message to the given player; alias of pm
+        usage: /msg <player> <message>
+    pm:
+        description: Sends a private message to the given player; alias of msg
         usage: /msg <player> <message>
     afk:
         description: Declares yourself as away-from-keyboard; any movement or typing will de-afk you
@@ -49,6 +52,12 @@ commands:
     iclean:
         description: Removes all items and vehicles in the world
         usage: /iclean
+    mclean:
+        description: Removes all mobs in the world
+        usage: /mclean
+    mob:
+        description: Generates a mob (animal or monster) or a group of up to 8 mobs
+        usage: /mob <mob name> [count]
     
     time:
         description: Sets the current time to either day or night
@@ -98,7 +107,7 @@ commands:
         usage: /tp <player1> [player2]
     warp:
         description: Warps self to given warp or lists warp locations
-        usage: /warp [location]
+        usage: /warp <location> or <>
     list:
         description: Same as /warp without arguments
         usage: /list
