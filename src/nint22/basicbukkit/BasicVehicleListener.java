@@ -14,7 +14,24 @@
 
 package nint22.basicbukkit;
 
-public class BasicVehicleListener
+import org.bukkit.event.vehicle.*;
+
+public class BasicVehicleListener extends VehicleListener
 {
+    // Current working plugin
+    private final BasicBukkit plugin;
+
+    // Constructor saves given plugin
+    public BasicVehicleListener(BasicBukkit instance)
+    {
+        plugin = instance;
+    }
     
+    // Catch all vehicle creation...
+    @Override
+    public void onVehicleCreate(VehicleCreateEvent event)
+    {
+        // Who created the vehicle?
+        //event.getVehicle().
+    }
 }

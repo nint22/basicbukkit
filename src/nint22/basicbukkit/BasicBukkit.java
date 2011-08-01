@@ -196,10 +196,10 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Priority.Normal, this);
         
         /*** Vehicle Events ***/
-        //vehicleListener = new BasicVehicleListener(this);
+        vehicleListener = new BasicVehicleListener(this);
         
         // Prevent vehicle placement
-        //pm.registerEvent(Event.Type.VEHICLE_CREATE, vehicleListener, Priority.Normal, this);
+        pm.registerEvent(Event.Type.VEHICLE_CREATE, vehicleListener, Priority.Normal, this);
         
         /*** Player Commands ***/
         
@@ -211,6 +211,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("where").setExecutor(MiscCommands);                          // Done
         getCommand("afk").setExecutor(MiscCommands);                            // Done
         getCommand("msg").setExecutor(MiscCommands);                            // Done
+        getCommand("pm").setExecutor(MiscCommands);                             // Done
         getCommand("mute").setExecutor(MiscCommands);                           // Done
         getCommand("title").setExecutor(MiscCommands);                          // Done
         
@@ -336,7 +337,6 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getServer().broadcastMessage(message);
     }
     
-    
     // Special function to verify outgoing text - only sends it
     // if there has been a good 5 seconds elapsed since the last message
     public void SendMessage(Player player, String message)
@@ -363,29 +363,68 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
             }
         }
         else
+        {
             canSend = true;
+            MessageTime.put(key, new Long(epochNow + 3));
+        }
         
         // If we can send it, send it, AND save it as a new message event
         if(canSend)
         {
             player.sendMessage(message);
-            MessageTime.put(key, new Long(epochNow + 3));
         }
     }
     
+    // Special function to verify outgoing chat messages:
+    // a player can only send one message per second. Returns
+    // true if the buffer allows it, else, player must wait
+    public boolean CanSendChat(Player player, String message)
+    {
+        // Form the key
+        String key = "chat_" + player.getName() + "_" + message;
+        
+        // Get current epoch time
+        long epochNow = System.currentTimeMillis() / 1000;
+        
+        // Can we send the message now?
+        boolean canSend = false;
+        
+        // Does it exist, if so, check the time
+        if(MessageTime.containsKey(key))
+        {
+            // Check the time - are we up yet?
+            Long epochTime = (Long)MessageTime.get(key);
+            if(epochTime.longValue() <= epochNow)
+            {
+                // Delete this key
+                MessageTime.remove(key);
+                canSend = true;
+            }
+        }
+        else
+        {
+            canSend = true;
+            MessageTime.put(key, new Long(epochNow + 1));
+        }
+        
+        // Check if any good?
+        return canSend;
+    }
+    
     /*** WorldEdit permissions system ***/
+    
     @Override
     public boolean hasPermission(String string, String string1)
     {
         return users.CanWorldEdit(string);
     }
-
+    
     @Override
     public boolean inGroup(String string, String string1)
     {
         return true;
     }
-
+    
     @Override
     public String[] getGroups(String string)
     {

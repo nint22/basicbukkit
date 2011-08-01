@@ -161,7 +161,7 @@ public class BasicMiscCommands implements CommandExecutor
             plugin.users.SetAFK(player.getName(), true);
             plugin.BroadcastMessage(ChatColor.GRAY + "Player \"" + player.getName() + "\" is now AFK");
         }
-        else if(plugin.IsCommand(player, command, args, "msg"))
+        else if(plugin.IsCommand(player, command, args, "msg") || plugin.IsCommand(player, command, args, "pm"))
         {
             // Do we have at least 2 args? (0: name, 1: message, message...)
             if(args.length >= 2)
@@ -206,13 +206,23 @@ public class BasicMiscCommands implements CommandExecutor
                 return true;
             }
             
+            // Can only mute ranks lower
+            int SourceGID = plugin.users.GetGroupID(player.getName());
+            int TargetGID = plugin.users.GetGroupID(target.getName());
+            if(TargetGID >= SourceGID)
+            {
+                // Cannot mute GIDs higher or equal
+                player.sendMessage(ChatColor.GRAY + "Cannot mute users with an equal or higher group ID (theirs: " + TargetGID + ", yours: " + SourceGID + ")");
+                return true;
+            }
+            
             // Get the current status for this target player by this player
-            boolean IsMuted = plugin.users.IsMutedBy(target, player);
+            boolean IsMuted = plugin.users.IsMute(target);
             if(IsMuted)
                 IsMuted = false;
             else
                 IsMuted = true;
-            plugin.users.SetMutedBy(target, player, IsMuted);
+            plugin.users.SetMute(target, IsMuted);
             
             // Message both players
             if(IsMuted)

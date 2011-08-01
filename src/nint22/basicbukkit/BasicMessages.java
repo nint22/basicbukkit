@@ -123,11 +123,15 @@ public class BasicMessages extends Thread
                     // Is it time to broadcast?
                     if((TotalSeconds - starts.get(i)) % delays.get(i) == 0)
                     {
-                        String message = messages.get(i);
-                        message = plugin.ColorString(message);
-                        
-                        plugin.BroadcastMessage(ChatColor.LIGHT_PURPLE + "Automated Broadcast:");
-                        plugin.BroadcastMessage(ChatColor.LIGHT_PURPLE + message);
+                        // Do not broadcast if there is no one online
+                        if(plugin.getServer().getOnlinePlayers().length > 0)
+                        {
+                            String message = messages.get(i);
+                            message = plugin.ColorString(message);
+
+                            plugin.BroadcastMessage(ChatColor.LIGHT_PURPLE + "Automated Broadcast:");
+                            plugin.BroadcastMessage(ChatColor.LIGHT_PURPLE + message);
+                        }
                     }
                 }
             }

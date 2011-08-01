@@ -107,7 +107,7 @@ public class BasicProtectionCommands implements CommandExecutor
             else
             {
                 // Failed
-                player.sendMessage(ChatColor.GRAY + "Unable to create a protected area; it is too large! (Max: 128x128)");
+                player.sendMessage(ChatColor.GRAY + "Unable to create a protected area; it is too large! (Max: 256x256)");
             }
         }
         else if(plugin.IsCommand(player, command, args, "protectadd"))

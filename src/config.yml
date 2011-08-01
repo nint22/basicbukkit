@@ -13,7 +13,7 @@
 
 # Message of the Day
 motd:
-    - "Welcome to a BasicBukkit server! V1.0"
+    - "Welcome to a BasicBukkit server! V1.1"
     - "&aPlease type /help for a list of commands"
     - "&aFound a bug? Report it at: code.google.com/p/basicbukkit"
 
@@ -36,7 +36,7 @@ groups:
           - protectinfo
           - afk
           - msg
-          - mute
+          - pm
       banned_access: false
       build: false
       worldedit: false
@@ -56,10 +56,10 @@ groups:
           - protectinfo
           - afk
           - msg
+          - pm
           - god
           - pvp
           - kit
-          - mute
       banned_access: false
       build: true
       worldedit: false
@@ -92,8 +92,8 @@ groups:
           - protectinfo
           - afk
           - msg
+          - pm
           - top
-          - mute
       banned_access: false
       build: true
       worldedit: false
@@ -136,6 +136,7 @@ groups:
           - protectinfo
           - afk
           - msg
+          - pm
           - spawn
           - top
           - p1
@@ -188,6 +189,7 @@ groups:
           - protectinfo
           - afk
           - msg
+          - pm
           - spawn
           - top
           - p1
@@ -254,6 +256,7 @@ groups:
           - iclean
           - mute
           - scout
+          - title
       banned_access: true
       build: true
       worldedit: true
@@ -272,6 +275,12 @@ fireflows: false
 
 # Allow TNT explosions
 allowTNT: false
+
+# Do we allow a compass-item based jump?
+compassjump: true
+
+# How often do we clean / reload the server? (In minutes)
+reload: 15
 
 # A list of messages that are displayed after a certain number of seconds
 # Note that "delay" is time between messages and "start" is the initial wait period

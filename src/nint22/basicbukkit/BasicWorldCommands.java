@@ -15,6 +15,8 @@ package nint22.basicbukkit;
 
 import org.bukkit.Location;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -208,7 +210,7 @@ public class BasicWorldCommands implements CommandExecutor
         else if(plugin.IsCommand(player, command, args, "top"))
         {
             // Find the highest block...
-            int blockY = player.getWorld().getHighestBlockYAt(player.getLocation());
+            int blockY = GetHighestBlock(player.getLocation());
             
             // Change player to top
             Location top = player.getLocation();
@@ -230,7 +232,7 @@ public class BasicWorldCommands implements CommandExecutor
             else
             {
                 // Get block y
-                int blockY = jumpLocation.getWorld().getHighestBlockYAt(jumpLocation);
+                int blockY = GetHighestBlock(jumpLocation);
                 jumpLocation.setY(blockY + 2.0);
                 
                 // Get distance
@@ -244,5 +246,27 @@ public class BasicWorldCommands implements CommandExecutor
         
         // Done - parsed
         return true;
+    }
+    
+    // Return the highest valid y position at the given location
+    // I.e. searches for the highest non-air block from the top
+    private int GetHighestBlock(Location location)
+    {
+        // Find the best "highest"
+        int HighestY = location.getWorld().getHighestBlockYAt(location);
+        
+        // Is this glass or water? Keep moving up (i.e. y++) if needed
+        while(true)
+        {
+            // Check this block
+            Block block = location.getWorld().getBlockAt(location.getBlockX(), HighestY, location.getBlockZ());
+            if(block.getType() == Material.GLASS || block.getType() == Material.WATER)
+                HighestY++;
+            else
+                break;
+        }
+        
+        // Best top position
+        return HighestY;
     }
 }
