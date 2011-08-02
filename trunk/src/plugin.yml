@@ -49,6 +49,9 @@ commands:
     scout:
         description: Randomly and silenty warp to a player to scout them for griefing
         usage: /scout
+    hide:
+        description: Toggles user's invisibility
+        usage: /hide
     iclean:
         description: Removes all items and vehicles in the world
         usage: /iclean

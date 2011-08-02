@@ -258,6 +258,7 @@ groups:
           - mclean
           - mute
           - scout
+          - hide
           - title
           - mob
       banned_access: true
@@ -276,14 +277,25 @@ waterflows: false
 # Allow spread of fire
 fireflows: false
 
-# Allow TNT explosions
+# Allow TNT explosions; still allows creeper explosions
 allowTNT: false
 
 # Do we allow a compass-item based jump?
 compassjump: true
 
-# How often do we clean / reload the server? (In minutes)
+# How often do we clean / save the server? (In minutes)
 reload: 15
+
+# Uncomment to enable:
+# Sets the world to that specific time of day
+# based on Minecraft's time system. Read more:
+# Must be between 0 and 24000; 0 is dawn and 12000 is dusk
+#permatime: 0
+
+# Uncomment to enable:
+# Sets the number of minutes between every time
+# the statistical log is written to
+logdelay: 1
 
 # A list of messages that are displayed after a certain number of seconds
 # Note that "delay" is time between messages and "start" is the initial wait period
