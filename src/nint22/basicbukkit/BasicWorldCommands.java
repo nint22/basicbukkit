@@ -102,7 +102,7 @@ public class BasicWorldCommands implements CommandExecutor
         else if(plugin.IsCommand(player, command, args, "warp"))
         {
             // Must have at least one argument
-            if(args.length < 1)
+            if(args.length <= 0)
             {
                 // Generate a string of all the warps
                 String warps = "";
@@ -155,8 +155,8 @@ public class BasicWorldCommands implements CommandExecutor
                 }
                 
                 // Warp user to highest position there
-                int y = GetHighestBlock(new Location(player.getWorld(), x, 0, z));
-                player.teleport(new Location(player.getWorld(), x, y, z));
+                int y = GetHighestBlock(new Location(player.getWorld(), x, player.getLocation().getBlockY(), z));
+                player.teleport(new Location(player.getWorld(), x, y + 2, z));
             }
         }
         else if(plugin.IsCommand(player, command, args, "list"))

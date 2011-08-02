@@ -239,6 +239,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("iclean").setExecutor(AdminCommands);                        // Done
         getCommand("mclean").setExecutor(AdminCommands);                        // Done
         getCommand("scout").setExecutor(AdminCommands);                         // Done
+        getCommand("hide").setExecutor(AdminCommands);                          // Done
         
         BasicItemCommands ItemCommands = new BasicItemCommands(this);
         getCommand("kit").setExecutor(ItemCommands);                            // Done
@@ -287,13 +288,21 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         // Get all motd messages
         List<Object> sourceMOTD = configuration.getList("motd");
         
-        String[] motd = new String[sourceMOTD.size()];
+        // Allocate string with +1 for extra extra server info
+        String[] motd = new String[sourceMOTD.size() + 1];
         for(int i = 0; i < sourceMOTD.size(); i++)
             motd[i] = (String)sourceMOTD.get(i);
         
         // Fix colors for each string
-        for(int i = 0; i < motd.length; i++)
+        for(int i = 0; i < sourceMOTD.size(); i++)
             motd[i] = ColorString(motd[i]);
+        
+        // Append the user count
+        int PlayerCount = this.getServer().getOnlinePlayers().length;
+        if(PlayerCount <= 1)
+            motd[motd.length - 1] = ChatColor.GRAY + "There is currently " + ChatColor.RED + PlayerCount + ChatColor.GRAY + " player online";
+        else
+            motd[motd.length - 1] = ChatColor.GRAY + "There are currently " + ChatColor.RED + PlayerCount + ChatColor.GRAY + " players online";
         
         // Return motd
         return motd;

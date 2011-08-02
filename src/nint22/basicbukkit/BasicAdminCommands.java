@@ -17,15 +17,20 @@ package nint22.basicbukkit;
 import java.util.*;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
+
+// Special inclusions to help with invisibility hack...
+// Note that this code requires the original server lib as well
+// as is based on a current server-side bug; may not
+// be supported in future clients
+import net.minecraft.server.*;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 
 public class BasicAdminCommands implements CommandExecutor
 {
@@ -296,20 +301,15 @@ public class BasicAdminCommands implements CommandExecutor
                 // Do we have an arg?
                 if(args.length > 0)
                 {
-                    // For each arg
-                    for(int i = 0; i < args.length; i++)
+                    // Find the target player
+                    Player target = plugin.getServer().getPlayer(args[0]);
+                    if(target != null)
                     {
-                        // Get player and kill if target
-                        Player[] targetPlayer = plugin.getServer().getOnlinePlayers();
-                        for(int j = 0; j < targetPlayer.length; j++)
-                        {
-                            if(targetPlayer[j].getName().compareTo(args[i]) == 0)
-                            {
-                                targetPlayer[j].setHealth(0);
-                                targetPlayer[j].sendMessage(ChatColor.GRAY + "You have been killed by " + player.getName());
-                            }
-                        }
+                        target.setHealth(0);
+                        target.sendMessage(ChatColor.GRAY + "You have been killed by " + player.getName());
                     }
+                    else
+                        player.sendMessage("Unable to find player \"" + args[0] + "\"");
                 }
                 // Else, kill self
                 else
@@ -390,7 +390,7 @@ public class BasicAdminCommands implements CommandExecutor
                     player.sendMessage(ChatColor.GRAY + "You need more online players to scout");
                 else
                 {
-                    // Get the list of online players
+                    // Get the list of online players exclusing self
                     LinkedList<Player> onlinePlayers = new LinkedList();
                     for(int i = 0; i < plugin.getServer().getOnlinePlayers().length; i++)
                     {
@@ -399,16 +399,25 @@ public class BasicAdminCommands implements CommandExecutor
                     }
                     
                     // Randomly choose a player to warp to
-                    Player target = onlinePlayers.get(randomGenerator.nextInt(onlinePlayers.size() - 1));
+                    Player target = onlinePlayers.get(randomGenerator.nextInt(onlinePlayers.size()));
                     
                     // Warp to that person
-                    player.sendMessage(ChatColor.GRAY + "You have been warped to player \"" + target.getDisplayName() + "\" to scout");
+                    player.sendMessage(ChatColor.GRAY + "You have been silently warped to near player \"" + target.getDisplayName() + "\"");
                     
                     // Warp to the target player but moved a little further
                     Location targetLocation = target.getLocation();
-                    targetLocation.add(2, 2, 2);
+                    targetLocation = targetLocation.add(5, 0, 5);
+                    
+                    int y = BasicWorldCommands.GetHighestBlock(targetLocation);
+                    targetLocation.setY((double)y);
+                    
                     player.teleport(targetLocation);
                 }
+            }
+            else if(plugin.IsCommand(player, command, args, "hide"))
+            {
+                // Toggles hidden state...
+                HidePlayer(player, !plugin.users.IsHidden(player));
             }
             
             // Done - parsed
@@ -662,8 +671,50 @@ public class BasicAdminCommands implements CommandExecutor
                 entity.remove();
                 TotalRemoved++;
             }
+            else if(entity.getClass().getName().equalsIgnoreCase("org.bukkit.craftbukkit.entity.CraftArrow"))
+            {
+                entity.remove();
+                TotalRemoved++;
+            }
         }
         
         return TotalRemoved;
+    }
+    
+    // Hide a given player
+    public void HidePlayer(Player target, boolean Hide)
+    {
+        // Save the new hidden state
+        plugin.users.SetHidden(target, Hide);
+        
+        // Tell them the new state they are in
+        if(Hide)
+            target.sendMessage(ChatColor.GRAY + "You are now hidden");
+        else
+            target.sendMessage(ChatColor.GRAY + "You are now visible");
+        
+        // For each online player, send a "gone" packet
+        for(Player other : plugin.getServer().getOnlinePlayers())
+        {
+            // Ignore self
+            if(other == target)
+                continue;
+            
+            // Are we hiding the player?
+            if(Hide)
+            {
+                // Cast to get access to send custom packet
+                CraftPlayer targetCraftPlayer = (CraftPlayer)target;
+                Packet hideTarget = new Packet29DestroyEntity(targetCraftPlayer.getEntityId());
+                targetCraftPlayer.getHandle().netServerHandler.sendPacket(hideTarget);
+            }
+            else
+            {
+                // Cast to get access to send custom packet
+                CraftPlayer targetCraftPlayer = (CraftPlayer)target;
+                Packet unhideTarget = new Packet20NamedEntitySpawn(targetCraftPlayer.getHandle());
+                targetCraftPlayer.getHandle().netServerHandler.sendPacket(unhideTarget);
+            }
+        }
     }
 }

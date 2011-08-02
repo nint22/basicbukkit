@@ -58,6 +58,9 @@ public class BasicUsers
     // Muted users: key is users name and boolean is true/false
     private HashMap<String, Boolean> MuteMode;
     
+    // Hidden users: key is users name and boolean is true/false
+    private HashMap<String, Boolean> HiddenMode;
+    
     // Initialize users
     public BasicUsers(BasicBukkit plugin, Configuration users, Configuration config)
     {
@@ -88,6 +91,7 @@ public class BasicUsers
         GodMode = new HashMap();        // Note that this one is not saved
         AFKMode = new HashMap();        // Not saved
         MuteMode = new HashMap();       // Not saved
+        HiddenMode = new HashMap();     // Not saved
         
         // Parse config file that has all group info
         List<Object> ConfigGroups = config.getList("groups");
@@ -642,5 +646,23 @@ public class BasicUsers
         int UserIndex = OpNames.indexOf(target.getName());
         if(UserIndex >= 0)
             OpTitle.set(UserIndex, NewTitle);
+    }
+    
+    public boolean IsHidden(Player target)
+    {
+        Boolean isHidden = HiddenMode.get(target.getName());
+        if(isHidden == null)
+            return false;
+        else
+            return isHidden.booleanValue();
+    }
+    
+    public void SetHidden(Player target, boolean IsHidden)
+    {
+        // Save new hash
+        if(IsHidden == false)
+            HiddenMode.remove(target.getName());
+        else
+            HiddenMode.put(target.getName(), IsHidden);
     }
 }
