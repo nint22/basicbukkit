@@ -76,7 +76,7 @@ public class BasicProtection
                 String WorldName = (String)map.get("world");
                 String Owner = (String)map.get("owners");
                 String Geometry = (String)map.get("geometry");
-                String PVP = (String)map.get("pvp");
+                Boolean PVP = (Boolean)map.get("pvp");
                 
                 // Add name and world name
                 names.add(Name); 
@@ -115,7 +115,7 @@ public class BasicProtection
                 }
                 
                 // Add pvp flag
-                pvp.add(Boolean.valueOf(PVP));
+                pvp.add(PVP);
             }
         }
         
