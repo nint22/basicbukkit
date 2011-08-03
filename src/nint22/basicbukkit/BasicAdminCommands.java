@@ -741,13 +741,17 @@ public class BasicAdminCommands implements CommandExecutor
                     // Cast to get access to send custom packet
                     // Target hides from others
                     CraftPlayer targetCraftPlayer = (CraftPlayer)target;
-                    Packet hideTarget = new Packet29DestroyEntity(other.getEntityId());
-                    targetCraftPlayer.getHandle().netServerHandler.sendPacket(hideTarget);
+                    CraftPlayer otherCraftPlayer = (CraftPlayer)other;
+                    
+                    Packet hideTarget = new Packet29DestroyEntity(targetCraftPlayer.getEntityId());
+                    otherCraftPlayer.getHandle().netServerHandler.sendPacket(hideTarget);
                 }
                 else
                 {
                     // Cast to get access to send custom packet
                     CraftPlayer targetCraftPlayer = (CraftPlayer)target;
+                    CraftPlayer otherCraftPlayer = (CraftPlayer)other;
+                    
                     Packet unhideTarget = new Packet20NamedEntitySpawn(((CraftPlayer)other).getHandle());
                     targetCraftPlayer.getHandle().netServerHandler.sendPacket(unhideTarget);
                 }

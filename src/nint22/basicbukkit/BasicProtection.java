@@ -71,12 +71,25 @@ public class BasicProtection
                 // Is a hash map of string data...
                 Map<String, Object> map = obj.getAll();
                 
-                // Get owner and pair info
-                String Name = (String)map.get("name");
+                // Get owner and pair info; may be an integer
+                String Name = "none";
+                if(map.get("name") instanceof String)
+                    Name = (String)map.get("name");
+                else if(map.get("name") instanceof Integer)
+                    Name = ((Integer)map.get("name")).toString();
+                
                 String WorldName = (String)map.get("world");
                 String Owner = (String)map.get("owners");
                 String Geometry = (String)map.get("geometry");
-                Boolean PVP = (Boolean)map.get("pvp");
+                
+                // Bool can sometimes be saved as string or boolean
+                Boolean PVP = false;
+                if(map.get("pvp") == null)
+                    PVP = false;
+                else if(map.get("pvp") instanceof String)
+                    PVP = Boolean.getBoolean((String)map.get("pvp"));
+                else if(map.get("pvp") instanceof Boolean)
+                    PVP = (Boolean)map.get("pvp");
                 
                 // Add name and world name
                 names.add(Name); 
