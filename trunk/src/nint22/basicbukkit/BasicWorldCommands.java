@@ -38,10 +38,18 @@ public class BasicWorldCommands implements CommandExecutor
         PigZombie.class, Sheep.class, Skeleton.class, Spider.class, Squid.class, Wolf.class,
         Zombie.class, Ghast.class};
     
+    private int WorldWidth, WorldLength;
+    
     // Default constructor
     public BasicWorldCommands(BasicBukkit plugin)
     {
+        // Save given plugin
         this.plugin = plugin;
+        
+        // Save max world size...
+        List<Integer> sizes = plugin.configuration.getIntList("size", null);
+        WorldWidth = sizes.get(0).intValue();
+        WorldLength = sizes.get(1).intValue();
     }
     
     // General admin commands
@@ -142,10 +150,20 @@ public class BasicWorldCommands implements CommandExecutor
                 int x = 0;
                 int z = 0;
                 
-                if(args[0].matches("\\d+"))
+                if(args[0].matches("\\d"))
                     x = new Integer(args[0]).intValue();
-                if(args[1].matches("\\d+"))
+                if(args[1].matches("\\d"))
                     z = new Integer(args[1]).intValue();
+                
+                // Get world size
+                
+                
+                // Bounds check
+                if(x < -WorldWidth / 2 || x > WorldWidth / 2 || z < -WorldLength / 2 || z > WorldLength / 2)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Cannot warp you out of world bounds; bounds: [" + WorldWidth + ", " + WorldLength + "]");
+                    return true;
+                }
                 
                 // Does this position exist?
                 if(player.getWorld().getChunkAt(x, z) == null)
@@ -157,6 +175,7 @@ public class BasicWorldCommands implements CommandExecutor
                 // Warp user to highest position there
                 int y = GetHighestBlock(new Location(player.getWorld(), x, player.getLocation().getBlockY(), z));
                 player.teleport(new Location(player.getWorld(), x, y + 2, z));
+                player.sendMessage(ChatColor.GRAY + "You have been warped to position (" + x + ", " + (y + 2) + ", " + z + ")");
             }
         }
         else if(plugin.IsCommand(player, command, args, "list"))

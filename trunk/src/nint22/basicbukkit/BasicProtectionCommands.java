@@ -73,7 +73,7 @@ public class BasicProtectionCommands implements CommandExecutor
             // Do we have a name?
             if(args.length != 1)
             {
-                player.sendMessage(ChatColor.GRAY + "You must give your protected area a name");
+                player.sendMessage(ChatColor.GRAY + "You must give your protected area a single-word name");
                 return true;
             }
             
@@ -119,15 +119,40 @@ public class BasicProtectionCommands implements CommandExecutor
                 return true;
             }
             
+            // Find the closest matching land name
+            LinkedList<String> ProtectionNames = plugin.protections.GetProtectedNames();
+            for(String protectionName :  ProtectionNames)
+            {
+                if(protectionName.startsWith(args[0]))
+                {
+                    args[0] = protectionName;
+                    break;
+                }
+            }
+            
             // Add user
             LinkedList<String> owners = plugin.protections.GetProtectionOwners(args[0]);
             if(owners == null)
+            {
                 player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
+                return true;
+            }
+            
+            // Is this ia user in the owners list?
+            if(owners.contains(player.getName()) == false)
+            {
+                player.sendMessage(ChatColor.GRAY + "You are not in the owner's list for this area");
+                return true;
+            }
             else
             {
                 // Does the user exist?
                 Player target = plugin.getServer().getPlayer(args[1]);
-                if(target != null)
+                if(target == player)
+                {
+                    player.sendMessage(ChatColor.GRAY + "User \"" + target.getName() + "\" is already an owner to \"" + args[0] + "\"");
+                }
+                else if(target != null)
                 {
                     owners.add(target.getName());
                     player.sendMessage(ChatColor.GRAY + "User \"" + target.getName() + "\" has been added to \"" + args[0] + "\"");
@@ -148,10 +173,31 @@ public class BasicProtectionCommands implements CommandExecutor
                 return true;
             }
             
+            // Find the closest matching land name
+            LinkedList<String> ProtectionNames = plugin.protections.GetProtectedNames();
+            for(String protectionName :  ProtectionNames)
+            {
+                if(protectionName.startsWith(args[0]))
+                {
+                    args[0] = protectionName;
+                    break;
+                }
+            }
+            
             // Remove user
             LinkedList<String> owners = plugin.protections.GetProtectionOwners(args[0]);
             if(owners == null)
+            {
                 player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
+                return true;
+            }
+            
+            // Is this ia user in the owners list?
+            if(owners.contains(player.getName()) == false)
+            {
+                player.sendMessage(ChatColor.GRAY + "You are not in the owner's list for this area");
+                return true;
+            }
             else
             {
                 // Does the user exist?
@@ -181,18 +227,80 @@ public class BasicProtectionCommands implements CommandExecutor
             // Must include name
             if(args.length != 1)
             {
-                player.sendMessage(ChatColor.GRAY + "You must include the protected area and user name");
+                player.sendMessage(ChatColor.GRAY + "You must include the protected area name");
                 return true;
+            }
+            
+            // Find the closest matching land name
+            LinkedList<String> ProtectionNames = plugin.protections.GetProtectedNames();
+            for(String protectionName :  ProtectionNames)
+            {
+                if(protectionName.startsWith(args[0]))
+                {
+                    args[0] = protectionName;
+                    break;
+                }
             }
             
             // Remove the entire protection
             LinkedList<String> owners = plugin.protections.GetProtectionOwners(args[0]);
             if(owners == null)
+            {
                 player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
+                return true;
+            }
+            
+            // Is this ia user in the owners list?
+            if(owners.contains(player.getName()) == false)
+            {
+                player.sendMessage(ChatColor.GRAY + "You are not in the owner's list for this area");
+                return true;
+            }
             else
             {
                 plugin.protections.RemoveProtection(args[0]);
                 player.sendMessage(ChatColor.GRAY + "Protected area \"" + args[0] + "\" has been removed");
+            }
+        }
+        else if(plugin.IsCommand(player, command, args, "protectpvp"))
+        {
+            // Must include name
+            if(args.length != 1)
+            {
+                player.sendMessage(ChatColor.GRAY + "You must include the protected area name");
+                return true;
+            }
+            
+            // Find the closest matching land name
+            LinkedList<String> ProtectionNames = plugin.protections.GetProtectedNames();
+            for(String protectionName :  ProtectionNames)
+            {
+                if(protectionName.startsWith(args[0]))
+                {
+                    args[0] = protectionName;
+                    break;
+                }
+            }
+            
+            // Remove the entire protection
+            LinkedList<String> owners = plugin.protections.GetProtectionOwners(args[0]);
+            if(owners == null)
+            {
+                player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
+                return true;
+            }
+            
+            // Is this ia user in the owners list?
+            if(owners.contains(player.getName()) == false)
+            {
+                player.sendMessage(ChatColor.GRAY + "You are not in the owner's list for this area");
+                return true;
+            }
+            else
+            {
+                // Toggle the pvp status
+                plugin.protections.SetPVP(args[0], !plugin.protections.GetPVP(args[0]));
+                player.sendMessage(ChatColor.GRAY + "Protected area \"" + args[0] + "\" now has PVP " + (plugin.protections.GetPVP(args[0]) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled"));
             }
         }
         else if(plugin.IsCommand(player, command, args, "protectinfo"))
@@ -212,7 +320,7 @@ public class BasicProtectionCommands implements CommandExecutor
                 }
                 
                 // Tell the user this information
-                player.sendMessage(ChatColor.GRAY + "You are in the protected zone \"" + protection + "\"");
+                player.sendMessage(ChatColor.GRAY + "You are in the protected zone \"" + protection + "\", PVP " + (plugin.protections.GetPVP(protection) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled"));
                 player.sendMessage(ChatColor.GRAY + "Owners: " + ChatColor.WHITE + ownersString);
             }
             else

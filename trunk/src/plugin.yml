@@ -5,7 +5,7 @@ version: 1.1
 commands:
     help:
         description: Prints all commands
-        usage: /help [page]
+        usage: /help [page|command name]
     motd:
         description: Prints the Message of the Day
         usage: /motd
@@ -37,6 +37,17 @@ commands:
     ban:
         description: Bans the given player from the server; requires a reason
         usage: /ban <player> [reason]
+    
+    vote:
+        description: Votes on a current issue
+        usage: /vote <yes|no|true|false>
+    vkick:
+        description: Attempts a global vote to kick a given player for a given amount of minutes
+        usage: /vkick <player> [time in minutes]
+    vban:
+        description: Attempts a global vote to ban a given player for a given reason
+        usage: /vban <player> [reason]
+    
     unban:
         description: Removes a player's ban and/or kick
         usage: /unban <player>
@@ -157,6 +168,9 @@ commands:
     protectdel:
         description: Delete the protected area
         usage: /protectdel <area name>
+    protectpvp:
+        description: Toggles an area's PvP status
+        usage: /protectpvp <area name>
     protectinfo:
         description: Prints off all protected area info. or the one you are in
         usage: /protectinfo

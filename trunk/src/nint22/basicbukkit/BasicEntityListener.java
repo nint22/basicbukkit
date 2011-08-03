@@ -18,6 +18,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class BasicEntityListener extends EntityListener
 {
@@ -63,10 +64,17 @@ public class BasicEntityListener extends EntityListener
         if(!(event.getEntity() instanceof Player))
             return;
         
-        // Cast to player; ignore damage if god is on
+        // Get player recieving damage
         Player player = (Player)event.getEntity();
+        
+        // Apply god mode first
         if(plugin.users.IsGod(player.getName()))
             event.setCancelled(true);
+        
+        // Ignore damage if in a protected zone AND is flagged non-pvp AND is another entity cause it
+        String protectionName = plugin.protections.GetProtectionName(player.getLocation());
+        if((protectionName != null && plugin.protections.GetPVP(protectionName)) && (event.getCause() == DamageCause.ENTITY_ATTACK))
+            event.setCancelled(false);
     }
     
     // When the player dies, make a global message

@@ -45,6 +45,10 @@ public class BasicMiscCommands implements CommandExecutor
         // Parse each specific command supported
         if(plugin.IsCommand(player, command, args, "help"))
         {
+            // Only accepts 0 to 1 args
+            if(args.length < 0 || args.length > 1)
+                return false;
+            
             // Get LinkedHashMap of the commands
             PluginDescriptionFile pdfFile = plugin.getDescription();
             LinkedHashMap Map = (LinkedHashMap)pdfFile.getCommands();
@@ -55,9 +59,7 @@ public class BasicMiscCommands implements CommandExecutor
             // Remove all commands that the user does NOT have access to
             String[] ValidCommands = plugin.users.GetGroupCommands(player.getName());
             if(ValidCommands == null)
-            {
                 player.sendMessage(ChatColor.GRAY + "Unable to retrieve commands for your group");
-            }
             else
             {
                 // Command names & descriptions
@@ -99,33 +101,45 @@ public class BasicMiscCommands implements CommandExecutor
                 int Count = CommandName.size();
                 int Pages = Count / 5;
                 int PageIndex = 0;
-
-                // Convert arg to int
+                
+                // Convert arg to int OR if it is a command, just print the command
                 try
                 {
-                    PageIndex = Integer.parseInt(args[0]) - 1;
+                    // To lower to the lowest page count..
+                    if(args.length == 1)
+                        PageIndex = Integer.parseInt(args[0]) - 1;
+                    else
+                        PageIndex = Math.min(Pages, PageIndex);
+                    
+                    // How page count and command count
+                    // Note the +1 offset so we are human friendly (i.e. we are 1..n rather than 0..n-1)
+                    player.sendMessage(ChatColor.WHITE + "Page " + ChatColor.RED + "[" + (PageIndex + 1) + "]" + ChatColor.WHITE + " of " + ChatColor.RED + "[" + (Pages+1) + "]" + ChatColor.WHITE +"; " + Count + " commands available of " + collection.size());
+                    
+                    // Print off 5 commands for this page
+                    for(int i = PageIndex * 5; i < Math.min(Count, PageIndex * 5 + 5); i++)
+                    {
+                        // Print out info
+                        String name = CommandName.get(i);
+                        String description = CommandDescription.get(i);
+                        player.sendMessage(ChatColor.GRAY + "#" + (i+1) + ": " + ChatColor.RED + name + ChatColor.GRAY + " - " + description);
+                    }
                 }
                 catch(Exception e)
                 {
-                    // Just default back to 0
-                    PageIndex = 0;
+                    // Is it a known command?
+                    String query = args[0];
+                    if(Map.containsKey(query.toLowerCase()))
+                    {
+                        LinkedHashMap cmd = (LinkedHashMap)Map.get(query.toLowerCase());
+                        String usage = (String)((LinkedHashMap)cmd).get("usage");
+                        String description = (String)((LinkedHashMap)cmd).get("description");
+                        player.sendMessage(ChatColor.GRAY + "Command usage: " + ChatColor.RED + usage);
+                        player.sendMessage(ChatColor.GRAY + "Description: " + description);
+                    }
+                    else
+                        player.sendMessage(ChatColor.GRAY + "Unknown or inaccessible command \"" + args[0] + "\"");
                 }
-
-                // To lower to the lowest page count..
-                PageIndex = Math.min(Pages, PageIndex);
-
-                // How page count and command count
-                // Note the +1 offset so we are human friendly (i.e. we are 1..n rather than 0..n-1)
-                player.sendMessage(ChatColor.WHITE + "Page " + ChatColor.RED + "[" + (PageIndex + 1) + "]" + ChatColor.WHITE + " of " + ChatColor.RED + "[" + (Pages+1) + "]" + ChatColor.WHITE +"; " + Count + " commands available of " + collection.size());
-
-                // Print off 5 commands for this page
-                for(int i = PageIndex * 5; i < Math.min(Count, PageIndex * 5 + 5); i++)
-                {
-                    // Print out info
-                    String name = CommandName.get(i);
-                    String description = CommandDescription.get(i);
-                    player.sendMessage(ChatColor.GRAY + "#" + (i+1) + ": " + ChatColor.RED + name + ChatColor.GRAY + " - " + description);
-                }
+                
             }
         }
         else if(plugin.IsCommand(player, command, args, "motd"))
@@ -265,9 +279,9 @@ public class BasicMiscCommands implements CommandExecutor
             // Set the user's new title and make the announcement
             plugin.users.SetTitle(target, NewTitle);
             if(NewTitle.length() > 0)
-                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has a new title: \"" + NewTitle + ChatColor.RED + "\"");
+                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has a new title \"" + NewTitle + ChatColor.RED + "\" given by " + player.getName() + "\"");
             else
-                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has had their title removed.");
+                plugin.BroadcastMessage(ChatColor.RED + "Player \"" + target.getName() + "\" has had their title removed by \"" + player.getName() + "\"");
         }
         
         // Done - parsed
