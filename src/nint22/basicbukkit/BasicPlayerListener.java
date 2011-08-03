@@ -31,8 +31,14 @@ public class BasicPlayerListener extends PlayerListener
     // World sizes
     private int WorldWidth, WorldLength;
     
-    // Locations of players
+    // Locations of players (used to prevent unnecessary updates)
     private HashMap<String, String> PlayerProtectionLocations;
+    
+    // Is chat local-based?
+    private boolean LocalChat;
+    
+    // If chat is local-based, what is the distance
+    private int LocalChatRadius;
     
     // Constructor saves plugin handle
     public BasicPlayerListener(BasicBukkit instance)
@@ -44,6 +50,14 @@ public class BasicPlayerListener extends PlayerListener
         List<Integer> sizes = plugin.configuration.getIntList("size", null);
         WorldWidth = sizes.get(0).intValue();
         WorldLength = sizes.get(1).intValue();
+        
+        // Get local chat information
+        LocalChat = plugin.configuration.getBoolean("localchat", false);
+        LocalChatRadius = plugin.configuration.getInt("chatradius", 128);
+        
+        // Declare we are using local chat
+        if(LocalChat)
+            System.out.println("### BasicBukkit enabled the local-chat system with a chat radius of " + LocalChatRadius);
         
         // Allocate player's current protection locations
         PlayerProtectionLocations = new HashMap();
@@ -171,6 +185,7 @@ public class BasicPlayerListener extends PlayerListener
         {
             player.sendMessage(ChatColor.GRAY + "You are currently muted.");
             event.setCancelled(true);
+            return;
         }
         
         // Is this player spamming?
@@ -178,9 +193,10 @@ public class BasicPlayerListener extends PlayerListener
         {
             player.sendMessage(ChatColor.GRAY + "You are chatting too fast; please wait.");
             event.setCancelled(true);
+            return;
         }
         
-        // Note the hex value is the signal byte for following colors
+        // Update for colors
         String message = event.getMessage();
         message = plugin.ColorString(message);
         event.setMessage(message);
@@ -191,6 +207,23 @@ public class BasicPlayerListener extends PlayerListener
         
         // Set the player's title
         player.setDisplayName(title + " " + player.getName());
+
+        // If we are using local chat, customize the messaging event
+        if(LocalChat)
+        {
+            // Cancel the event, we will manually send out player info
+            event.setCancelled(true);
+            
+            // For each player...
+            for(Player target : plugin.getServer().getOnlinePlayers())
+            {
+                // Is the distance short enough to send?
+                if(target.getLocation().distance(player.getLocation()) <= LocalChatRadius)
+                    player.sendMessage(player.getDisplayName() + " " + event.getMessage());
+            }
+            
+            // Done sending local
+        }
     }
     
     // Player permissions check
@@ -293,6 +326,25 @@ public class BasicPlayerListener extends PlayerListener
     @Override
     public void onPlayerInteract(PlayerInteractEvent event)
     {
+        // If this is a door of sorts, do a check of ownership
+        Material targetBlock = event.getClickedBlock() == null ? null : event.getClickedBlock().getType();
+        if(targetBlock != null && (targetBlock == Material.CHEST || targetBlock == Material.WOODEN_DOOR || targetBlock == Material.IRON_DOOR_BLOCK || targetBlock == Material.TRAP_DOOR))
+        {
+            // Who is the owner of the block
+            String owner = plugin.locks.LockOwner(event.getClickedBlock().getLocation());
+            if(owner != null)
+            {
+                // If not the owner, cancel event
+                if(!owner.equals(event.getPlayer().getName()))
+                {
+                    event.setCancelled(true);
+                    plugin.SendMessage(event.getPlayer(), ChatColor.GRAY + "You cannot open or use this item; the owner is \"" + owner + "\"");
+                }
+                else
+                    plugin.SendMessage(event.getPlayer(), ChatColor.GRAY + "You have opened or used a locked item of yours");
+            }
+        }
+        
         // Do we allow jumping?
         if(plugin.configuration.getBoolean("compassjump", false))
         {
