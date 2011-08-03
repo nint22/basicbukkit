@@ -174,3 +174,11 @@ commands:
     protectinfo:
         description: Prints off all protected area info. or the one you are in
         usage: /protectinfo
+    
+    lock:
+        description: Locks a chest or door that the user is facing; only the owner may open
+        usage: /lock
+    unlock:
+        description: Unlocks a chest or door that the user is facing
+        usage: /lock
+    

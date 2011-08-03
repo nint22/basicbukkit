@@ -25,13 +25,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
 
-// Special inclusions to help with invisibility hack...
-// Note that this code requires the original server lib as well
-// as is based on a current server-side bug; may not
-// be supported in future clients
-import net.minecraft.server.*;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
-
 public class BasicAdminCommands implements CommandExecutor
 {
     // Plugin handle
@@ -451,7 +444,14 @@ public class BasicAdminCommands implements CommandExecutor
             else if(plugin.IsCommand(player, command, args, "hide"))
             {
                 // Toggles hidden state...
-                HidePlayer(player, !plugin.users.IsHidden(player));
+                plugin.users.SetHidden(player, !plugin.users.IsHidden(player));
+                
+                // Tell them the new state they are in
+                if(plugin.users.IsHidden(player))
+                    player.sendMessage(ChatColor.GRAY + "You are now hidden");
+                else
+                    player.sendMessage(ChatColor.GRAY + "You are now visible");
+
             }
             
             // Done - parsed
@@ -544,7 +544,7 @@ public class BasicAdminCommands implements CommandExecutor
             targetName = args[0];
             banReason = "No defined ban reason";
         }
-        else
+        else if(args.length > 1)
         {
             targetName = args[0];
             for(int i = 1; i < args.length; i++)
@@ -715,48 +715,6 @@ public class BasicAdminCommands implements CommandExecutor
         }
         
         return TotalRemoved;
-    }
-    
-    // Hide a given player
-    public void HidePlayer(Player target, boolean Hide)
-    {
-        // Save the new hidden state
-        plugin.users.SetHidden(target, Hide);
-        
-        // Tell them the new state they are in
-        if(Hide)
-            target.sendMessage(ChatColor.GRAY + "You are now hidden");
-        else
-            target.sendMessage(ChatColor.GRAY + "You are now visible");
-        
-        // For each online player, send a "gone" packet
-        for(Player other : plugin.getServer().getOnlinePlayers())
-        {
-            // Ignore self
-            if(other != target)
-            {
-                // Are we hiding the player?
-                if(Hide)
-                {
-                    // Cast to get access to send custom packet
-                    // Target hides from others
-                    CraftPlayer targetCraftPlayer = (CraftPlayer)target;
-                    CraftPlayer otherCraftPlayer = (CraftPlayer)other;
-                    
-                    Packet hideTarget = new Packet29DestroyEntity(targetCraftPlayer.getEntityId());
-                    otherCraftPlayer.getHandle().netServerHandler.sendPacket(hideTarget);
-                }
-                else
-                {
-                    // Cast to get access to send custom packet
-                    CraftPlayer targetCraftPlayer = (CraftPlayer)target;
-                    CraftPlayer otherCraftPlayer = (CraftPlayer)other;
-                    
-                    Packet unhideTarget = new Packet20NamedEntitySpawn(((CraftPlayer)other).getHandle());
-                    targetCraftPlayer.getHandle().netServerHandler.sendPacket(unhideTarget);
-                }
-            }
-        }
     }
     
     private void VoteKick(Player player, String[] args)

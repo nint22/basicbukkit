@@ -93,6 +93,9 @@ public class BasicDaemon extends Thread
             try
             {
                 Log = new BufferedWriter(new FileWriter("plugins/BasicBukkit/basicstats.csv", true));
+                String timeStamp = new Date().toString();
+                Log.write(timeStamp + ",\t" + 0 + ",\t \n");
+                Log.flush();
             }
             catch(Exception e)
             {
@@ -135,6 +138,8 @@ public class BasicDaemon extends Thread
         {
             try
             {
+                String timeStamp = new Date().toString();
+                Log.write(timeStamp + ",\t" + 0 + ",\t \n");
                 Log.close();
             }
             catch(Exception e)
@@ -222,80 +227,15 @@ public class BasicDaemon extends Thread
                 }
             }
             
-            // Are we voting?
-            if(isVoting)
+            // Every 5 seconds, update all clients with the latest hidden list
+            if(TotalSeconds % 5 == 0)
             {
-                // Warning at 45 seconds
-                if(votingCountdown == 45)
-                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "45 seconds left to /vote ends...");
-                
-                // Warning at 30 seconds
-                else if(votingCountdown == 30)
-                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "30 seconds left to /vote ends...");
-                
-                // Warning at 15 seconds
-                else if(votingCountdown == 15)
-                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "15 seconds left to /vote ends...");
-                
-                // Warning at 10 seconds
-                else if(votingCountdown == 10)
-                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "10 seconds left to /vote ends...");
-                
-                // Warning at 5 seconds
-                else if(votingCountdown == 5)
-                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "5 seconds left to /vote ends...");
-                
-                // Are we done voting?
-                if(votingCountdown <= 0)
-                {
-                    // No more voting
-                    isVoting = false;
-                    
-                    // Count the yes/no votes
-                    int yesVote = 0;
-                    int noVote = 0;
-                    
-                    for(Boolean vote : ballots.values())
-                    {
-                        if(vote.booleanValue())
-                            yesVote++;
-                        else
-                            noVote++;
-                    }
-                    
-                    // Did it fail?
-                    if(yesVote < votingMinimum)
-                        plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote failed: " + ChatColor.GRAY + "The minimum number of votes (" + votingMinimum + ") was not reached");
-                    
-                    // Did the majority win?
-                    else if(yesVote < noVote)
-                        plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote failed: " + ChatColor.GRAY + "Not enough \"yes\" votes: " + yesVote + " yes vs. " + noVote + " no");
-                    
-                    // Did we get a stalemate?
-                    else if(yesVote == noVote)
-                        plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote failed: " + ChatColor.GRAY + "Stalemate: " + yesVote + " yes vs. " + noVote + " no");
-                    else
-                    {
-                        // Are we kicking the user?
-                        if(isKicking == true)
-                        {
-                            plugin.BroadcastMessage(ChatColor.DARK_GREEN + "Vote passed! \"" + ChatColor.GRAY + voteTarget.getName() + "\" was vote-kicked by a majority: " + yesVote + " yes vs. " + noVote + " no");
-                            plugin.users.SetKickTime(voteTarget.getName(), votingKickTime);
-                        }
-                        
-                        // Just banning
-                        else
-                        {
-                            plugin.BroadcastMessage(ChatColor.DARK_GREEN + "Vote passed! \"" + ChatColor.GRAY + voteTarget.getName() + "\" was vote-banned by a majority: " + yesVote + " yes vs. " + noVote + " no");
-                            plugin.BroadcastMessage(ChatColor.DARK_GREEN + "Reason: " + ChatColor.GRAY + votingBanReason);
-                            plugin.users.SetBan(voteTarget.getName(), votingBanReason);
-                        }
-                    }
-                }
-                
-                // Decrease seconds
-                votingCountdown--;
+                for(Player player : plugin.getServer().getOnlinePlayers())
+                    plugin.users.SetHidden(player, plugin.users.IsHidden(player));
             }
+            
+            // Update vote
+            UpdateVote(TotalSeconds);
             
             // Main thread loop
         }
@@ -312,21 +252,28 @@ public class BasicDaemon extends Thread
         Boolean newVote = false;
         if(string.toLowerCase().startsWith("y") || string.toLowerCase().startsWith("t"))
             newVote = true;
+        else if(string.toLowerCase().startsWith("n") || string.toLowerCase().startsWith("f"))
+            newVote = false;
+        else
+        {
+            player.sendMessage(ChatColor.GRAY + "Unable to recognize vote command; either /vote yes or /vote no");
+            return;
+        }
         
         // Has the player already voted?
         Boolean previousVote = ballots.get(player.getName());
         if(previousVote == null)
         {
             ballots.put(player.getName(), newVote);
-            player.sendMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "You have voted \"" + (newVote.booleanValue() ? "yes" : "no") + "\"");
+            player.sendMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "You have voted \"" + (newVote.booleanValue() ? "yes" : "no") + "\"");
         }
         else if(previousVote.booleanValue() != newVote.booleanValue())
         {
             ballots.put(player.getName(), newVote);
-            player.sendMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "You have changed vote from \"" + (previousVote.booleanValue() ? "yes" : "no") + "\" to \"" + newVote.toString() + "\"");
+            player.sendMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "You have changed vote from \"" + (previousVote.booleanValue() ? "yes" : "no") + "\" to \"" + (newVote.booleanValue() ? "yes" : "no") + "\"");
         }
         else
-            player.sendMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "Your previous vote already was \"" + (previousVote.booleanValue() ? "yes" : "no") + "\"");
+            player.sendMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "Your previous vote already was \"" + (previousVote.booleanValue() ? "yes" : "no") + "\"");
     }
     
     public void StartVKick(Player player, Player target, int KickTime)
@@ -340,7 +287,7 @@ public class BasicDaemon extends Thread
         voteTarget = target;
         
         // Declare start
-        plugin.BroadcastMessage(ChatColor.DARK_RED + "VoteKick: " + ChatColor.GRAY + "\"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" wants to vote-kick \"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" for " + KickTime + " minutes; please vote using /vote");
+        plugin.BroadcastMessage(ChatColor.DARK_RED + "VoteKick: " + ChatColor.WHITE + "\"" + player.getName() + "\" wants to vote-kick \"" + voteTarget.getName() + "\" for " + KickTime + " minutes; please vote using /vote");
     }
     
     public void StartVBan(Player player, Player target, String banReason)
@@ -354,7 +301,85 @@ public class BasicDaemon extends Thread
         voteTarget = target;
         
         // Declare start
-        plugin.BroadcastMessage(ChatColor.DARK_RED + "VoteBan: " + ChatColor.GRAY + "\"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" wants to vote-ban \"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" for reason \"" + votingBanReason + "\" please vote using /vote");
+        plugin.BroadcastMessage(ChatColor.DARK_RED + ">> VoteBan: " + ChatColor.WHITE + "\"" + player.getName() + ChatColor.WHITE + "\" wants to vote-ban \"" + voteTarget.getName() + "\" for reason \"" + votingBanReason + "\" please vote using /vote");
+    }
+    
+    private void UpdateVote(int TotalSeconds)
+    {
+        // Update the player system
+        if(!isVoting)
+            return;
+        
+        // Decrease seconds
+        votingCountdown--;
+        
+        // Warning at 45 seconds
+        if(votingCountdown == 45)
+            plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "45 seconds left to /vote ends...");
+
+        // Warning at 30 seconds
+        else if(votingCountdown == 30)
+            plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "30 seconds left to /vote ends...");
+
+        // Warning at 15 seconds
+        else if(votingCountdown == 15)
+            plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "15 seconds left to /vote ends...");
+
+        // Warning at 10 seconds
+        else if(votingCountdown == 10)
+            plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "10 seconds left to /vote ends...");
+
+        // Warning at 5 seconds
+        else if(votingCountdown == 5)
+            plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote: " + ChatColor.WHITE + "5 seconds left to /vote ends...");
+
+        // Are we done voting?
+        if(votingCountdown <= 0)
+        {
+            // No more voting
+            isVoting = false;
+
+            // Count the yes/no votes
+            int yesVote = 0;
+            int noVote = 0;
+
+            for(Boolean vote : ballots.values())
+            {
+                if(vote.booleanValue())
+                    yesVote++;
+                else
+                    noVote++;
+            }
+            
+            // Did it fail?
+            if(yesVote < votingMinimum)
+                plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote failed: " + ChatColor.WHITE + "The minimum number of votes (" + votingMinimum + ") was not reached");
+            // Did the majority say no?
+            else if(yesVote < noVote)
+                plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote failed: " + ChatColor.WHITE + "Not enough \"yes\" votes: " + yesVote + " yes vs. " + noVote + " no");
+            // Did we get a stalemate?
+            else if(yesVote == noVote)
+                plugin.BroadcastMessage(ChatColor.DARK_RED + ">> Vote failed: " + ChatColor.WHITE + "Stalemate: " + yesVote + " yes vs. " + noVote + " no");
+            // Else, it did succeed
+            else
+            {
+                // Are we kicking the user?
+                if(isKicking == true)
+                {
+                    plugin.BroadcastMessage(ChatColor.DARK_GREEN + ">> Vote passed! \"" + ChatColor.WHITE + voteTarget.getName() + "\" was vote-kicked by a majority: " + yesVote + " yes vs. " + noVote + " no");
+                    plugin.users.SetKickTime(voteTarget.getName(), votingKickTime);
+                    voteTarget.kickPlayer("Kicked from the server by vote for " + votingKickTime + " minutes");
+                }
+                
+                // Just banning
+                else
+                {
+                    plugin.BroadcastMessage(ChatColor.DARK_GREEN + ">> Vote passed! \"" + ChatColor.WHITE + voteTarget.getName() + "\" was vote-banned by a majority: " + yesVote + " yes vs. " + noVote + " no");
+                    plugin.users.SetBan(voteTarget.getName(), votingBanReason);
+                    voteTarget.kickPlayer(votingBanReason);
+                }
+            }
+        }
     }
     
 }

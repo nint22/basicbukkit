@@ -123,6 +123,8 @@ public class BasicProtectionCommands implements CommandExecutor
             LinkedList<String> ProtectionNames = plugin.protections.GetProtectedNames();
             for(String protectionName :  ProtectionNames)
             {
+                // We can't search case insensitive because
+                // protected areas are case sensitive
                 if(protectionName.startsWith(args[0]))
                 {
                     args[0] = protectionName;
@@ -156,6 +158,7 @@ public class BasicProtectionCommands implements CommandExecutor
                 {
                     owners.add(target.getName());
                     player.sendMessage(ChatColor.GRAY + "User \"" + target.getName() + "\" has been added to \"" + args[0] + "\"");
+                    target.sendMessage(ChatColor.GRAY + "You have been added to protection group \"" + args[0] + "\"");
                 }
                 else
                 {
@@ -206,6 +209,7 @@ public class BasicProtectionCommands implements CommandExecutor
                 {
                     owners.remove(target.getName());
                     player.sendMessage(ChatColor.GRAY + "User \"" + target.getName() + "\" has been removed from \"" + args[0] + "\"");
+                    target.sendMessage(ChatColor.GRAY + "You have been removed from protection group \"" + args[0] + "\"");
                 }
                 else
                 {
@@ -339,6 +343,22 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "All protected areas: (" + plugin.protections.GetProtectionCount() + ")");
                 player.sendMessage(ChatColor.GRAY + "Protected area names: " + ChatColor.WHITE + namesString);
             }
+        }
+        else if(plugin.IsCommand(player, command, args, "lock"))
+        {
+            // No args
+            if(args.length > 0)
+                player.sendMessage(ChatColor.GRAY + "/lock does not take any commands; simply target the item you want to lock");
+            else
+                plugin.locks.Lock(player);
+        }
+        else if(plugin.IsCommand(player, command, args, "unlock"))
+        {
+            // No args
+            if(args.length > 0)
+                player.sendMessage(ChatColor.GRAY + "/unlock does not take any commands; simply target the item you want to unlock");
+            else
+                plugin.locks.Unlock(player);
         }
         
         // Done - parsed

@@ -62,6 +62,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
     // Global item list
     public BasicItems itemNames = null;
     
+    // Global locks list
+    public BasicLocks locks = null;
+    
     // A hashmap that contains an outgoing message of the form
     // playername_message as the key and the unix epoch time stamp as the
     // data; we only send messages after we make sure a solid 5 seconds has
@@ -125,6 +128,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         users.save();
         protections.save();
         warps.save();
+        locks.save();
         
         // Release plugin
         System.out.println("### BasicBukkit plugin disabled.");
@@ -157,6 +161,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         messages = new BasicMessages(this, configuration);
         daemon = new BasicDaemon(this, configuration);
         
+        // Load the locks system
+        locks = new BasicLocks(this, new Configuration(loadFile("locks.yml")));
+        
         // Allocate the spam message check
         MessageTime = new HashMap();
         
@@ -178,7 +185,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         pm.registerEvent(Event.Type.PLAYER_DROP_ITEM, playerListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.PLAYER_PICKUP_ITEM, playerListener, Priority.Normal, this);
         
-        // Item usage
+        // Item and mechanism usage
         pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Normal, this);
         
         /*** Block Place / Usage Events ***/
@@ -276,6 +283,8 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("protectdel").setExecutor(Protection);                       // Done
         getCommand("protectpvp").setExecutor(Protection);                       // Done
         getCommand("protectinfo").setExecutor(Protection);                      // Done
+        getCommand("lock").setExecutor(Protection);                             // Done
+        getCommand("unlock").setExecutor(Protection);                           // Done
         
         // Turn off spawn protection
         getServer().setSpawnRadius(0);

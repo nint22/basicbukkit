@@ -15,10 +15,16 @@ package nint22.basicbukkit;
 
 import java.io.*;
 import java.util.*;
-import java.util.Map.Entry;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
+
+// Special inclusions to help with invisibility hack...
+// Note that this code requires the original server lib as well
+// as is based on a current server-side bug; may not
+// be supported in future clients
+import net.minecraft.server.*;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 
 public class BasicUsers
 {
@@ -665,5 +671,36 @@ public class BasicUsers
             HiddenMode.remove(target.getName());
         else
             HiddenMode.put(target.getName(), IsHidden);
+        
+        // For each online player, send a "gone" packet
+        for(Player other : plugin.getServer().getOnlinePlayers())
+        {
+            // Ignore self
+            if(other != target)
+            {
+                // Are we hiding the player?
+                if(IsHidden)
+                {
+                    // Cast to get access to send custom packet
+                    // Target hides from others
+                    CraftPlayer targetCraftPlayer = (CraftPlayer)target;
+                    CraftPlayer otherCraftPlayer = (CraftPlayer)other;
+                    
+                    Packet hideTarget = new Packet29DestroyEntity(targetCraftPlayer.getEntityId());
+                    otherCraftPlayer.getHandle().netServerHandler.sendPacket(hideTarget);
+                }
+                else
+                {
+                    // Cast to get access to send custom packet
+                    CraftPlayer targetCraftPlayer = (CraftPlayer)target;
+                    CraftPlayer otherCraftPlayer = (CraftPlayer)other;
+                    
+                    Packet unhideTarget = new Packet20NamedEntitySpawn(targetCraftPlayer.getHandle());
+                    otherCraftPlayer.getHandle().netServerHandler.sendPacket(unhideTarget);
+                }
+            }
+        }
+        
+        // Done with function
     }
 }

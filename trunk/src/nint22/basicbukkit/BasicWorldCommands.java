@@ -75,6 +75,13 @@ public class BasicWorldCommands implements CommandExecutor
                     return true;
                 }
                 
+                // Cannot tp to self
+                if(player == target)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Cannot teleport to self");
+                    return true;
+                }
+                
                 // Change world as needed and location
                 player.getLocation().setWorld(target.getWorld());
                 player.teleport(target.getLocation());
@@ -95,6 +102,13 @@ public class BasicWorldCommands implements CommandExecutor
                     return true;
                 }
                 
+                // Cannot tp to self
+                if(target1 == target2)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Cannot teleport to self");
+                    return true;
+                }
+                    
                 // Change world as needed and location
                 target1.getLocation().setWorld(target2.getWorld());
                 target1.teleport(target2.getLocation());
