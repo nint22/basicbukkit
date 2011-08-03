@@ -332,7 +332,7 @@ minvotes: 2
 
 # Turn on or off local chat; defaults to false, meaining
 # all chat messages are sent globally to all players
-localchat: true
+localchat: false
 
 # Chat radius; if localchat is on, then only players within
 # the senders radius (as defined here as an integer) recieves it
@@ -340,6 +340,7 @@ chatradius: 128
 
 # Enable RPG and economy features; if set to true all rpg
 # and economy code is enabled
+roleplay: true
 
 # A list of messages that are displayed after a certain number of seconds
 # Note that "delay" is time between messages and "start" is the initial wait period
