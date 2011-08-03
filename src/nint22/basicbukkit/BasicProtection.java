@@ -45,6 +45,7 @@ public class BasicProtection
     private LinkedList<String> world = null;
     private LinkedList<Pair> corner1 = null;
     private LinkedList<Pair> corner2 = null;
+    private LinkedList<Boolean> pvp = null;
     
     // Initialize protections
     public BasicProtection(Configuration protections)
@@ -59,6 +60,7 @@ public class BasicProtection
         owners = new LinkedList();
         corner1 = new LinkedList();
         corner2 = new LinkedList();
+        pvp = new LinkedList();
         
         Map<String, ConfigurationNode> protectionData = protections.getNodes("protections");
         
@@ -74,6 +76,7 @@ public class BasicProtection
                 String WorldName = (String)map.get("world");
                 String Owner = (String)map.get("owners");
                 String Geometry = (String)map.get("geometry");
+                String PVP = (String)map.get("pvp");
                 
                 // Add name and world name
                 names.add(Name); 
@@ -110,6 +113,9 @@ public class BasicProtection
                     // Force crash
                     System.out.println("### BasicBukkit unable to parse the geometry string: " + e.getMessage());
                 }
+                
+                // Add pvp flag
+                pvp.add(Boolean.valueOf(PVP));
             }
         }
         
@@ -146,6 +152,9 @@ public class BasicProtection
             
             // Save geometry
             map.put("geometry", corner1.get(i).x + ", " + corner1.get(i).y + ", " + corner2.get(i).x + ", " + corner2.get(i).y );
+            
+            // Save pvp
+            map.put("pvp", pvp.get(i).toString());
             
             // Save this as all warps
             allProtections.put("protection_" + i, map);
@@ -250,6 +259,7 @@ public class BasicProtection
         owners.add(newOwners);
         corner1.add(p1);
         corner2.add(p2);
+        pvp.add(false); 
         
         // Sanity check with the world string:
         if(owner.getWorld() == null || owner.getWorld().getName() == null | owner.getWorld().getName().length() <= 0)
@@ -273,5 +283,22 @@ public class BasicProtection
             corner1.remove(index);
             corner2.remove(index);
         }
+    }
+
+    boolean GetPVP(String name)
+    {
+        // Get the index name
+        int index = names.indexOf(name);
+        if(index < 0)
+            return false;
+        else
+            return pvp.get(index);
+    }
+
+    void SetPVP(String name, boolean flag)
+    {
+        // Get the index name
+        int index = names.indexOf(name);
+        pvp.set(index, flag);
     }
 }

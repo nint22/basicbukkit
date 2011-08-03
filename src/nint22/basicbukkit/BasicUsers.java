@@ -132,11 +132,11 @@ public class BasicUsers
             // Player name is key
             OpNames.add(key);
             
-            // Get the group ID
-            OpGroup.add(users.getInt(key + ".group", 0));
-            
             // Get the optional title
             OpTitle.add(users.getString(key + ".title", ""));
+            
+            // Get the group ID
+            OpGroup.add(users.getInt(key + ".group", 0));
             
             // Does this user have a kick time?
             int KickTime = users.getInt(key + ".kicktime", 0);
@@ -204,6 +204,7 @@ public class BasicUsers
             else
             {
                 OpNames.add(UserName);
+                OpTitle.add("");
                 OpGroup.add(UserGroupID);
             }
             

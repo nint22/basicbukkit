@@ -177,6 +177,40 @@ public class BasicAdminCommands implements CommandExecutor
                 // Execute the op
                 PlayerOp(player, args);
             }
+            else if(plugin.IsCommand(player, command, args, "vote"))
+            {
+                // Check args
+                if(args.length < 1 || args.length > 1)
+                    return false;
+                
+                // Are we currently voting?
+                if(!plugin.daemon.IsVoting())
+                {
+                    player.sendMessage(ChatColor.GRAY + "There is currently no voting");
+                    return false;
+                }
+                
+                // Save the vote
+                plugin.daemon.SetVote(player, args[0]);
+            }
+            else if(plugin.IsCommand(player, command, args, "vkick"))
+            {
+                // Kick
+                if(args.length < 1 || args.length > 2)
+                    return false;
+                
+                // Attempt a vote
+                VoteKick(player, args);
+            }
+            else if(plugin.IsCommand(player, command, args, "vban"))
+            {
+                // Ban attempt
+                if(args.length < 1)
+                    return false;
+                
+                // Attempt a vote
+                VoteBan(player, args);
+            }
             else if(plugin.IsCommand(player, command, args, "kick"))
             {
                 // Kick
@@ -474,7 +508,9 @@ public class BasicAdminCommands implements CommandExecutor
             {
                 int sourceGID = plugin.users.GetGroupID(player.getName());
                 int targetGID = plugin.users.GetGroupID(targetPlayer.getName());
-                if(targetGID >= sourceGID)
+                
+                // You can't op others or yourself higher than you are
+                if( ((targetGID >= sourceGID) && (player != targetPlayer)) || ((GroupID > sourceGID) && (player == targetPlayer)) )
                 {
                     // Cannot ban GIDs higher or equal
                     player.sendMessage(ChatColor.GRAY + "Cannot op-change users with an equal or higher group ID (theirs: " + targetGID + ", yours: " + sourceGID + ")");
@@ -587,7 +623,7 @@ public class BasicAdminCommands implements CommandExecutor
             catch(Exception e)
             {
                 if(player != null)
-                    player.sendMessage(ChatColor.GRAY + "Unable to kick; unable parse time argument");
+                    player.sendMessage(ChatColor.GRAY + "Unable to kick; unable to parse time argument");
                 return;
             }
         }
@@ -697,24 +733,88 @@ public class BasicAdminCommands implements CommandExecutor
         for(Player other : plugin.getServer().getOnlinePlayers())
         {
             // Ignore self
-            if(other == target)
-                continue;
+            if(other != target)
+            {
+                // Are we hiding the player?
+                if(Hide)
+                {
+                    // Cast to get access to send custom packet
+                    // Target hides from others
+                    CraftPlayer targetCraftPlayer = (CraftPlayer)target;
+                    Packet hideTarget = new Packet29DestroyEntity(other.getEntityId());
+                    targetCraftPlayer.getHandle().netServerHandler.sendPacket(hideTarget);
+                }
+                else
+                {
+                    // Cast to get access to send custom packet
+                    CraftPlayer targetCraftPlayer = (CraftPlayer)target;
+                    Packet unhideTarget = new Packet20NamedEntitySpawn(((CraftPlayer)other).getHandle());
+                    targetCraftPlayer.getHandle().netServerHandler.sendPacket(unhideTarget);
+                }
+            }
+        }
+    }
+    
+    private void VoteKick(Player player, String[] args)
+    {
+        // Do we already have a vote in progress?
+        if(plugin.daemon.IsVoting())
+            player.sendMessage(ChatColor.GRAY + "There is currently a vote going on; please wait to start a new vote");
+        else
+        {
+            // Target player
+            Player target = plugin.getServer().getPlayer(args[0]);
             
-            // Are we hiding the player?
-            if(Hide)
+            // Whats the timeout?
+            int KickTime = 0;
+            if(args.length > 0)
             {
-                // Cast to get access to send custom packet
-                CraftPlayer targetCraftPlayer = (CraftPlayer)target;
-                Packet hideTarget = new Packet29DestroyEntity(targetCraftPlayer.getEntityId());
-                targetCraftPlayer.getHandle().netServerHandler.sendPacket(hideTarget);
+                try
+                {
+                    if(args.length > 1)
+                        KickTime = Integer.parseInt(args[1]);
+                    if(KickTime < 0)
+                    {
+                        player.sendMessage(ChatColor.GRAY + "Unable to kick; you cannot assign negative minutes");
+                        return;
+                    }
+                    else if(KickTime > 24 * 60)
+                    {
+                        player.sendMessage(ChatColor.GRAY + "Unable to kick; you cannot assign greater than 24 hours");
+                        return;
+                    }
+                }
+                catch(Exception e)
+                {
+                    player.sendMessage(ChatColor.GRAY + "Unable to kick; unable to parse time argument");
+                    return;
+                }
             }
-            else
-            {
-                // Cast to get access to send custom packet
-                CraftPlayer targetCraftPlayer = (CraftPlayer)target;
-                Packet unhideTarget = new Packet20NamedEntitySpawn(targetCraftPlayer.getHandle());
-                targetCraftPlayer.getHandle().netServerHandler.sendPacket(unhideTarget);
-            }
+            
+            // Start a vote event
+            plugin.daemon.StartVKick(player, target, KickTime);
+        }
+    }
+    
+    private void VoteBan(Player player, String[] args)
+    {
+
+        // Do we already have a vote in progress?
+        if(plugin.daemon.IsVoting())
+            player.sendMessage(ChatColor.GRAY + "There is currently a vote going on; please wait to start a new vote");
+        else
+        {
+            // Target player
+            Player target = plugin.getServer().getPlayer(args[0]);
+            
+            // Is there a message?
+            String banReason = "No defined ban reason";
+            if(args.length > 1)
+                for(int i = 1; i < args.length; i++)
+                    banReason += args[i] + " ";
+            
+            // Start a vote event
+            plugin.daemon.StartVBan(player, target, banReason);
         }
     }
 }

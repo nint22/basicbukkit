@@ -117,14 +117,14 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
     @Override
     public void onDisable()
     {
+        // Stop messages (may take a second)
+        messages.stop(true);
+        daemon.stop(true);
+        
         // Save all users and protection data
         users.save();
         protections.save();
         warps.save();
-        
-        // Stop messages (may take a second)
-        messages.stop(true);
-        daemon.stop(true);
         
         // Release plugin
         System.out.println("### BasicBukkit plugin disabled.");
@@ -164,6 +164,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         playerListener = new BasicPlayerListener(this);
         
         // Join and leave game
+        pm.registerEvent(Event.Type.PLAYER_PRELOGIN, playerListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Normal, this);
         
@@ -225,6 +226,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         
         BasicAdminCommands AdminCommands = new BasicAdminCommands(this);
         getCommand("op").setExecutor(AdminCommands);                            // Done
+        getCommand("vote").setExecutor(AdminCommands);                          // Done
+        getCommand("vkick").setExecutor(AdminCommands);                         // Done
+        getCommand("vban").setExecutor(AdminCommands);                          // Done
         getCommand("kick").setExecutor(AdminCommands);                          // Done
         getCommand("ban").setExecutor(AdminCommands);                           // Done
         getCommand("unban").setExecutor(AdminCommands);                         // Done
@@ -270,6 +274,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("protectadd").setExecutor(Protection);                       // Done
         getCommand("protectrem").setExecutor(Protection);                       // Done
         getCommand("protectdel").setExecutor(Protection);                       // Done
+        getCommand("protectpvp").setExecutor(Protection);                       // Done
         getCommand("protectinfo").setExecutor(Protection);                      // Done
         
         // Turn off spawn protection

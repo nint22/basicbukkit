@@ -60,6 +60,7 @@ groups:
           - god
           - pvp
           - kit
+          - vote
       banned_access: false
       build: true
       worldedit: false
@@ -94,6 +95,9 @@ groups:
           - msg
           - pm
           - top
+          - vkick
+          - vban
+          - vote
       banned_access: false
       build: true
       worldedit: false
@@ -142,11 +146,15 @@ groups:
           - p1
           - p2
           - protect
+          - protectpvp
           - protectadd
           - protectrem
           - protectdel
           - mute
           - scout
+          - vkick
+          - vban
+          - vote
       banned_access: false
       build: true
       worldedit: false
@@ -195,6 +203,7 @@ groups:
           - p1
           - p2
           - protect
+          - protectpvp
           - protectadd
           - protectrem
           - protectdel
@@ -202,6 +211,9 @@ groups:
           - mclean
           - mute
           - scout
+          - vkick
+          - vban
+          - vote
       banned_access: true
       build: true
       worldedit: false
@@ -251,6 +263,7 @@ groups:
           - p1
           - p2
           - protect
+          - protectpvp
           - protectadd
           - protectrem
           - protectdel
@@ -261,12 +274,19 @@ groups:
           - hide
           - title
           - mob
+          - vkick
+          - vban
+          - vote
       banned_access: true
       build: true
       worldedit: true
 
 # Banned items (cannot create, place, or use)
 banned: 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79
+
+# Do users spawn in non-god mode by default?
+# If not declared, defaults to true
+defaultgod: false
 
 # Allow flow of lava
 lavaflows: false
@@ -296,6 +316,9 @@ reload: 15
 # Sets the number of minutes between every time
 # the statistical log is written to
 logdelay: 1
+
+# Minimum number of votes for a vote to pass
+minvotes: 2
 
 # A list of messages that are displayed after a certain number of seconds
 # Note that "delay" is time between messages and "start" is the initial wait period

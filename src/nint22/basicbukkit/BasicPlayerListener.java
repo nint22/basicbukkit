@@ -29,7 +29,7 @@ public class BasicPlayerListener extends PlayerListener
     private final BasicBukkit plugin;
     
     // World sizes
-    int WorldWidth, WorldLength;
+    private int WorldWidth, WorldLength;
     
     // Locations of players
     private HashMap<String, String> PlayerProtectionLocations;
@@ -72,9 +72,6 @@ public class BasicPlayerListener extends PlayerListener
         // Get player from event
         Player player = event.getPlayer();
         
-        // Say where the player game from...
-        plugin.BroadcastMessage(ChatColor.GRAY + player.getName() + " joined the server.");
-        
         // Show the MOTD string
         String[] motd = plugin.GetMOTD();
         for(int i = 0; i < motd.length; i++)
@@ -95,16 +92,18 @@ public class BasicPlayerListener extends PlayerListener
         else
             plugin.BroadcastMessage(ChatColor.GRAY + player.getName() + " is a known user to the server.");
         
+        // Set the player's god mode status
+        plugin.users.SetGod(player.getName(), plugin.configuration.getBoolean("defaultgod", true));
+        
         // Set the player's title
         player.setDisplayName(plugin.users.GetUserTitle(player.getName()) + player.getName());
-        
     }
     
     // Player quit, announce globally
     @Override
     public void onPlayerQuit(PlayerQuitEvent event)
     {
-        plugin.BroadcastMessage(ChatColor.GRAY + event.getPlayer().getName() + " left the server.");
+        //plugin.BroadcastMessage(ChatColor.GRAY + event.getPlayer().getName() + " left the server.");
     }
     
     // Player moves...
@@ -136,7 +135,7 @@ public class BasicPlayerListener extends PlayerListener
         // Did we go from a non-zone to a new zone
         if(oldZone == null && newZone != null)
         {
-            event.getPlayer().sendMessage(ChatColor.GRAY + "You have walked into the protected zone \"" + newZone + "\"");
+            event.getPlayer().sendMessage(ChatColor.GRAY + "You have walked into the protected zone \"" + newZone + "\", PVP is " + (plugin.protections.GetPVP(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled"));
             PlayerProtectionLocations.put(event.getPlayer().getName(), newZone);
         }
         // Did we get out of a zone to a non-zone
@@ -148,7 +147,7 @@ public class BasicPlayerListener extends PlayerListener
         // Did we change zones?
         else if(oldZone != null && newZone != null && !newZone.equalsIgnoreCase(oldZone))
         {
-            event.getPlayer().sendMessage(ChatColor.GRAY + "You have left the protected zone \"" + oldZone + "\" and are now in \"" + newZone + "\"");
+            event.getPlayer().sendMessage(ChatColor.GRAY + "You have left the protected zone \"" + oldZone + "\" and are now in \"" + newZone + "\", PVP is " + (plugin.protections.GetPVP(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled"));
             PlayerProtectionLocations.put(event.getPlayer().getName(), newZone);
         }
     }

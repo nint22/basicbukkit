@@ -16,6 +16,7 @@ package nint22.basicbukkit;
 
 import java.io.*;
 import java.util.Date;
+import java.util.HashMap;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -39,7 +40,33 @@ public class BasicDaemon extends Thread
     private int LogTime;
     
     // Stat log itself
-    BufferedWriter Log = null;
+    private BufferedWriter Log = null;
+    
+    /*** Voting Systems ***/
+    
+    // Are we currently voting?
+    private boolean isVoting;
+    
+    // True if we are kicking, false for banning; works in "isVoting"
+    private boolean isKicking;
+    
+    // Minimum number of votes
+    private int votingMinimum;
+    
+    // Number of seonds during a countdown
+    private int votingCountdown;
+    
+    // Number of seconds to vote-kick
+    private int votingKickTime;
+    
+    // Ban reason
+    private String votingBanReason;
+    
+    // Ballots
+    private HashMap<String, Boolean> ballots;
+    
+    // Who we are targeting
+    private Player voteTarget;
     
     // Initialize messaging thread
     public BasicDaemon(BasicBukkit plugin, Configuration config)
@@ -73,6 +100,12 @@ public class BasicDaemon extends Thread
                 System.exit(-1);
             }
         }
+        
+        // Default voting to false
+        isVoting = false;
+        votingMinimum = plugin.configuration.getInt("minvotes", 1);
+        votingCountdown = 0;
+        ballots = new HashMap();
         
         // State what we are doing
         System.out.println("### BasicBukkit " + (ReloadMinutes > 0 ? ("saves every " + ReloadMinutes + " minutes") : "will not save at run-time") + " and " + (LogTime > 0 ? ("logs statistics every " + LogTime + " minutes") : "will not log statistics"));
@@ -163,14 +196,14 @@ public class BasicDaemon extends Thread
             }
             
             // After 5 seconds, reset the world clock
-            if(TotalSeconds % 5 == 0 && TargetPermaTime > 0)
+            if(TargetPermaTime > 0 && TotalSeconds % 5 == 0)
             {
                 for(World world : plugin.getServer().getWorlds())
                     world.setTime(TargetPermaTime);
             }
             
             // Every minute, log the server's status
-            if(LogTime > 0 && TotalSeconds % LogTime == 0)
+            if(LogTime > 0 && TotalSeconds % (LogTime * 60) == 0)
             {
                 // Save some data...
                 try
@@ -187,11 +220,141 @@ public class BasicDaemon extends Thread
                     System.out.println("### BasicBukkit unable to append+write to log file: " + e.getMessage());
                     System.exit(-1);
                 }
+            }
+            
+            // Are we voting?
+            if(isVoting)
+            {
+                // Warning at 45 seconds
+                if(votingCountdown == 45)
+                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "45 seconds left to /vote ends...");
                 
+                // Warning at 30 seconds
+                else if(votingCountdown == 30)
+                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "30 seconds left to /vote ends...");
+                
+                // Warning at 15 seconds
+                else if(votingCountdown == 15)
+                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "15 seconds left to /vote ends...");
+                
+                // Warning at 10 seconds
+                else if(votingCountdown == 10)
+                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "10 seconds left to /vote ends...");
+                
+                // Warning at 5 seconds
+                else if(votingCountdown == 5)
+                    plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "5 seconds left to /vote ends...");
+                
+                // Are we done voting?
+                if(votingCountdown <= 0)
+                {
+                    // No more voting
+                    isVoting = false;
+                    
+                    // Count the yes/no votes
+                    int yesVote = 0;
+                    int noVote = 0;
+                    
+                    for(Boolean vote : ballots.values())
+                    {
+                        if(vote.booleanValue())
+                            yesVote++;
+                        else
+                            noVote++;
+                    }
+                    
+                    // Did it fail?
+                    if(yesVote < votingMinimum)
+                        plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote failed: " + ChatColor.GRAY + "The minimum number of votes (" + votingMinimum + ") was not reached");
+                    
+                    // Did the majority win?
+                    else if(yesVote < noVote)
+                        plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote failed: " + ChatColor.GRAY + "Not enough \"yes\" votes: " + yesVote + " yes vs. " + noVote + " no");
+                    
+                    // Did we get a stalemate?
+                    else if(yesVote == noVote)
+                        plugin.BroadcastMessage(ChatColor.DARK_RED + "Vote failed: " + ChatColor.GRAY + "Stalemate: " + yesVote + " yes vs. " + noVote + " no");
+                    else
+                    {
+                        // Are we kicking the user?
+                        if(isKicking == true)
+                        {
+                            plugin.BroadcastMessage(ChatColor.DARK_GREEN + "Vote passed! \"" + ChatColor.GRAY + voteTarget.getName() + "\" was vote-kicked by a majority: " + yesVote + " yes vs. " + noVote + " no");
+                            plugin.users.SetKickTime(voteTarget.getName(), votingKickTime);
+                        }
+                        
+                        // Just banning
+                        else
+                        {
+                            plugin.BroadcastMessage(ChatColor.DARK_GREEN + "Vote passed! \"" + ChatColor.GRAY + voteTarget.getName() + "\" was vote-banned by a majority: " + yesVote + " yes vs. " + noVote + " no");
+                            plugin.BroadcastMessage(ChatColor.DARK_GREEN + "Reason: " + ChatColor.GRAY + votingBanReason);
+                            plugin.users.SetBan(voteTarget.getName(), votingBanReason);
+                        }
+                    }
+                }
+                
+                // Decrease seconds
+                votingCountdown--;
             }
             
             // Main thread loop
         }
+    }
+    
+    public boolean IsVoting()
+    {
+        return isVoting;
+    }
+    
+    public void SetVote(Player player, String string)
+    {
+        // Parse to boolean
+        Boolean newVote = false;
+        if(string.toLowerCase().startsWith("y") || string.toLowerCase().startsWith("t"))
+            newVote = true;
+        
+        // Has the player already voted?
+        Boolean previousVote = ballots.get(player.getName());
+        if(previousVote == null)
+        {
+            ballots.put(player.getName(), newVote);
+            player.sendMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "You have voted \"" + (newVote.booleanValue() ? "yes" : "no") + "\"");
+        }
+        else if(previousVote.booleanValue() != newVote.booleanValue())
+        {
+            ballots.put(player.getName(), newVote);
+            player.sendMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "You have changed vote from \"" + (previousVote.booleanValue() ? "yes" : "no") + "\" to \"" + newVote.toString() + "\"");
+        }
+        else
+            player.sendMessage(ChatColor.DARK_RED + "Vote: " + ChatColor.GRAY + "Your previous vote already was \"" + (previousVote.booleanValue() ? "yes" : "no") + "\"");
+    }
+    
+    public void StartVKick(Player player, Player target, int KickTime)
+    {
+        // Reset voting boolean and ballots
+        isVoting = true;
+        ballots.clear();
+        votingCountdown = 60;
+        votingKickTime = KickTime;
+        isKicking = true;
+        voteTarget = target;
+        
+        // Declare start
+        plugin.BroadcastMessage(ChatColor.DARK_RED + "VoteKick: " + ChatColor.GRAY + "\"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" wants to vote-kick \"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" for " + KickTime + " minutes; please vote using /vote");
+    }
+    
+    public void StartVBan(Player player, Player target, String banReason)
+    {
+        // Reset voting boolean and ballots
+        isVoting = true;
+        ballots.clear();
+        votingCountdown = 60;
+        votingBanReason = banReason;
+        isKicking = false;
+        voteTarget = target;
+        
+        // Declare start
+        plugin.BroadcastMessage(ChatColor.DARK_RED + "VoteBan: " + ChatColor.GRAY + "\"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" wants to vote-ban \"" + ChatColor.WHITE + player.getName() + ChatColor.GRAY + "\" for reason \"" + votingBanReason + "\" please vote using /vote");
     }
     
 }
