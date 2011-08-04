@@ -171,30 +171,28 @@ public class BasicBlockListener extends BlockListener
         if(top == null || top.length() <= 0)
             return;
         
+        // Get the owner
+        Player player = event.getPlayer();
+        if(player == null)
+            return;
+        
         // New kingdom?
-        if(top.equalsIgnoreCase("[kingdom]"))
+        // Can only be placed by the highest rank on the server
+        if(top.equalsIgnoreCase("[kingdom]") || top.equalsIgnoreCase("[store]") || top.equalsIgnoreCase("[temple]"))
         {
-            // We are creating a new kingdom!
-            // Rules: Can only be created within another
-            // kingdom (i.e. kingdoms can only grow) BUT
-            // the "seed" kingdom can be put
-            // by the highest ranking class
-        }
-        
-        // Store?
-        else if(top.equalsIgnoreCase("[store]"))
-        {
-            // We are creating a new store
-            // Rules: must be within a kingdom and only
-            // those within that kingdom can use it
-        }
-        
-        // Church
-        else if(top.equalsIgnoreCase("[church]"))
-        {
-            // We are creating a new store
-            // Rules: must be within a kingdom and only
-            // those within that kingdom can use it
+            // Did we fail?
+            boolean Valid = true;
+            
+            // Do we have an arg? (Only needed for "kingdom" sign)
+            if(event.getLines()[1] != null && event.getLines()[1].length() > 0)
+                Valid = plugin.roleplay.AddSign(player, new BasicSignType("[kingdom]", event.getLines()[1], event.getBlock().getLocation()));
+            // No args needed for store or church
+            else
+                Valid = plugin.roleplay.AddSign(player, new BasicSignType(top.toLowerCase(), null, event.getBlock().getLocation()));
+            
+            // Cancel if failed
+            if(Valid == false)
+                event.setCancelled(true);
         }
         
         // Else, just a regular sign...
