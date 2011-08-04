@@ -182,3 +182,28 @@ commands:
         description: Unlocks a chest or door that the user is facing
         usage: /lock
     
+    buy:
+        description: Buys a given item ID and ammount for a set price
+        usage: /buy <itemID> [ammount; defaults to 1]
+    sell:
+        description: Sells a given item ID and ammount for a set price
+        usage: /sell <itemID> [ammount; defaults to 1]
+    money:
+        description: Tells the user how much Z they have in their wallet
+        usage: /money
+    level:
+        description: Tells the user what level and experiance they have
+        usage: /level
+    kjoin:
+        description: Join a kingdom
+        usage: /kjoin <kingdom>
+    kleave:
+        description: Leave a kingdom
+        usage: /kleave <kingdom>
+    kkick:
+        description: Kick a given player from a kingdom
+        usage: /kkick <kingdom>
+    kingoms:
+        description: Lists all kingdoms
+        usage: /kingdoms
+

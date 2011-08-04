@@ -161,4 +161,42 @@ public class BasicBlockListener extends BlockListener
         // Else, all good
         return true;
     }
+    
+    // Sign has had text placed
+    @Override
+    public void onSignChange(SignChangeEvent event)
+    {
+        // Get the first line
+        String top = event.getLine(0);
+        if(top == null || top.length() <= 0)
+            return;
+        
+        // New kingdom?
+        if(top.equalsIgnoreCase("[kingdom]"))
+        {
+            // We are creating a new kingdom!
+            // Rules: Can only be created within another
+            // kingdom (i.e. kingdoms can only grow) BUT
+            // the "seed" kingdom can be put
+            // by the highest ranking class
+        }
+        
+        // Store?
+        else if(top.equalsIgnoreCase("[store]"))
+        {
+            // We are creating a new store
+            // Rules: must be within a kingdom and only
+            // those within that kingdom can use it
+        }
+        
+        // Church
+        else if(top.equalsIgnoreCase("[church]"))
+        {
+            // We are creating a new store
+            // Rules: must be within a kingdom and only
+            // those within that kingdom can use it
+        }
+        
+        // Else, just a regular sign...
+    }
 }
