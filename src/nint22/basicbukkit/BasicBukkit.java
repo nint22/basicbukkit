@@ -65,6 +65,10 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
     // Global locks list
     public BasicLocks locks = null;
     
+    // Economy and roleplay interface
+    public BasicEconomy economy = null;
+    public BasicRoleplay roleplay = null;
+    
     // A hashmap that contains an outgoing message of the form
     // playername_message as the key and the unix epoch time stamp as the
     // data; we only send messages after we make sure a solid 5 seconds has
@@ -129,6 +133,8 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         protections.save();
         warps.save();
         locks.save();
+        economy.save();
+        roleplay.save();
         
         // Release plugin
         System.out.println("### BasicBukkit plugin disabled.");
@@ -163,6 +169,12 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         
         // Load the locks system
         locks = new BasicLocks(this, new Configuration(loadFile("locks.yml")));
+        
+        // Allocate economy system
+        economy = new BasicEconomy(this, loadFile("prices.csv"), new Configuration(loadFile("bank.yml")));
+        
+        // Allocate roleplay system
+        roleplay = new BasicRoleplay(this, new Configuration(loadFile("signs.yml")), new Configuration(loadFile("experiance.yml")));
         
         // Allocate the spam message check
         MessageTime = new HashMap();
@@ -199,6 +211,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         pm.registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.BLOCK_IGNITE, blockListener, Priority.Normal, this);
         pm.registerEvent(Event.Type.BLOCK_BURN, blockListener, Priority.Normal, this);
+        
+        // Sign catching
+        pm.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
         
         /*** Entity Events ***/
         entityListener = new BasicEntityListener(this);
@@ -285,6 +300,20 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         getCommand("protectinfo").setExecutor(Protection);                      // Done
         getCommand("lock").setExecutor(Protection);                             // Done
         getCommand("unlock").setExecutor(Protection);                           // Done
+        
+        // Only enable of RPG mode is on
+        if(configuration.getBoolean("roleplay", false) == true)
+        {
+            BasicRoleplayCommands Roleplay = new BasicRoleplayCommands(this);
+            getCommand("buy").setExecutor(Roleplay);                                // Done
+            getCommand("sell").setExecutor(Roleplay);                               // Done
+            getCommand("money").setExecutor(Roleplay);                              // Done
+            getCommand("level").setExecutor(Roleplay);                              // Done
+            getCommand("kjoin").setExecutor(Roleplay);                              // Done
+            getCommand("kleave").setExecutor(Roleplay);                             // Done
+            getCommand("kkick").setExecutor(Roleplay);                              // Done
+            getCommand("kingoms").setExecutor(Roleplay);                            // Done
+        }
         
         // Turn off spawn protection
         getServer().setSpawnRadius(0);

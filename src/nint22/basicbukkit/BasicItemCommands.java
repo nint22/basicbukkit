@@ -148,7 +148,7 @@ public class BasicItemCommands implements CommandExecutor
             {
                 // Is item and NOT in lower inventory
                 if(items[i] != null && i >= 9)
-                        items[i].setAmount(0);
+                    items[i].setAmount(0);
             }
             
             // Set the inventory back
