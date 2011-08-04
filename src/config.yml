@@ -6,7 +6,7 @@
 # This source file is developed and maintained by:
 # + Jeremy Bridon jbridon@cores2.com
 # 
-# File: basicbukkit.yml
+# File: config.yml
 # Desc: Basic Bukkit's default configuration file.
 # 
 # ############################################################ #
@@ -340,7 +340,7 @@ chatradius: 128
 
 # Enable RPG and economy features; if set to true all rpg
 # and economy code is enabled
-roleplay: true
+roleplay: false
 
 # A list of messages that are displayed after a certain number of seconds
 # Note that "delay" is time between messages and "start" is the initial wait period
