@@ -67,6 +67,7 @@ groups:
       banned_access: false
       build: true
       worldedit: false
+      exp: 100
     
     # Builder group (trusted)
     - id: 2
@@ -106,6 +107,7 @@ groups:
       banned_access: false
       build: true
       worldedit: false
+      exp: 100
     
     # Moderator group
     - id: 3
@@ -165,6 +167,7 @@ groups:
       banned_access: false
       build: true
       worldedit: false
+      exp: 100
     
     # Administrator group
     - id: 4
@@ -214,6 +217,7 @@ groups:
           - protectadd
           - protectrem
           - protectdel
+          - protectlock
           - iclean
           - mclean
           - mute
@@ -226,6 +230,7 @@ groups:
       banned_access: true
       build: true
       worldedit: false
+      exp: 100
     
     # Server owner
     - id: 5
@@ -276,6 +281,7 @@ groups:
           - protectadd
           - protectrem
           - protectdel
+          - protectlock
           - iclean
           - mclean
           - mute
@@ -291,6 +297,7 @@ groups:
       banned_access: true
       build: true
       worldedit: true
+      exp: 100
 
 # Banned items (cannot create, place, or use)
 banned: 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79

@@ -75,21 +75,9 @@ public class BasicBlockListener extends BlockListener
         
         /*** Kingdom Check ***/
         
-        // Is this event within a kingdom?
-        String Kingdom = plugin.roleplay.GetKingdom(event.getBlock().getLocation());
-        if(Kingdom != null)
-        {
-            // Only members of this kingdom can break blocks
-            String PlayerTitle = plugin.users.GetSpecialTitle(event.getPlayer());
-            if(!PlayerTitle.equalsIgnoreCase(Kingdom))
-            {
-                event.getPlayer().sendMessage(ChatColor.GRAY + "You cannot place a block that is not within your kingdom!");
-                event.setCancelled(true);
-            }
-        }
-        
         // Add experiance regardless
-        plugin.roleplay.AddExperiance(event.getPlayer(), 1);
+        int Exp = (int)Math.max(1.0, ((double)(event.getBlock().getType().getId()) / 128.0) * 10.0);
+        plugin.roleplay.AddExperiance(event.getPlayer(), Exp);
     }
     
     // Did break?
@@ -100,7 +88,7 @@ public class BasicBlockListener extends BlockListener
         if(event.getPlayer() != null)
         {
             Player player = event.getPlayer();
-
+            
             // Can this user build?
             if(!plugin.users.CanBuild(player.getName()))
             {
@@ -116,21 +104,9 @@ public class BasicBlockListener extends BlockListener
         
         /*** Kingdom Check ***/
         
-        // Is this event within a kingdom?
-        String Kingdom = plugin.roleplay.GetKingdom(event.getBlock().getLocation());
-        if(Kingdom != null)
-        {
-            // Only members of this kingdom can break blocks
-            String PlayerTitle = plugin.users.GetSpecialTitle(event.getPlayer());
-            if(!PlayerTitle.equalsIgnoreCase(Kingdom))
-            {
-                event.getPlayer().sendMessage(ChatColor.GRAY + "You cannot break a block that is not within your kingdom!");
-                event.setCancelled(true);
-            }
-        }
-        
         // Add experiance regardless
-        plugin.roleplay.AddExperiance(event.getPlayer(), 1);
+        int Exp = (int)Math.max(1.0, ((double)(event.getBlock().getType().getId()) / 128.0) * 10.0);
+        plugin.roleplay.AddExperiance(event.getPlayer(), Exp);
     }
     
     // Does spread?
@@ -197,39 +173,5 @@ public class BasicBlockListener extends BlockListener
         
         // Else, all good
         return true;
-    }
-    
-    // Sign has had text placed
-    @Override
-    public void onSignChange(SignChangeEvent event)
-    {
-        // Get the first line
-        String top = event.getLine(0);
-        if(top == null || top.length() <= 0)
-            return;
-        
-        // Get the owner
-        Player player = event.getPlayer();
-        if(player == null)
-            return;
-        
-        // New kingdom?
-        // Can only be placed by the highest rank on the server
-        if(top.equalsIgnoreCase("[kingdom]") || top.equalsIgnoreCase("[store]") || top.equalsIgnoreCase("[temple]"))
-        {
-            // Did we fail?
-            boolean Valid = true;
-            
-            // Do we have an arg? (Only needed for "kingdom" sign)
-            if(event.getLines()[1] != null && event.getLines()[1].length() > 0)
-                Valid = plugin.roleplay.AddSign(player, new BasicSignType("[kingdom]", event.getLines()[1], event.getBlock().getLocation()));
-            // No args needed for store or church
-            else
-                Valid = plugin.roleplay.AddSign(player, new BasicSignType(top.toLowerCase(), null, event.getBlock().getLocation()));
-            
-            // Cancel if failed
-            if(Valid == false)
-                event.setCancelled(true);
-        }
     }
 }

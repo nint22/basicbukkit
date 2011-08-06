@@ -246,7 +246,7 @@ public class BasicProtectionCommands implements CommandExecutor
                 }
             }
             
-            // Remove the entire protection
+            // Make sure this is an owner
             LinkedList<String> owners = plugin.protections.GetProtectionOwners(args[0]);
             if(owners == null)
             {
@@ -286,7 +286,7 @@ public class BasicProtectionCommands implements CommandExecutor
                 }
             }
             
-            // Remove the entire protection
+            // Make sure this is a valid owner
             LinkedList<String> owners = plugin.protections.GetProtectionOwners(args[0]);
             if(owners == null)
             {
@@ -307,27 +307,51 @@ public class BasicProtectionCommands implements CommandExecutor
                 player.sendMessage(ChatColor.GRAY + "Protected area \"" + args[0] + "\" now has PVP " + (plugin.protections.GetPVP(args[0]) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled"));
             }
         }
-        else if(plugin.IsCommand(player, command, args, "protectinfo"))
+        else if(plugin.IsCommand(player, command, args, "protectlock"))
         {
-            // Are we on a protected area?
-            String protection = plugin.protections.GetProtectionName(player.getLocation());
-            if(protection != null)
+            // Must include name
+            if(args.length != 1)
             {
-                // Tell the user the name and owners
-                LinkedList<String> owners = plugin.protections.GetProtectionOwners(protection);
-                String ownersString = "";
-                for(int i = 0; i < owners.size(); i++)
+                player.sendMessage(ChatColor.GRAY + "You must include the protected area name");
+                return true;
+            }
+            
+            // Find the closest matching land name
+            LinkedList<String> ProtectionNames = plugin.protections.GetProtectedNames();
+            for(String protectionName :  ProtectionNames)
+            {
+                if(protectionName.startsWith(args[0]))
                 {
-                    ownersString += owners.get(i);
-                    if(i != owners.size() - 1)
-                        ownersString += ", ";
+                    args[0] = protectionName;
+                    break;
                 }
-                
-                // Tell the user this information
-                player.sendMessage(ChatColor.GRAY + "You are in the protected zone \"" + protection + "\", PVP " + (plugin.protections.GetPVP(protection) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled"));
-                player.sendMessage(ChatColor.GRAY + "Owners: " + ChatColor.WHITE + ownersString);
+            }
+            
+            // Make sure this is being run by an owner
+            LinkedList<String> owners = plugin.protections.GetProtectionOwners(args[0]);
+            if(owners == null)
+            {
+                player.sendMessage(ChatColor.GRAY + "Unable to find protected area \"" + args[0] + "\"");
+                return true;
+            }
+            
+            // Is this ia user in the owners list?
+            if(owners.contains(player.getName()) == false)
+            {
+                player.sendMessage(ChatColor.GRAY + "You are not in the owner's list for this area");
+                return true;
             }
             else
+            {
+                // Toggle the locked status
+                plugin.protections.SetLock(args[0], !plugin.protections.GetLock(args[0]));
+                player.sendMessage(ChatColor.GRAY + "Protected area \"" + args[0] + "\" now has lock " + (plugin.protections.GetLock(args[0]) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled"));
+            }
+        }
+        else if(plugin.IsCommand(player, command, args, "protectinfo"))
+        {
+            // If no args, list area
+            if(args.length <= 0)
             {
                 // List all protection names
                 LinkedList<String> names = plugin.protections.GetProtectedNames();
@@ -342,6 +366,22 @@ public class BasicProtectionCommands implements CommandExecutor
                 // Tell the user this information
                 player.sendMessage(ChatColor.GRAY + "All protected areas: (" + plugin.protections.GetProtectionCount() + ")");
                 player.sendMessage(ChatColor.GRAY + "Protected area names: " + ChatColor.WHITE + namesString);
+            }
+            else
+            {
+                // Tell the user the name and owners
+                String protection = args[0];
+                LinkedList<String> owners = plugin.protections.GetProtectionOwners(protection);
+                String ownersString = "";
+                for(int i = 0; i < owners.size(); i++)
+                {
+                    ownersString += ChatColor.WHITE + owners.get(i);
+                    if(i != owners.size() - 1)
+                        ownersString += ChatColor.GRAY + ", ";
+                }
+                
+                // Tell the user this information
+                player.sendMessage(ChatColor.GRAY + "Owners of \"" + protection + "\": " + ownersString);
             }
         }
         else if(plugin.IsCommand(player, command, args, "lock"))

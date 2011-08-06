@@ -46,6 +46,7 @@ public class BasicProtection
     private LinkedList<Pair> corner1 = null;
     private LinkedList<Pair> corner2 = null;
     private LinkedList<Boolean> pvp = null;
+    private LinkedList<Boolean> lock = null;
     
     // Initialize protections
     public BasicProtection(Configuration protections)
@@ -61,6 +62,7 @@ public class BasicProtection
         corner1 = new LinkedList();
         corner2 = new LinkedList();
         pvp = new LinkedList();
+        lock = new LinkedList();
         
         Map<String, ConfigurationNode> protectionData = protections.getNodes("protections");
         
@@ -90,6 +92,15 @@ public class BasicProtection
                     PVP = Boolean.getBoolean((String)map.get("pvp"));
                 else if(map.get("pvp") instanceof Boolean)
                     PVP = (Boolean)map.get("pvp");
+                
+                // Bool can sometimes be saved as string or boolean
+                Boolean Lock = false;
+                if(map.get("lock") == null)
+                    Lock = false;
+                else if(map.get("lock") instanceof String)
+                    Lock = Boolean.getBoolean((String)map.get("lock"));
+                else if(map.get("lock") instanceof Boolean)
+                    Lock = (Boolean)map.get("lock");
                 
                 // Add name and world name
                 names.add(Name); 
@@ -129,6 +140,9 @@ public class BasicProtection
                 
                 // Add pvp flag
                 pvp.add(PVP);
+                
+                // Add lock flag
+                lock.add(Lock);
             }
         }
         
@@ -166,8 +180,9 @@ public class BasicProtection
             // Save geometry
             map.put("geometry", corner1.get(i).x + ", " + corner1.get(i).y + ", " + corner2.get(i).x + ", " + corner2.get(i).y );
             
-            // Save pvp
+            // Save pvp and lock
             map.put("pvp", pvp.get(i).toString());
+            map.put("lock", lock.get(i).toString());
             
             // Save this as all warps
             allProtections.put("protection_" + i, map);
@@ -272,7 +287,8 @@ public class BasicProtection
         owners.add(newOwners);
         corner1.add(p1);
         corner2.add(p2);
-        pvp.add(false); 
+        pvp.add(false);
+        lock.add(false);
         
         // Sanity check with the world string:
         if(owner.getWorld() == null || owner.getWorld().getName() == null | owner.getWorld().getName().length() <= 0)
@@ -292,13 +308,16 @@ public class BasicProtection
         if(index >= 0)
         {
             names.remove(index);
+            world.remove(index);
             owners.remove(index);
             corner1.remove(index);
             corner2.remove(index);
+            pvp.remove(index);
+            lock.remove(index);
         }
     }
-
-    boolean GetPVP(String name)
+    
+    public boolean GetPVP(String name)
     {
         // Get the index name
         int index = names.indexOf(name);
@@ -307,11 +326,28 @@ public class BasicProtection
         else
             return pvp.get(index);
     }
-
-    void SetPVP(String name, boolean flag)
+    
+    public void SetPVP(String name, boolean flag)
     {
         // Get the index name
         int index = names.indexOf(name);
         pvp.set(index, flag);
+    }
+    
+    public boolean GetLock(String name)
+    {
+        // Get the index name
+        int index = names.indexOf(name);
+        if(index < 0)
+            return false;
+        else
+            return lock.get(index);
+    }
+    
+    public void SetLock(String name, boolean flag)
+    {
+        // Get the index name
+        int index = names.indexOf(name);
+        lock.set(index, flag);
     }
 }

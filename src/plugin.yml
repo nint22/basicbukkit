@@ -171,9 +171,12 @@ commands:
     protectpvp:
         description: Toggles an area's PvP status
         usage: /protectpvp <area name>
+    protectlock:
+        description: Toggles an area's lock; prevents non-owners from walking into it
+        usage: /protectlock <area name>
     protectinfo:
-        description: Prints off all protected area info. or the one you are in
-        usage: /protectinfo
+        description: Prints off all protected area names or a given areas information
+        usage: /protectinfo [area name]
     
     lock:
         description: Locks a chest or door that the user is facing; only the owner may open
@@ -182,31 +185,10 @@ commands:
         description: Unlocks a chest or door that the user is facing
         usage: /lock
     
-    buy:
-        description: Buys a given item ID and ammount for a set price
-        usage: /buy <itemID> [ammount; defaults to 1]
-    sell:
-        description: Sells a given item ID and ammount for a set price
-        usage: /sell <itemID> [ammount; defaults to 1]
-    money:
-        description: Tells the user how much Z they have in their wallet
-        usage: /money
-    price:
-        description: Tells the user how much the given item costs
-        usage: /price <itemID>
     level:
         description: Tells the user what level and experiance they have
         usage: /level
-    kjoin:
-        description: Join a kingdom
-        usage: /kjoin <kingdom>
-    kleave:
-        description: Leave your current kingdom
-        usage: /kleave
-    kkick:
-        description: Kick a given player from a kingdom
-        usage: /kkick <kingdom> <player name>
-    kingdoms:
-        description: Lists all kingdoms
-        usage: /kingdoms
-
+    exp:
+        description: Tells the user what level and experiance they have
+        usage: /exp
+    
