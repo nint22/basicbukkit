@@ -47,6 +47,7 @@ public class BasicUsers
     private LinkedList<Boolean> GroupBannedItems;   // True if this group can access banned items
     private LinkedList<Boolean> GroupCanBuild;      // Can this group build? (i.e. break and place?)
     private LinkedList<Boolean> GroupCanWorldEdit;  // Group can use the world edit plugin
+    private LinkedList<Integer> GroupExp;           // The minimum number of experiance for this group
     
     // All kicked users time (unix time)
     // The unix epoch time when a user can join back
@@ -90,6 +91,7 @@ public class BasicUsers
         GroupBannedItems = new LinkedList();
         GroupCanBuild = new LinkedList();
         GroupCanWorldEdit = new LinkedList();
+        GroupExp = new LinkedList();
         
         // Create new hash map
         KickedTimes = new HashMap();
@@ -116,6 +118,9 @@ public class BasicUsers
             Boolean BannedItems = (Boolean)GroupData.get("banned_access");
             Boolean CanBuild = (Boolean)GroupData.get("build");
             Boolean CanWorldEdit = (Boolean)GroupData.get("worldedit"); 
+            Integer MinExperiance = (Integer)GroupData.get("exp");
+            if(MinExperiance == null)
+                MinExperiance = new Integer(-1);
             
             // Convert to string data (commands)
             String[] TempCommands = new String[Commands.size()];
@@ -130,6 +135,7 @@ public class BasicUsers
             GroupBannedItems.add(BannedItems);
             GroupCanBuild.add(CanBuild);
             GroupCanWorldEdit.add(CanWorldEdit);
+            GroupExp.add(MinExperiance);
         }
         
         // For each user?
@@ -212,6 +218,14 @@ public class BasicUsers
                 OpNames.add(UserName);
                 OpTitle.add("");
                 OpGroup.add(UserGroupID);
+            }
+            
+            // Set the experiance back to this level
+            if(plugin.configuration.getBoolean("roleplay", false))
+            {
+                String groupName = plugin.users.GetGroupName(UserName);
+                int minExp = plugin.users.GetGroupExp(groupName);
+                plugin.roleplay.SetExperiance(UserName, minExp);
             }
             
             // All done
@@ -626,6 +640,16 @@ public class BasicUsers
         
         // Get group's build status
         return GroupCanWorldEdit.get(GroupID).booleanValue();
+    }
+    
+    public Integer GetGroupExp(String groupName)
+    {
+        // Get group index
+        int index = GroupName.indexOf(groupName);
+        if(index < 0)
+            return -1;
+        else
+            return GroupExp.get(index);
     }
     
     public boolean IsMute(Player target)

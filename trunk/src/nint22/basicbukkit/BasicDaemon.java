@@ -190,7 +190,6 @@ public class BasicDaemon extends Thread
                 plugin.protections.save();
                 plugin.warps.save();
                 plugin.locks.save();
-                plugin.economy.save();
                 plugin.roleplay.save();
                 
                 // Tell the server we're done!

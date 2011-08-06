@@ -23,6 +23,9 @@ import org.bukkit.util.config.ConfigurationNode;
 
 public class BasicWarps
 {
+    // Plugin interface
+    BasicBukkit plugin;
+    
     // Configuration file full of warps
     private Configuration warps;
     
@@ -41,6 +44,7 @@ public class BasicWarps
     public BasicWarps(BasicBukkit plugin, Configuration warps)
     {
         // Save warps file handle
+        this.plugin = plugin;
         this.warps = warps;
         warps.load();
         
@@ -236,6 +240,7 @@ public class BasicWarps
     {
         // Save this spawn
         spawn = location;
+        location.getWorld().setSpawnLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
     
     // Return spawn loction; may return null if not set...
