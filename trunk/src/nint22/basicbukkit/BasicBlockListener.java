@@ -72,6 +72,24 @@ public class BasicBlockListener extends BlockListener
         /*** Protection Check ***/
         
         event.setCancelled(!CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event));
+        
+        /*** Kingdom Check ***/
+        
+        // Is this event within a kingdom?
+        String Kingdom = plugin.roleplay.GetKingdom(event.getBlock().getLocation());
+        if(Kingdom != null)
+        {
+            // Only members of this kingdom can break blocks
+            String PlayerTitle = plugin.users.GetSpecialTitle(event.getPlayer());
+            if(!PlayerTitle.equalsIgnoreCase(Kingdom))
+            {
+                event.getPlayer().sendMessage(ChatColor.GRAY + "You cannot place a block that is not within your kingdom!");
+                event.setCancelled(true);
+            }
+        }
+        
+        // Add experiance regardless
+        plugin.roleplay.AddExperiance(event.getPlayer(), 1);
     }
     
     // Did break?
@@ -93,7 +111,26 @@ public class BasicBlockListener extends BlockListener
         }
         
         /*** Protection Check ***/
+        
         event.setCancelled(!CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event));
+        
+        /*** Kingdom Check ***/
+        
+        // Is this event within a kingdom?
+        String Kingdom = plugin.roleplay.GetKingdom(event.getBlock().getLocation());
+        if(Kingdom != null)
+        {
+            // Only members of this kingdom can break blocks
+            String PlayerTitle = plugin.users.GetSpecialTitle(event.getPlayer());
+            if(!PlayerTitle.equalsIgnoreCase(Kingdom))
+            {
+                event.getPlayer().sendMessage(ChatColor.GRAY + "You cannot break a block that is not within your kingdom!");
+                event.setCancelled(true);
+            }
+        }
+        
+        // Add experiance regardless
+        plugin.roleplay.AddExperiance(event.getPlayer(), 1);
     }
     
     // Does spread?
@@ -194,7 +231,5 @@ public class BasicBlockListener extends BlockListener
             if(Valid == false)
                 event.setCancelled(true);
         }
-        
-        // Else, just a regular sign...
     }
 }

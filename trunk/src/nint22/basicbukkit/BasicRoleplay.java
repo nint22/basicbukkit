@@ -64,6 +64,7 @@ public class BasicRoleplay
     
     // Player experiance map
     private HashMap<String, Integer> Experiance;
+    private HashMap<String, Integer> Level;
     
     // Sign radius
     static double SignRadius = 32.0;
@@ -79,8 +80,40 @@ public class BasicRoleplay
         // Allocate the needed data structures
         Signs = new LinkedList();
         Experiance = new HashMap();
+        Level = new HashMap();
         
-        // Load data from the configuration files
+        // Load all signs
+        signSave.load();
+        for(String key : signSave.getKeys())
+        {
+            // Get the sign arg and location
+            String SignType = signSave.getString(key + ".SignType", "");
+            String SignArg = signSave.getString(key + ".SignArg", "");
+            
+            double x = signSave.getInt(key + ".x", 0);
+            double y = signSave.getInt(key + ".y", 0);
+            double z = signSave.getInt(key + ".z", 0);
+            String World = signSave.getString(key + ".World", "");
+            
+            // Create a sign and add it
+            BasicSignType Sign = new BasicSignType(SignType, SignArg, new Location(plugin.getServer().getWorld(World), x, y, z));
+            Signs.add(Sign);
+        }
+        
+        // Load all experiances
+        experianceSave.load();
+        for(String key : experianceSave.getKeys())
+        {
+            // Get the user's experiance
+            int exp = experianceSave.getInt(key + ".experience", 0);
+            int level = experianceSave.getInt(key + ".level", 0);
+            
+            // Create a sign and add it
+            Experiance.put(key, exp);
+        }
+        
+        // How much did we load?
+        System.out.println("### BasicBukkit Loaded " + Signs.size() + " signs and " + Experiance.size() + " experienced users");
     }
     
     // Write to disk each user's wallet
@@ -113,15 +146,19 @@ public class BasicRoleplay
         
         /*** EXPERIANCE ***/
         
-        
         // Load latest file
         experianceSave.load();
         
         // For all users
         for(String userName : Experiance.keySet())
         {
+            // Update experiance
+            HashMap<String, Object> Block = new HashMap();
+            Block.put("experience", Experiance.get(userName));
+            Block.put("level", Level.get(userName));
+            
             // Save this user to the map
-            signSave.setProperty(userName, Experiance.get(userName));
+            experianceSave.setProperty(userName, Block);
         }
         
         // Save file
@@ -139,6 +176,17 @@ public class BasicRoleplay
             return experiance.intValue();
     }
     
+    // Get level for player
+    public int GetLevel(Player player)
+    {
+        // Add experiance into the hashmap
+        Integer level = Level.get(player.getName());
+        if(level == null)
+            return 0;
+        else
+            return level.intValue();
+    }
+    
     // Add to a player's experiance
     public void AddExperiance(Player player, int exp)
     {
@@ -151,39 +199,54 @@ public class BasicRoleplay
         
         // Get the new experiance
         experiance = Experiance.get(player.getName());
+        Integer level = Level.get(player.getName());
+        if(level == null)
+            level = new Integer(0);
+        
+        // Get user's GID so we don't level down if an op explcitily set us
+        int UserGID = plugin.users.GetGroupID(player.getName());
         
         // Did we level up?
         // Based on the header table
-        if(experiance >= 10)
+        if(experiance >= 10 && level.intValue() < 1 && UserGID < 1)
         {
             player.sendMessage(ChatColor.GRAY + "You have leveled up! You are now level " + ChatColor.RED + 1);
             plugin.users.SetUserGroup(player.getName(), 1);
+            Level.put(player.getName(), 1);
         }
-        else if(experiance >= 100)
+        else if(experiance >= 100 && level.intValue() < 2 && UserGID < 2)
         {
             player.sendMessage(ChatColor.GRAY + "You have leveled up! You are now level " + ChatColor.RED + 2);
             plugin.users.SetUserGroup(player.getName(), 2);
+            Level.put(player.getName(), 2);
         }
-        else if(experiance >= 500)
+        else if(experiance >= 500 && level.intValue() < 3 && UserGID < 3)
         {
             player.sendMessage(ChatColor.GRAY + "You have leveled up! You are now level " + ChatColor.RED + 3);
             plugin.users.SetUserGroup(player.getName(), 3);
+            Level.put(player.getName(), 3);
         }
-        else if(experiance >= 1000)
+        else if(experiance >= 1000 && level.intValue() < 4 && UserGID < 4)
         {
             player.sendMessage(ChatColor.GRAY + "You have leveled up! You are now level " + ChatColor.RED + 4);
             plugin.users.SetUserGroup(player.getName(), 4);
+            Level.put(player.getName(), 4);
         }
-        else if(experiance >= 5000)
+        else if(experiance >= 5000 && level.intValue() < 5 && UserGID < 5)
         {
             player.sendMessage(ChatColor.GRAY + "You have leveled up! You are now level " + ChatColor.RED + 5);
             plugin.users.SetUserGroup(player.getName(), 5);
+            Level.put(player.getName(), 5);
         }
-        else if(experiance >= 10000)
+        else if(experiance >= 10000 && level.intValue() < 6 && UserGID < 6)
         {
             player.sendMessage(ChatColor.GRAY + "You have leveled up! You are now level " + ChatColor.RED + 6);
             plugin.users.SetUserGroup(player.getName(), 6);
+            Level.put(player.getName(), 6);
         }
+        
+        // Add cash based on level AND experiance
+        plugin.economy.GiveMoney(player, exp * (level.intValue() + 1));
     }
     
     // Save a  new sign; if it failes, return false
@@ -222,6 +285,10 @@ public class BasicRoleplay
                 // Are we coliding with any other kingdoms? Then cancel
                 for(BasicSignType Sign : Signs)
                 {
+                    // Ignore if not in same world
+                    if(Sign.SignLoc.getWorld() != newSign.SignLoc.getWorld())
+                        continue;
+                    
                     // We only care if it is a kingdom sign
                     if(Sign.SignType.equalsIgnoreCase("[kingdom]") == false)
                         continue;
@@ -280,6 +347,10 @@ public class BasicRoleplay
             // Are we coliding with any other kingdoms? Then cancel
             for(BasicSignType Sign : Signs)
             {
+                // Ignore if not in same world
+                if(Sign.SignLoc.getWorld() != newSign.SignLoc.getWorld())
+                    continue;
+                
                 // We only care if it is a kingdom sign
                 if(Sign.SignType.equalsIgnoreCase("[kingdom]") == false)
                     continue;
@@ -317,6 +388,10 @@ public class BasicRoleplay
             // Are we coliding with any other kingdoms? Then cancel
             for(BasicSignType Sign : Signs)
             {
+                // Ignore if not in same world
+                if(Sign.SignLoc.getWorld() != newSign.SignLoc.getWorld())
+                    continue;
+                
                 // We only care if it is a kingdom sign
                 if(Sign.SignType.equalsIgnoreCase("[kingdom]") == false)
                     continue;
@@ -356,6 +431,10 @@ public class BasicRoleplay
         
         for(BasicSignType Sign : Signs)
         {
+            // Ignore if not in same world
+            if(Sign.SignLoc.getWorld() != location.getWorld())
+                continue;
+            
             // Are we coliding?
             if(Sign.SignLoc.distance(location) <= SignRadius)
                 close.add(Sign);
@@ -384,5 +463,87 @@ public class BasicRoleplay
         for(String key : Kingdoms.keySet())
             temp[index++] = key;
         return temp;
+    }
+    
+    // Return the kingdom name the player is in
+    public String GetKingdom(Location loc)
+    {
+        // For each sign
+        for(BasicSignType Sign : Signs)
+        {
+            // Ignore if not in same world
+            if(Sign.SignLoc.getWorld() != loc.getWorld())
+                continue;
+            
+            // We only care if it is a kingdom sign
+            if(Sign.SignType.equalsIgnoreCase("[kingdom]") && Sign.SignLoc.distance(loc) <= SignRadius)
+                return Sign.SignArg;
+        }
+        
+        // never found
+        return null;
+    }
+
+    // Returns true if the player is in his/her kingdom-owned temple
+    boolean CanBeHealed(Player player)
+    {
+        // What is this player's kingdom?
+        String PlayerKingdom = plugin.users.GetSpecialTitle(player);
+        String InKingdom = GetKingdom(player.getLocation());
+        
+        // Do we have a match?
+        if(!PlayerKingdom.equalsIgnoreCase(InKingdom))
+            return false;
+        
+        // Since we match, is there any temple's near by AND within the same kingdom
+        for(BasicSignType Sign : Signs)
+        {
+            // Ignore if not in same world
+            if(Sign.SignLoc.getWorld() != player.getLocation().getWorld())
+                continue;
+            
+            if(Sign.SignType.equalsIgnoreCase("[temple]") && Sign.SignLoc.distance(player.getLocation()) <= SignRadius && GetKingdom(Sign.SignLoc).equalsIgnoreCase(InKingdom))
+                return true;
+        }
+        
+        // Nothing was found...
+        return false;
+    }
+    
+    // Returns true if the player can buy or sell
+    boolean CanTrade(Player player)
+    {
+        // Is this user near his or her own kingdom?
+        String UserKingdom = plugin.users.GetSpecialTitle(player);
+        String InKingdom = plugin.roleplay.GetKingdom(player.getLocation());
+
+        // Are they in the same kingdom?
+        if(!UserKingdom.equalsIgnoreCase(InKingdom))
+            return false;
+        
+        // Is this user near a store sign?
+        for(BasicSignType Sign : Signs)
+        {
+            // Ignore if not in same world
+            if(Sign.SignLoc.getWorld() != player.getLocation().getWorld())
+                continue;
+            
+            if(Sign.SignType.equalsIgnoreCase("[store]") && Sign.SignLoc.distance(player.getLocation()) <= SignRadius && GetKingdom(Sign.SignLoc).equalsIgnoreCase(InKingdom))
+                return true;
+        }
+        
+        // Never found
+        return false;
+    }
+
+    // Returns true if the is a valid kingdom
+    boolean IsKingdom(String Kingdom)
+    {
+        // Linear search and comparison
+        String[] kingdoms = GetKingdoms();
+        for(String name : kingdoms)
+            if(name.equalsIgnoreCase(Kingdom))
+                return true;
+        return false;
     }
 }

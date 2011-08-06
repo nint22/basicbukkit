@@ -655,6 +655,16 @@ public class BasicUsers
             OpTitle.set(UserIndex, NewTitle);
     }
     
+    public String GetSpecialTitle(Player target)
+    {
+        // Is the player in the current groups?
+        int UserIndex = OpNames.indexOf(target.getName());
+        if(UserIndex >= 0)
+            return OpTitle.get(UserIndex);
+        else
+            return "";
+    }
+    
     public boolean IsHidden(Player target)
     {
         Boolean isHidden = HiddenMode.get(target.getName());

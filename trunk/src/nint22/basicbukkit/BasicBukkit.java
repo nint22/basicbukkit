@@ -147,6 +147,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         // Register all plugin events
         PluginManager pm = getServer().getPluginManager();
         
+        // Force load the roleplay file so at least it exists
+        loadFile("config_roleplay.yml");
+        
         // Load config file
         configuration = new Configuration(loadFile("config.yml"));
         configuration.load();
@@ -307,12 +310,13 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
             BasicRoleplayCommands Roleplay = new BasicRoleplayCommands(this);
             getCommand("buy").setExecutor(Roleplay);                                // Done
             getCommand("sell").setExecutor(Roleplay);                               // Done
+            getCommand("price").setExecutor(Roleplay);                              // Done
             getCommand("money").setExecutor(Roleplay);                              // Done
             getCommand("level").setExecutor(Roleplay);                              // Done
             getCommand("kjoin").setExecutor(Roleplay);                              // Done
             getCommand("kleave").setExecutor(Roleplay);                             // Done
             getCommand("kkick").setExecutor(Roleplay);                              // Done
-            getCommand("kingoms").setExecutor(Roleplay);                            // Done
+            getCommand("kingdoms").setExecutor(Roleplay);                           // Done
         }
         
         // Turn off spawn protection

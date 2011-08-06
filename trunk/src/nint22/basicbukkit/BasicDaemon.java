@@ -184,9 +184,14 @@ public class BasicDaemon extends Thread
                 
                 // Attempt to do a full reload..
                 plugin.getServer().savePlayers();
-                plugin.protections.save();
+                
+                // Save all users and protection data
                 plugin.users.save();
+                plugin.protections.save();
                 plugin.warps.save();
+                plugin.locks.save();
+                plugin.economy.save();
+                plugin.roleplay.save();
                 
                 // Tell the server we're done!
                 plugin.BroadcastMessage(ChatColor.RED + "BasicBukkit: Server refresh done!");
