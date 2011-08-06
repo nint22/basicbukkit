@@ -24,17 +24,308 @@ groups:
     
     # Guest group (can do nothing except observe)
     - id: 0
-      name: Guest
-      pre: "&7Guest"
+      name: Beggar
+      pre: "Beggar"
       commands:
           - help
           - motd
           - clear
           - who
       banned_access: false
+      build: false
+      worldedit: false
+      
+    # Roleplay groups
+    - id: 1
+      name: Builder
+      pre: "Builder"
+      commands:
+          - help
+          - motd
+          - clear
+          - who
+          - lock
+          - unlock
+          - buy
+          - sell
+          - price
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+      banned_access: false
       build: true
       worldedit: false
-
+      
+    # Roleplay groups
+    - id: 2
+      name: Soldier
+      pre: "Soldier"
+      commands:
+          - help
+          - motd
+          - clear
+          - who
+          - lock
+          - unlock
+          - buy
+          - sell
+          - price
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+      banned_access: false
+      build: true
+      worldedit: false
+      
+    # Roleplay groups
+    - id: 3
+      name: Dragoon
+      pre: "Dragoon"
+      commands:
+          - help
+          - motd
+          - clear
+          - who
+          - lock
+          - unlock
+          - buy
+          - sell
+          - price
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+      banned_access: false
+      build: true
+      worldedit: false
+      
+    # Roleplay groups
+    - id: 4
+      name: Knight
+      pre: "Knight"
+      commands:
+          - help
+          - motd
+          - clear
+          - who
+          - lock
+          - unlock
+          - buy
+          - sell
+          - price
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+      banned_access: false
+      build: true
+      worldedit: false
+      
+    # Roleplay groups
+    - id: 5
+      name: Bishop
+      pre: "Bishop"
+      commands:
+          - help
+          - motd
+          - clear
+          - who
+          - lock
+          - unlock
+          - buy
+          - sell
+          - price
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+      banned_access: true
+      build: true
+      worldedit: false
+      
+    # Roleplay groups
+    - id: 6
+      name: King
+      pre: "King"
+      commands:
+          - help
+          - motd
+          - clear
+          - who
+          - lock
+          - unlock
+          - buy
+          - sell
+          - price
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+      banned_access: true
+      build: true
+      worldedit: true
+      
+    # Server owner
+    - id: 7
+      name: Moderator
+      pre: "&4Owner"
+      commands:
+          - god
+          - pvp
+          - help
+          - motd
+          - clear
+          - who
+          - where
+          - kick
+          - ban
+          - unban
+          - unkick
+          - who
+          - time
+          - weather
+          - kit
+          - item
+          - i
+          - give
+          - clean
+          - cleanall
+          - op
+          - kill
+          - say
+          - tp
+          - warp
+          - jump
+          - list
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - protectinfo
+          - afk
+          - msg
+          - spawn
+          - setspawn
+          - top
+          - p1
+          - p2
+          - protect
+          - protectpvp
+          - protectadd
+          - protectrem
+          - protectdel
+          - iclean
+          - mclean
+          - mute
+          - scout
+          - hide
+          - title
+          - mob
+          - vkick
+          - vban
+          - vote
+          - lock
+          - unlock
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+          - price
+          - buy
+          - sell
+      banned_access: true
+      build: true
+      worldedit: true
+      
+    # Server owner
+    - id: 8
+      name: Owner
+      pre: "&4Owner"
+      commands:
+          - god
+          - pvp
+          - help
+          - motd
+          - clear
+          - who
+          - where
+          - kick
+          - ban
+          - unban
+          - unkick
+          - who
+          - time
+          - weather
+          - kit
+          - item
+          - i
+          - give
+          - clean
+          - cleanall
+          - op
+          - kill
+          - say
+          - tp
+          - warp
+          - jump
+          - list
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - protectinfo
+          - afk
+          - msg
+          - spawn
+          - setspawn
+          - top
+          - p1
+          - p2
+          - protect
+          - protectpvp
+          - protectadd
+          - protectrem
+          - protectdel
+          - iclean
+          - mclean
+          - mute
+          - scout
+          - hide
+          - title
+          - mob
+          - vkick
+          - vban
+          - vote
+          - lock
+          - unlock
+          - money
+          - level
+          - kjoin
+          - kleave
+          - kkick
+          - kingdoms
+          - price
+          - buy
+          - sell
+      banned_access: true
+      build: true
+      worldedit: true
 
 # Banned items (cannot create, place, or use)
 banned: 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79

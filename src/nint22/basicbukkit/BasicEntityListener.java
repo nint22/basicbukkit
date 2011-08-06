@@ -75,6 +75,19 @@ public class BasicEntityListener extends EntityListener
         String protectionName = plugin.protections.GetProtectionName(player.getLocation());
         if((protectionName != null && plugin.protections.GetPVP(protectionName)) && (event.getCause() == DamageCause.ENTITY_ATTACK))
             event.setCancelled(false);
+        
+        // Reduce damage based on level IF we are in RPG mode
+        if(plugin.configuration.getBoolean("roleplay", false))
+        {
+            double GroupCount = plugin.users.GetGroupIDs().size();
+            double GroupIndex = plugin.users.GetGroupID(player.getName());
+            
+            int ReducedDamage = (int)((double)event.getDamage() * (((GroupCount + 1) - GroupIndex) / GroupCount));
+            if(ReducedDamage <= 0)
+                ReducedDamage = 1;
+            
+            event.setDamage(ReducedDamage);
+        }
     }
     
     // When the player dies, make a global message

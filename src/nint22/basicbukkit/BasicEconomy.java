@@ -59,7 +59,7 @@ public class BasicEconomy
                 
                 // Get key-value pairs
                 String ItemID = data[0].trim();
-                String ItemPrice = data[1].trim();
+                String ItemPrice = data[2].trim();
                 
                 // Put into dictionary
                 Prices.put(new Integer(ItemID), new Integer(ItemPrice));
@@ -69,6 +69,7 @@ public class BasicEconomy
         catch(Exception e)
         {
             System.out.println("### BasicBukkit is unable to read the items.csv file: " + e.getMessage());
+            System.exit(0);
         }
         
         // Read from the bank
@@ -83,7 +84,7 @@ public class BasicEconomy
         }
         
         // Print out how much we loaded
-        System.out.println("### BasicBucket loaded economy data for " + Wallets.size() + " users");
+        System.out.println("### BasicBucket loaded economy data for " + Wallets.size() + " users and " + Prices.size() + " prices");
     }
     
     // Write to disk each user's wallet
@@ -176,13 +177,27 @@ public class BasicEconomy
     // Attempt to sell an item
     public void SellItem(Player player, int ItemID, int Ammount)
     {
-        
+        player.sendMessage(ChatColor.RED + "NOT YET IMPLEMENTED");
     }
     
     // Get the given player's wallet / cash ammount
     public int GetMoney(Player player)
     {
-        return Wallets.get(player.getName());
+        Integer money = Wallets.get(player.getName());
+        if(money == null)
+            return 0;
+        else
+            return money.intValue();
+    }
+    
+    // Give money silentry
+    public void GiveMoney(Player player, int ammount)
+    {
+        Integer OriginalAmmount = Wallets.get(player.getName());
+        if(OriginalAmmount == null)
+            OriginalAmmount = new Integer(0);
+        
+        Wallets.put(player.getName(), ammount + OriginalAmmount.intValue());
     }
     
     // Give the player money for a reason
@@ -190,9 +205,19 @@ public class BasicEconomy
     {
         Integer OriginalAmmount = Wallets.get(player.getName());
         if(OriginalAmmount == null)
-            return;
+            OriginalAmmount = new Integer(0);
         
         Wallets.put(player.getName(), ammount + OriginalAmmount.intValue());
         player.sendMessage(ChatColor.GRAY + "Given " + ammount + " for \"" + reason + "\"");
+    }
+    
+    // Returns the price of the item, returning -1 if not found
+    int GetPrice(int ItemID)
+    {
+        Integer Price = Prices.get(ItemID);
+        if(Price == null)
+            return -1;
+        else
+            return Price.intValue();
     }
 }

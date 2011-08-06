@@ -191,6 +191,9 @@ commands:
     money:
         description: Tells the user how much Z they have in their wallet
         usage: /money
+    price:
+        description: Tells the user how much the given item costs
+        usage: /price <itemID>
     level:
         description: Tells the user what level and experiance they have
         usage: /level
@@ -198,12 +201,12 @@ commands:
         description: Join a kingdom
         usage: /kjoin <kingdom>
     kleave:
-        description: Leave a kingdom
-        usage: /kleave <kingdom>
+        description: Leave your current kingdom
+        usage: /kleave
     kkick:
         description: Kick a given player from a kingdom
-        usage: /kkick <kingdom>
-    kingoms:
+        usage: /kkick <kingdom> <player name>
+    kingdoms:
         description: Lists all kingdoms
         usage: /kingdoms
 
