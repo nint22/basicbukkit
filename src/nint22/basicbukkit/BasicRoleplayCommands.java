@@ -43,12 +43,23 @@ public class BasicRoleplayCommands implements CommandExecutor
             return false;
         Player player = (Player) sender;
         
-        if(plugin.IsCommand(player, command, args, "level"))
+        if(plugin.IsCommand(player, command, args, "level") || plugin.IsCommand(player, command, args, "exp"))
         {
             // Get the player's experiance
             int Experiance = plugin.roleplay.GetExperiance(player);
             int Level = plugin.users.GetGroupID(player.getName());
             player.sendMessage(ChatColor.GRAY + "Level " + ChatColor.RED + Level + ChatColor.GRAY + "; experiance points: " + ChatColor.RED + String.format("%,d", Experiance));
+        }
+        else if(plugin.IsCommand(player, command, args, "ranks"))
+        {
+            // List all ranks
+            int index = 0;
+            for(String group : plugin.users.GetGroupNames())
+            {
+                // Get this groups exp
+                int exp = plugin.users.GetGroupExp(group);
+                player.sendMessage(ChatColor.GRAY + "Rank #" + index++ + ": \"" + group + ChatColor.GRAY + "\", required exp: " + ChatColor.RED + exp);
+            }
         }
         
         // Done - parsed

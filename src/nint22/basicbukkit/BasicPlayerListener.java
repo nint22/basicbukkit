@@ -151,20 +151,20 @@ public class BasicPlayerListener extends PlayerListener
         // Check if this user can go into the zone
         // Is this location within the bounds of the width and length?
         LinkedList<String> Owners = plugin.protections.GetProtectionOwners(newZone);
-        if(Owners != null && !Owners.contains(event.getPlayer().getName()))
+        if(Owners != null && plugin.protections.GetLock(newZone) && !Owners.contains(event.getPlayer().getName()))
         {
             // Warp back player
             event.getPlayer().teleport(event.getFrom());
-            plugin.SendMessage(event.getPlayer(), ChatColor.RED + "You cannot enter the \"" + newZone + "\" protected area; it is locked, you must be an owner");
+            plugin.SendMessage(event.getPlayer(), ChatColor.RED + "You cannot enter the \"" + ChatColor.GREEN + newZone + ChatColor.BLUE + "\" protected area; it is locked, you must be an owner");
             return;
         }
         
         // Did we go from a non-zone to a new zone
         if(oldZone == null && newZone != null)
         {
-            event.getPlayer().sendMessage(ChatColor.BLUE + "You have walked into the protected zone \"" + newZone + "\", "
-                    + ChatColor.BLUE + "PVP is " + (plugin.protections.GetPVP(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled, "
-                    + ChatColor.BLUE + "Lock is " + (plugin.protections.GetLock(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled")));
+            event.getPlayer().sendMessage(ChatColor.BLUE + "You have walked into the protected zone \"" + ChatColor.GREEN + newZone + ChatColor.BLUE + "\"");
+            event.getPlayer().sendMessage(ChatColor.BLUE + "PVP is " + (plugin.protections.GetPVP(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled, "
+                    + ChatColor.BLUE + "Lock is " + (plugin.protections.GetLock(newZone) ? ChatColor.GREEN + "enabled" : ChatColor.RED + "disabled")));
             PlayerProtectionLocations.put(event.getPlayer().getName(), newZone);
         }
         // Did we get out of a zone to a non-zone
@@ -176,8 +176,8 @@ public class BasicPlayerListener extends PlayerListener
         // Did we change zones?
         else if(oldZone != null && newZone != null && !newZone.equalsIgnoreCase(oldZone))
         {
-            event.getPlayer().sendMessage(ChatColor.BLUE + "You have left the protected zone \"" + oldZone + "\" and are now in \"" + newZone + "\", "
-                    + ChatColor.BLUE + "PVP is " + (plugin.protections.GetPVP(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled, "
+            event.getPlayer().sendMessage(ChatColor.BLUE + "You have left the protected zone \"" + oldZone + "\" and are now in \"" + ChatColor.GREEN + newZone + ChatColor.BLUE + "\"");
+            event.getPlayer().sendMessage(ChatColor.BLUE + "PVP is " + (plugin.protections.GetPVP(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled, "
                     + ChatColor.BLUE + "Lock is " + (plugin.protections.GetLock(newZone) ? ChatColor.RED + "enabled" : ChatColor.GREEN + "disabled")));
             PlayerProtectionLocations.put(event.getPlayer().getName(), newZone);
         }
