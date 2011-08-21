@@ -118,6 +118,7 @@ public class BasicUsers
             Boolean BannedItems = (Boolean)GroupData.get("banned_access");
             Boolean CanBuild = (Boolean)GroupData.get("build");
             Boolean CanWorldEdit = (Boolean)GroupData.get("worldedit"); 
+            
             Integer MinExperiance = (Integer)GroupData.get("exp");
             if(MinExperiance == null)
                 MinExperiance = new Integer(-1);

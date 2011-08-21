@@ -191,4 +191,7 @@ commands:
     exp:
         description: Tells the user what level and experiance they have
         usage: /exp
+    ranks:
+        description: Lists all ranks and required experiance points
+        usage: /ranks
     

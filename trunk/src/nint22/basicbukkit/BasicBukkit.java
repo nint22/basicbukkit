@@ -303,6 +303,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
             BasicRoleplayCommands Roleplay = new BasicRoleplayCommands(this);
             getCommand("level").setExecutor(Roleplay);                          // Done
             getCommand("exp").setExecutor(Roleplay);                            // Done
+            getCommand("ranks").setExecutor(Roleplay);                          // Done
         }
         
         // Turn off spawn protection

@@ -38,6 +38,16 @@ public class BasicEntityListener extends EntityListener
         AllowTNT = plugin.configuration.getBoolean("allowTNT", false);
     }
     
+    // Do not allow spawning within protected zones
+    @Override
+    public void onCreatureSpawn(CreatureSpawnEvent event)
+    {
+        // Is this within a protected zone
+        String name = plugin.protections.GetProtectionName(event.getLocation());
+        if(name != null)
+            event.setCancelled(true);
+    }
+    
     // Disable priming if needed
     @Override
     public void onExplosionPrime(ExplosionPrimeEvent event)
