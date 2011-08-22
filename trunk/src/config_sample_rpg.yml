@@ -1,0 +1,609 @@
+# ############################################################ #
+# 
+# BasicBukkit - Basic commands for any new MineCraft server
+# Copyright 2011 Core S2 - See License.txt for info
+# 
+# This source file is developed and maintained by:
+# + Jeremy Bridon jbridon@cores2.com
+# 
+# File: config_sample_rpg.yml
+# Desc: Basic Bukkit's default configuration file for a
+# roleplay server.
+# 
+# ############################################################ #
+
+# Message of the Day
+motd:
+    - "&f-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+    - "&6Welcome to a BasicBukkit server! V1.2"
+    - "&6Check out our website: nint22.dyndns.org"
+    - "&6Please consider donating: bit.ly/qVRfgc"
+    - "&6Please type /help for a list of commands"
+    - "&cWe are now an Roleplay server: level up for new commands!"
+    - "&2We are now on a bigger and faster computer AND connection!"
+    - "&2Enjoy this new quality server!"
+    - "&f-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+
+# Op groups
+# Note that groups should ALWAYS be numbered 0, 1, 2, ....
+groups:
+    
+    - id: 0
+      name: Beggar
+      pre: "&7Beggar"
+      commands:
+          - help
+          - motd
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - who
+          - home
+          - sethome
+          - spawn
+          - level
+          - exp
+          - ranks
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 0
+    
+    - id: 1
+      name: Slave
+      pre: "&8Slave"
+      commands:
+          - help
+          - motd
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - who
+          - kit
+          - god
+          - pvp
+          - ranks
+          - home
+          - sethome
+          - spawn
+          - level
+          - exp
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 50
+    
+    - id: 2
+      name: Citizen
+      pre: "&6Citizen"
+      commands:
+          - help
+          - motd
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - vote
+          - who
+          - kit
+          - clean
+          - cleanall
+          - god
+          - pvp
+          - list
+          - home
+          - sethome
+          - spawn
+          - lock
+          - ranks
+          - unlock
+          - level
+          - exp
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 500
+    
+    - id: 3
+      name: Soldier
+      pre: "&bSoldier"
+      commands:
+          - help
+          - ranks
+          - motd
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - vote
+          - who
+          - kit
+          - clean
+          - cleanall
+          - god
+          - pvp
+          - warp
+          - list
+          - home
+          - sethome
+          - spawn
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 2000
+    
+    - id: 4
+      name: Archer
+      pre: "&3Archer"
+      commands:
+          - help
+          - motd
+          - ranks
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - vote
+          - who
+          - kit
+          - clean
+          - cleanall
+          - god
+          - pvp
+          - warp
+          - list
+          - home
+          - sethome
+          - spawn
+          - top
+          - jump
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 10000
+    
+    - id: 5
+      name: Dragoon
+      pre: "&9Dragoon"
+      commands:
+          - help
+          - motd
+          - clear
+          - ranks
+          - where
+          - msg
+          - pm
+          - afk
+          - vote
+          - who
+          - kit
+          - clean
+          - cleanall
+          - god
+          - pvp
+          - warp
+          - list
+          - home
+          - sethome
+          - spawn
+          - top
+          - jump
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
+          - protectpvp
+          - protectlock
+          - protectinfo
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 30000
+    
+    - id: 6
+      name: Knight
+      pre: "&2Knight"
+      commands:
+          - help
+          - motd
+          - clear
+          - ranks
+          - where
+          - msg
+          - pm
+          - afk
+          - vote
+          - who
+          - kit
+          - clean
+          - cleanall
+          - god
+          - pvp
+          - say
+          - tp
+          - warp
+          - list
+          - setwarp
+          - home
+          - sethome
+          - spawn
+          - top
+          - jump
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
+          - protectpvp
+          - protectlock
+          - protectinfo
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 100000
+    
+    - id: 7
+      name: King
+      pre: "&aKing"
+      commands:
+          - help
+          - motd
+          - clear
+          - ranks
+          - where
+          - msg
+          - pm
+          - afk
+          - title
+          - kick
+          - vote
+          - vkick
+          - vban
+          - unkick
+          - who
+          - scout
+          - kit
+          - kit
+          - item
+          - i
+          - give
+          - clean
+          - cleanall
+          - god
+          - pvp
+          - say
+          - tp
+          - warp
+          - list
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - spawn
+          - top
+          - jump
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
+          - protectpvp
+          - protectlock
+          - protectinfo
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: false
+      build: true
+      worldedit: false
+      exp: 1000000
+    
+    - id: 8
+      name: Moderator
+      pre: "&cModerator"
+      commands:
+          - help
+          - motd
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - mute
+          - title
+          - kick
+          - ban
+          - vote
+          - vkick
+          - vban
+          - unban
+          - unkick
+          - who
+          - scout
+          - hide
+          - iclean
+          - mclean
+          - time
+          - weather
+          - kit
+          - item
+          - i
+          - give
+          - clean
+          - cleanall
+          - op
+          - god
+          - ranks
+          - pvp
+          - say
+          - tp
+          - warp
+          - list
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - spawn
+          - setspawn
+          - top
+          - jump
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
+          - protectpvp
+          - protectlock
+          - protectinfo
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: true
+      build: true
+      worldedit: false
+      superuser: true
+      
+    - id: 9
+      name: Co-Owner
+      pre: "&4Co-Owner"
+      commands:
+          - help
+          - motd
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - mute
+          - title
+          - ranks
+          - kick
+          - ban
+          - vote
+          - vkick
+          - vban
+          - unban
+          - unkick
+          - who
+          - scout
+          - hide
+          - iclean
+          - mclean
+          - mob
+          - time
+          - weather
+          - kit
+          - item
+          - i
+          - give
+          - clean
+          - cleanall
+          - op
+          - god
+          - pvp
+          - kill
+          - say
+          - tp
+          - warp
+          - list
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - spawn
+          - setspawn
+          - top
+          - jump
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
+          - protectpvp
+          - protectlock
+          - protectinfo
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: true
+      build: true
+      worldedit: true
+      superuser: true
+    
+    - id: 10
+      name: Owner
+      pre: "&4Owner"
+      commands:
+          - help
+          - motd
+          - clear
+          - where
+          - msg
+          - pm
+          - afk
+          - mute
+          - title
+          - kick
+          - ban
+          - vote
+          - vkick
+          - vban
+          - unban
+          - unkick
+          - who
+          - scout
+          - hide
+          - iclean
+          - mclean
+          - mob
+          - time
+          - weather
+          - kit
+          - item
+          - i
+          - give
+          - clean
+          - cleanall
+          - ranks
+          - op
+          - god
+          - pvp
+          - kill
+          - say
+          - tp
+          - warp
+          - list
+          - setwarp
+          - delwarp
+          - home
+          - sethome
+          - spawn
+          - setspawn
+          - top
+          - jump
+          - p1
+          - p2
+          - protect
+          - protectadd
+          - protectrem
+          - protectdel
+          - protectpvp
+          - protectlock
+          - protectinfo
+          - lock
+          - unlock
+          - level
+          - exp
+      banned_access: true
+      build: true
+      worldedit: true
+      superuser: true
+
+# Banned items (cannot create, place, or use)
+banned: 7, 8, 9, 10, 11, 46, 49, 51, 52, 90, 325, 326, 327, 342, 343, 328, 333, 79
+
+# Do users spawn in non-god mode by default?
+# If not declared, defaults to true
+defaultgod: false
+
+# Allow flow of lava
+lavaflows: false
+
+# Allow flow of water
+waterflows: true
+
+# Allow spread of fire
+fireflows: false
+
+# Allow TNT explosions; still allows creeper explosions
+allowTNT: false
+
+# Do we allow a compass-item based jump?
+compassjump: false
+
+# How often do we clean / save the server? (In minutes)
+reload: 15
+
+# Uncomment to enable:
+# Sets the world to that specific time of day
+# based on Minecraft's time system. Read more:
+# Must be between 0 and 24000; 0 is dawn and 12000 is dusk
+#permatime: 6000
+
+# Uncomment to enable:
+# Sets the number of minutes between every time
+# the statistical log is written to
+logdelay: 5
+
+# Minimum number of votes for a vote to pass
+minvotes: 3
+
+# Turn on or off local chat; defaults to false, meaining
+# all chat messages are sent globally to all players
+localchat: false
+
+# Enable RPG and economy features; if set to true all rpg
+# and economy code is enabled
+roleplay: true
+
+# A list of messages that are displayed after a certain number of seconds
+# Note that "delay" is time between messages and "start" is the initial wait period
+messages:
+    - message: "Consider donating, get [Owner] title! bit.ly/qVRfgc"
+      delay: 360
+      start: 0
+
+    - message: "Found a bug? Report it: bit.ly/nIzlEQ"
+      delay: 360
+      start: 120
+
+    - message: "Visit our official website: nint22.dyndns.org"
+      delay: 360
+      start: 240
+
+    - message: "&2We are now on a bigger and faster computer AND connection!"
+      delay: 120
+      start: 0
+
+# Kit items
+kit:
+    - 273 1
+    - 274 1
+    - 275 1
+
+# Max size of the world (width, length)
+size:
+    - 2048
+    - 2048

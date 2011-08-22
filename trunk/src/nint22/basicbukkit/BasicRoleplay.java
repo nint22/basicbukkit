@@ -38,7 +38,7 @@ public class BasicRoleplay
     private Configuration experianceSave;
     
     // Player experiance map
-    private HashMap<String, Integer> Experiance;
+    private HashMap<String, Long> Experiance;
     
     // Sign radius
     static double SignRadius = 32.0;
@@ -58,8 +58,15 @@ public class BasicRoleplay
         for(String key : experianceSave.getKeys())
         {
             // Get the user's experiance
-            int exp = experianceSave.getInt(key + ".experience", 0);
-            int level = experianceSave.getInt(key + ".level", 0);
+            long exp = 0;
+            String strExp = experianceSave.getString(key + ".experience");
+            try {
+                exp = Long.parseLong(strExp);
+            } catch (Exception e) {
+                exp = 0;
+            }
+            
+            //string level = experianceSave.getString(key + ".level", 0);
             
             // Create a sign and add it
             Experiance.put(key, exp);
@@ -91,10 +98,10 @@ public class BasicRoleplay
     }
     
     // Get players experiance points
-    public int GetExperiance(Player player)
+    public long GetExperiance(Player player)
     {
         // Add experiance into the hashmap
-        Integer experiance = Experiance.get(player.getName());
+        Long experiance = Experiance.get(player.getName());
         if(experiance == null)
             return 0;
         else
@@ -110,14 +117,20 @@ public class BasicRoleplay
     }
     
     // Add to a player's experiance
-    public void AddExperiance(Player player, int exp)
+    public void AddExperiance(Player player, long exp)
+    {
+        // Get current exp and the sum
+        long Total 
+    }
+
+    void SetExperiance(String UserName, long minExp)
     {
         // Can't add experiance if roleplay is not off
         if(plugin.configuration.getBoolean("roleplay", false) == false)
             return;
         
         // Get the new experiance
-        int experiance = GetExperiance(player) + exp;
+        long experiance = GetExperiance(player) + exp;
         int level = GetLevel(player);
         
         // Add experiance into the hashmap
@@ -127,7 +140,7 @@ public class BasicRoleplay
         for(String group : plugin.users.GetGroupNames())
         {
             // Is this user at a higher level of experiance?
-            int minExp = plugin.users.GetGroupExp(group);
+            long minExp = plugin.users.GetGroupExp(group);
             int gid = plugin.users.GetGroupIDByGroup(group);
             if(experiance >= minExp && level < gid)
             {
@@ -136,14 +149,5 @@ public class BasicRoleplay
                 break;
             }
         }
-        
-        // Add cash based on level AND experiance
-        //plugin.economy.GiveMoney(player, exp * (level.intValue() + 1));
-    }
-
-    void SetExperiance(String UserName, int minExp)
-    {
-        // Add experiance into the hashmap
-        Experiance.put(UserName, minExp);
     }
 }

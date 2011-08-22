@@ -70,7 +70,7 @@ commands:
         description: Removes all mobs in the world
         usage: /mclean
     mob:
-        description: Generates a mob (animal or monster) or a group of up to 8 mobs
+        description: Generates a mob (animal or monster) or a group of up to 16 mobs
         usage: /mob <mob name> [count]
     
     time:
@@ -194,4 +194,13 @@ commands:
     ranks:
         description: Lists all ranks and required experiance points
         usage: /ranks
+    addexp:
+        description: Give the target player the given experience amount
+        usage: /addexp <player name> <experience amount>
+    remexp:
+        description: Remove the given experience amount from the target player
+        usage: /remexp <player name> <experience amount>
+    setexp:
+        description: Set the target player's experiance amount
+        usage: /setexp <player name> <experience amount>
     

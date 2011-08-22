@@ -37,7 +37,6 @@ class Lock
     }
 }
 
-
 // Global locking system for items
 public class BasicLocks
 {
@@ -197,7 +196,7 @@ public class BasicLocks
             {
                 player.sendMessage(ChatColor.GRAY + "This is not locked");
             }
-            else if(lock.owner.equals(player.getName()))
+            else if(lock.owner.equals(player.getName()) || plugin.users.IsSuperuser(player))
             {
                 // Unlock source
                 lockedObjects.remove(hashKey);

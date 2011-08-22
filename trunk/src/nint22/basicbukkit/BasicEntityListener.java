@@ -55,6 +55,14 @@ public class BasicEntityListener extends EntityListener
         // Only supress TNT
         if(!(event.getEntity() instanceof Creeper))
             event.setCancelled(!AllowTNT);
+        
+        // Supress explosions in protected areas
+        if(event.getEntity() instanceof Creeper)
+        {
+            String name = plugin.protections.GetProtectionName(event.getEntity().getLocation());
+            if(name != null)
+                event.setCancelled(true);
+        }
     }
     
     // Disable explosion if needed
@@ -64,6 +72,14 @@ public class BasicEntityListener extends EntityListener
         // Only supress TNT
         if(!(event.getEntity() instanceof Creeper))
             event.setCancelled(!AllowTNT);
+        
+        // Supress explosions in protected areas
+        if(event.getEntity() instanceof Creeper)
+        {
+            String name = plugin.protections.GetProtectionName(event.getEntity().getLocation());
+            if(name != null)
+                event.setCancelled(true);
+        }
     }
     
     // If a player gets damage, only apply it if god mode is off

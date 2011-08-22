@@ -322,7 +322,7 @@ public class BasicWorldCommands implements CommandExecutor
                 for(int i = 0; i < MobNames.length; i++)
                 {
                     // Check for match
-                    if(MobNames[i].equalsIgnoreCase(args[0]))
+                    if(MobNames[i].toLowerCase().startsWith(args[0].toLowerCase()))
                     {
                         // Generate and return
                         for(int j = 0; j < Count; j++)
