@@ -353,13 +353,15 @@ public class BasicPlayerListener extends PlayerListener
             if(owner != null)
             {
                 // If not the owner, cancel event
-                if(!owner.equals(event.getPlayer().getName()))
+                if(owner.equals(event.getPlayer().getName()) || plugin.users.IsSuperuser(event.getPlayer()))
+                {
+                    plugin.SendMessage(event.getPlayer(), ChatColor.GRAY + "You have opened or used a locked item of yours");
+                }
+                else
                 {
                     event.setCancelled(true);
                     plugin.SendMessage(event.getPlayer(), ChatColor.GRAY + "You cannot open or use this item; the owner is \"" + owner + "\"");
                 }
-                else
-                    plugin.SendMessage(event.getPlayer(), ChatColor.GRAY + "You have opened or used a locked item of yours");
             }
         }
         

@@ -146,7 +146,7 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         PluginManager pm = getServer().getPluginManager();
         
         // Force load the roleplay file so at least it exists
-        loadFile("config_roleplay.yml");
+        loadFile("config_sample_rpg.yml");
         
         // Load config file
         configuration = new Configuration(loadFile("config.yml"));
@@ -304,6 +304,9 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
             getCommand("level").setExecutor(Roleplay);                          // Done
             getCommand("exp").setExecutor(Roleplay);                            // Done
             getCommand("ranks").setExecutor(Roleplay);                          // Done
+            getCommand("addexp").setExecutor(Roleplay);                         // Done
+            getCommand("remexp").setExecutor(Roleplay);                         // Done
+            getCommand("setexp").setExecutor(Roleplay);                         // Done
         }
         
         // Turn off spawn protection
@@ -407,25 +410,25 @@ public class BasicBukkit extends JavaPlugin implements PermissionsProvider
         if(MessageTime.containsKey(key))
         {
             // Check the time - are we up yet?
-            Long epochTime = (Long)MessageTime.get(key);
-            if(epochTime.longValue() <= epochNow)
+            Long epochTime = MessageTime.get(key);
+            if(epochNow > epochTime.longValue())
             {
-                // Delete this key
+                // Delete this key and add new message
                 MessageTime.remove(key);
+                MessageTime.put(key, new Long(epochNow + 3));
                 canSend = true;
             }
         }
         else
         {
-            canSend = true;
+            // Send message
             MessageTime.put(key, new Long(epochNow + 3));
+            canSend = true;
         }
         
         // If we can send it, send it, AND save it as a new message event
         if(canSend)
-        {
             player.sendMessage(message);
-        }
     }
     
     // Special function to verify outgoing chat messages:

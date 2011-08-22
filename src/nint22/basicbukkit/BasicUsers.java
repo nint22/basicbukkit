@@ -47,7 +47,8 @@ public class BasicUsers
     private LinkedList<Boolean> GroupBannedItems;   // True if this group can access banned items
     private LinkedList<Boolean> GroupCanBuild;      // Can this group build? (i.e. break and place?)
     private LinkedList<Boolean> GroupCanWorldEdit;  // Group can use the world edit plugin
-    private LinkedList<Integer> GroupExp;           // The minimum number of experiance for this group
+    private LinkedList<Long> GroupExp;              // The minimum number of experiance for this group
+    private LinkedList<Boolean> GroupSuperuser;     // Super userss flag; defaults to false
     
     // All kicked users time (unix time)
     // The unix epoch time when a user can join back
@@ -92,6 +93,7 @@ public class BasicUsers
         GroupCanBuild = new LinkedList();
         GroupCanWorldEdit = new LinkedList();
         GroupExp = new LinkedList();
+        GroupSuperuser = new LinkedList();
         
         // Create new hash map
         KickedTimes = new HashMap();
@@ -118,10 +120,17 @@ public class BasicUsers
             Boolean BannedItems = (Boolean)GroupData.get("banned_access");
             Boolean CanBuild = (Boolean)GroupData.get("build");
             Boolean CanWorldEdit = (Boolean)GroupData.get("worldedit"); 
+            Boolean SuperUser = (Boolean)GroupData.get("superuser");
+            if(SuperUser == null)
+                SuperUser = false;
             
-            Integer MinExperiance = (Integer)GroupData.get("exp");
-            if(MinExperiance == null)
-                MinExperiance = new Integer(-1);
+            Long MinExperiance = null;
+            if(GroupData.get("exp") instanceof Integer)
+                MinExperiance = new Long(((Integer)GroupData.get("exp")).longValue());
+            else if(GroupData.get("exp") instanceof Long)
+                MinExperiance = new Long((Long)GroupData.get("exp"));
+            else
+                MinExperiance = new Long(-1);
             
             // Convert to string data (commands)
             String[] TempCommands = new String[Commands.size()];
@@ -137,9 +146,10 @@ public class BasicUsers
             GroupCanBuild.add(CanBuild);
             GroupCanWorldEdit.add(CanWorldEdit);
             GroupExp.add(MinExperiance);
+            GroupSuperuser.add(SuperUser);
         }
         
-        // For each user?
+        // For each user...
         for(String key : users.getKeys())
         {
             // Player name is key
@@ -225,7 +235,7 @@ public class BasicUsers
             if(plugin.configuration.getBoolean("roleplay", false))
             {
                 String groupName = plugin.users.GetGroupName(UserName);
-                int minExp = plugin.users.GetGroupExp(groupName);
+                long minExp = plugin.users.GetGroupExp(groupName);
                 plugin.roleplay.SetExperiance(UserName, minExp);
             }
             
@@ -564,7 +574,7 @@ public class BasicUsers
     public void SetGod(String name, boolean newState)
     {
         // Just save and overwrite
-        GodMode.put(name, new Boolean(newState));
+        GodMode.put(name, newState);
     }
     
     // Get AFK mode
@@ -584,7 +594,7 @@ public class BasicUsers
     public void SetAFK(String name, boolean isAFK)
     {
         // Just save and overwrite
-        AFKMode.put(name, new Boolean(isAFK));
+        AFKMode.put(name, isAFK);
         
         // Update title
         Player player = plugin.getServer().getPlayer(name);
@@ -623,32 +633,32 @@ public class BasicUsers
     public boolean CanBuild(String userName)
     {
         // Get user's group
-        int GroupID = GetGroupID(userName);
-        if(GroupID < 0)
+        int UserGroupID = GetGroupID(userName);
+        if(UserGroupID < 0)
             return false;
         
         // Get group's build status
-        return GroupCanBuild.get(GroupID).booleanValue();
+        return GroupCanBuild.get(UserGroupID).booleanValue();
     }
 
     // Can use world edit
     public boolean CanWorldEdit(String userName)
     {
         // Get user's group
-        int GroupID = GetGroupID(userName);
-        if(GroupID < 0)
+        int UserGroupID = GetGroupID(userName);
+        if(UserGroupID < 0)
             return false;
         
         // Get group's build status
-        return GroupCanWorldEdit.get(GroupID).booleanValue();
+        return GroupCanWorldEdit.get(UserGroupID).booleanValue();
     }
     
-    public Integer GetGroupExp(String groupName)
+    public Long GetGroupExp(String groupName)
     {
         // Get group index
         int index = GroupName.indexOf(groupName);
         if(index < 0)
-            return -1;
+            return new Long(-1);
         else
             return GroupExp.get(index);
     }
@@ -737,5 +747,17 @@ public class BasicUsers
         }
         
         // Done with function
+    }
+    
+    // Return true if the given user is a super user
+    public boolean IsSuperuser(Player player)
+    {
+        // Get user's group
+        int UserGroupID = GetGroupID(player.getName());
+        if(UserGroupID < 0)
+            return false;
+        
+        // Get group's super user status
+        return GroupSuperuser.get(UserGroupID).booleanValue();
     }
 }

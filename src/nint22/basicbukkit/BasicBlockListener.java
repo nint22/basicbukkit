@@ -51,33 +51,41 @@ public class BasicBlockListener extends BlockListener
         // Can the player place this block?
         Player player = event.getPlayer();
         int BlockID = event.getBlock().getTypeId();
-        
-        // Can this user build?
-        if(!plugin.users.CanBuild(player.getName()))
+        if(player != null)
         {
-            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
-            event.setCancelled(true);
-            return;
+            // Can this user build?
+            if(!plugin.users.CanBuild(player.getName()))
+            {
+                plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") does not have build permissions.");
+                event.setCancelled(true);
+                return;
+            }
+            
+            // If we cannot place banned items...
+            // Note that slabs create block ID 0 before going double slab
+            if(BlockID != 0 && !plugin.users.CanUseItem(BlockID, player.getName()))
+            {
+                plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
+                event.setCancelled(true);
+                return;
+            }
+            
+            /*** Protection Check ***/
+            
+            boolean CanChange = CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event);
+            if(plugin.users.IsSuperuser(player))
+                CanChange = true;
+            event.setCancelled(!CanChange);
+            
+            /*** Kingdom Check ***/
+            
+            // Add experiance regardless
+            if(CanChange)
+            {
+                int Exp = 3;
+                plugin.roleplay.AddExperiance(event.getPlayer(), Exp);
+            }
         }
-        
-        // If we cannot place banned items...
-        // Note that slabs create block ID 0 before going double slab
-        if(BlockID != 0 && !plugin.users.CanUseItem(BlockID, player.getName()))
-        {
-            plugin.SendMessage(player, ChatColor.RED + "Your group (GID " + plugin.users.GetGroupID(player.getName()) + ", " + plugin.users.GetGroupName(player.getName()) + ") cannot place banned blocks.");
-            event.setCancelled(true);
-            return;
-        }
-        
-        /*** Protection Check ***/
-        
-        event.setCancelled(!CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event));
-        
-        /*** Kingdom Check ***/
-        
-        // Add experiance regardless
-        int Exp = (int)Math.max(1.0, ((double)(event.getBlock().getType().getId()) / 128.0) * 10.0);
-        plugin.roleplay.AddExperiance(event.getPlayer(), Exp);
     }
     
     // Did break?
@@ -96,17 +104,23 @@ public class BasicBlockListener extends BlockListener
                 event.setCancelled(true);
                 return;
             }
+            
+            /*** Protection Check ***/
+            
+            boolean CanChange = CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event);
+            if(plugin.users.IsSuperuser(player))
+                CanChange = true;
+            event.setCancelled(!CanChange);
+            
+            /*** Kingdom Check ***/
+            
+            // Add experiance if we can place
+            if(CanChange)
+            {
+                int Exp = 1;
+                plugin.roleplay.AddExperiance(event.getPlayer(), Exp);
+            }
         }
-        
-        /*** Protection Check ***/
-        
-        event.setCancelled(!CheckProtection(event.getPlayer(), event.getBlock().getLocation(), event));
-        
-        /*** Kingdom Check ***/
-        
-        // Add experiance regardless
-        int Exp = (int)Math.max(1.0, ((double)(event.getBlock().getType().getId()) / 128.0) * 10.0);
-        plugin.roleplay.AddExperiance(event.getPlayer(), Exp);
     }
     
     // Does spread?
